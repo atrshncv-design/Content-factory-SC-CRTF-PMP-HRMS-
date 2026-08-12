@@ -1,3 +1,8 @@
+---
+name: json-builder
+description: Субагент-JSON-сборщик контент-завода: собирает валидный JSON для POST /api/link_to_videos (creatify).
+---
+
 # Skill: JSON Builder (Субагент-JSON-сборщик)
 
 > Запускается оркестратором через `delegate_task`. Изолированный контекст.
