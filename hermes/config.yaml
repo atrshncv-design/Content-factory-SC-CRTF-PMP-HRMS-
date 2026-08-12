@@ -1,0 +1,93 @@
+# =============================================================================
+#  Hermes Agent config — контент-завод
+#  Спека 10. ⚠️ ФАКТИЧЕСКИЕ значения подтверждаются spike'ом T-030.
+#  Документация: https://hermes-agent.nousresearch.com/docs/user-guide/configuration
+# =============================================================================
+
+# ─────────────────────── LLM-провайдер (opencode zen → deepseek) ───────────────────────
+model:
+  provider: openai                              # любой OpenAI-compatible
+  model: ${LLM_MODEL}                           # deepseek-v4-flash-free
+  base_url: ${LLM_BASE_URL}                     # URL провайдера opencode zen
+  api_key_env: LLM_API_KEY                      # имя env-переменной с ключом
+
+# Дешёвая auxiliary-модель для фоновых задач (если opencode zen даёт — исп. её;
+# иначе fallback на ту же)
+auxiliary:
+  vision:
+    provider: openai
+    model: ${LLM_MODEL}
+    base_url: ${LLM_BASE_URL}
+    api_key_env: LLM_API_KEY
+  compression:
+    provider: openai
+    model: ${LLM_MODEL}
+    base_url: ${LLM_BASE_URL}
+    api_key_env: LLM_API_KEY
+
+# ─────────────────────── Поведение агента ───────────────────────
+agent:
+  max_turns: 500                                # лимит итераций в цикле
+  reasoning_effort: medium                      # none|minimal|low|medium|high|xhigh|max|ultra
+
+compression:
+  threshold: 0.50                               # сжимать контекст при 50% заполнения
+
+# ─────────────────────── Субагенты (delegate_task) ───────────────────────
+delegation:
+  orchestrator_enabled: true                    # оркестратор может плодить детей
+  max_spawn_depth: 2                            # оркестратор → субагенты (не глубже)
+  max_concurrent_children: 3                    # параллельно
+
+# ─────────────────────── Память ───────────────────────
+memory:
+  memory_enabled: true                          # MEMORY.md
+  user_profile_enabled: true                    # USER.md
+  char_limit: 2200
+  user_char_limit: 1375
+  write_approval: false                         # авто-запись без подтверждения
+
+# ─────────────────────── Тулсеты ───────────────────────
+# Включаем только нужное (минимум surface area = безопасность + скорость)
+# Полный список: web, search, x_search, terminal, file, browser, vision,
+#   image_gen, skills, tts, todo, memory, session_search, cronjob,
+#   code_execution, delegation, clarify, debugging, safe, messaging, hermes-telegram
+enabled_toolsets:
+  - hermes-telegram                             # TG-бот (нативный)
+  - delegation                                  # субагенты
+  - memory                                      # MEMORY.md / USER.md
+  - skills                                      # наши промпты из skills/
+  - todo                                        # чек-листы в промпте
+  - cronjob                                     # утренний цикл
+  # terminal — включить если fallback-режим (curl к n8n webhooks)
+  # - terminal
+
+# ─────────────────────── Telegram (нативный тулсет) ───────────────────────
+platforms:
+  telegram:
+    enabled: true
+    token_env: TELEGRAM_BOT_TOKEN
+    allowed_users:                              # whitelist (TELEGRAM_ALLOWED_USER_IDS)
+      - 941296693
+    # Лимиты TG: 100 slash commands, описания skills трункуются до 40 символов
+
+# ─────────────────────── MCP-серверы (мост к n8n) ───────────────────────
+# Спека 10, раздел 7. Hermes вызывает n8n-воркфлоу как инструменты.
+# ⚠️ Зависит от T-035 (mcp-bridge). До него — закомментировано.
+#
+# mcp_servers:
+#   factory_n8n:
+#     command: "node"
+#     args: ["/hermes-home/mcp-bridge.js"]
+#     env:
+#       N8N_API_KEY: "${N8N_API_KEY}"
+#       N8N_HOST: "http://n8n:5678"
+
+# ─────────────────────── API Server (для вызовов из n8n) ───────────────────────
+# Поднимается командой `hermes gateway` (уточнить на spike T-030).
+# Порт 8642, авторизация Bearer ${API_SERVER_KEY} (в env контейнера).
+# Заголовок X-Hermes-Session-Key — для multi-user memory scope.
+
+# ─────────────────────── Безопасность ───────────────────────
+# Ключи LLM-провайдеров — в ~/.hermes/.env (chmod 600), redaction в ошибках MCP.
+# API_SERVER_KEY — в env контейнера (docker-compose).

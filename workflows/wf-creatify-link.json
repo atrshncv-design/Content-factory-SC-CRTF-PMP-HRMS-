@@ -1,0 +1,139 @@
+{
+  "id": "20000000-0000-4000-8000-00000000000b",
+  "name": "wf-creatify-link",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "factory/creatify-link",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "aaaaaaaa-1111-2222-3333-444444444451",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-360, 0],
+      "webhookId": "gggggggg-1111-2222-3333-444444444451"
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $env.CREATIFY_API_ID }}",
+                    "rightValue": "PLACEHOLDER_UNTIL_TOMORROW",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bbbbbbbb-1111-2222-3333-444444444451",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [-140, 0]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "function uuid(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16)})}\nreturn [{ json: { id: uuid(), status: 'ok', mock: true } }];"
+      },
+      "id": "cccccccc-1111-2222-3333-444444444451",
+      "name": "Code mock",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [80, -120]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.creatify.ai/api/links/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpMultipleHeadersAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\"url\":\"={{ $json.body.url }}\"}",
+        "options": {}
+      },
+      "id": "dddddddd-1111-2222-3333-444444444451",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [80, 120],
+      "credentials": {
+        "httpMultipleHeadersAuth": {
+          "id": "10000000-0000-4000-8000-000000000002",
+          "name": "creatify"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const link_id = $json.id;\nreturn [{ json: { link_id: link_id, raw: $json } }];"
+      },
+      "id": "eeeeeeee-1111-2222-3333-444444444451",
+      "name": "Code assemble",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [300, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "ffffffff-1111-2222-3333-444444444451",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [520, 0]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Switch", "type": "main", "index": 0 }]]
+    },
+    "Switch": {
+      "main": [
+        [{ "node": "Code mock", "type": "main", "index": 0 }],
+        [{ "node": "HTTP Request", "type": "main", "index": 0 }]
+      ]
+    },
+    "Code mock": {
+      "main": [[{ "node": "Code assemble", "type": "main", "index": 0 }]]
+    },
+    "HTTP Request": {
+      "main": [[{ "node": "Code assemble", "type": "main", "index": 0 }]]
+    },
+    "Code assemble": {
+      "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "active": false,
+  "pinData": {},
+  "meta": { "templateCredsSetupCompleted": true }
+}

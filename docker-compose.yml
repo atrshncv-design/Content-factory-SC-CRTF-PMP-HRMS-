@@ -1,0 +1,92 @@
+# =============================================================================
+#  КОНТЕНТ-ЗАВОД — docker-compose
+#  Спека 00 (архитектура) + спека 10 (Hermes runtime).
+#  Запуск: docker compose up -d
+# =============================================================================
+
+services:
+  # ─────────────────────────── n8n — «руки» ───────────────────────────
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: factory-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"            # за reverse-proxy; в проде только localhost
+    env_file: .env
+    environment:
+      - N8N_HOST=${N8N_HOST}
+      - N8N_PORT=${N8N_PORT}
+      - N8N_PROTOCOL=${N8N_PROTOCOL}
+      - WEBHOOK_URL=${WEBHOOK_URL}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - GENERIC_TIMEZONE=${TZ}
+      - SQLITE_PATH=/var/data/n8n.sqlite   # внутренняя БД n8n (не factory.db!)
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_SECURE_COOKIE=false            # за Caddy; на проде пересмотреть
+    volumes:
+      - n8n-data:/home/node/.n8n
+      - ./data:/var/data                   # factory.db + бэкапы
+      - ./media:/var/media                 # MP4
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5678/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ─────────────────────── Hermes — «мозг» (спека 10) ───────────────────
+  # ⚠️ Образ собирается из клона hermes-agent + наш config.yaml.
+  # T-030 (spike) должен подтвердить команду запуска и порт.
+  hermes:
+    build:
+      context: ./hermes
+      dockerfile: Dockerfile
+    container_name: factory-hermes
+    restart: unless-stopped
+    ports:
+      - "8642:8642"            # OpenAI-compatible API; в проде только localhost
+    env_file: .env
+    environment:
+      - HERMES_HOME=/hermes-home
+      - API_SERVER_KEY=${API_SERVER_KEY}
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_BASE_URL=${LLM_BASE_URL}
+      - LLM_MODEL=${LLM_MODEL}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TZ=${TZ}
+    volumes:
+      - hermes-data:/hermes-home
+      - ./hermes/config.yaml:/hermes-home/config.yaml:ro
+      - ./hermes/skills:/hermes-home/skills:ro
+      - ./data:/var/data                     # read-write к factory.db
+      - ./media:/var/media
+    depends_on:
+      - n8n
+    healthcheck:
+      # Уточнить после spike (T-030): /health или /v1/models
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8642/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ───────────────────────── Caddy — reverse-proxy ─────────────────────
+  caddy:
+    image: caddy:2
+    container_name: factory-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+      - ./media:/var/media:ro                # раздача MP4 для postmypost
+    depends_on:
+      - n8n
+      - hermes
+
+volumes:
+  n8n-data:
+  hermes-data:
+  caddy-data:
+  caddy-config:
