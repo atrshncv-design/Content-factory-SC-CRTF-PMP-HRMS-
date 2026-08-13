@@ -12,7 +12,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 HERMES_BIN = "/home/ubuntu/hermes-agent/.venv/bin/hermes"
 HERMES_HOME = "/home/ubuntu/.hermes"
-ALLOWED_SKILLS = {"analyst", "scriptwriter", "json-builder", "onboarding"}
+ALLOWED_SKILLS = {"analyst", "scriptwriter", "json-builder", "onboarding", "caption-adapter"}
 TOKEN = os.environ.get("HERMES_BRIDGE_TOKEN", "")
 
 
@@ -67,6 +67,9 @@ class Handler(BaseHTTPRequestHandler):
                 HERMES_BIN, "chat", "-q", prompt, "--cli", "-Q",
                 "-s", "content-factory/" + skill,
             ]
+            if skill == "caption-adapter":
+                # free-text output: suppress reasoning block noise
+                cmd += ["--reasoning", "none"]
             proc = subprocess.run(
                 cmd, capture_output=True, text=True, timeout=300, env=env
             )

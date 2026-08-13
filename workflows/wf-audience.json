@@ -1,0 +1,239 @@
+{
+  "updatedAt": "2026-08-13T11:09:15.482Z",
+  "createdAt": "2026-08-13T11:09:15.482Z",
+  "id": "20000000-0000-4000-8000-000000000017",
+  "name": "wf-audience",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "factory/audience",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "aaaaaaaa-1111-2222-3333-555555555551",
+      "name": "audience-webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -460,
+        0
+      ],
+      "webhookId": "gggggggg-1111-2222-3333-555555555551"
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ ($json.body && $json.body.platform) || $json.platform }}",
+                    "rightValue": "tiktok",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "bbbbbbbb-1111-2222-3333-555555555551",
+      "name": "Switch platform",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.scrapecreators.com/v1/tiktok/user/audience",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "handle",
+              "value": "={{ ($json.body && $json.body.handle) || $json.handle }}"
+            }
+          ]
+        },
+        "options": {
+          "retryOnFail": true,
+          "maxTries": 3,
+          "timeout": 30000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "10000000-0000-4000-8000-000000000001",
+          "name": "scrapecreators"
+        }
+      },
+      "id": "cccccccc-1111-2222-3333-555555555551",
+      "name": "HTTP TikTok Audience",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -60,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const wb = $('audience-webhook').first().json;\nconst b = (wb && wb.body) || wb || {};\nconst platform = b.platform || wb.platform || null;\nconst handle = b.handle || wb.handle || null;\nconst raw = $json;\n\nconst pct = (s) => {\n  const n = parseFloat(String(s == null ? '' : s).replace('%', ''));\n  return Number.isFinite(n) ? n : 0;\n};\n\nif (!raw || raw.success === false) {\n  return [{ json: { ok: false, error: 'api_error', message: (raw && raw.message) || 'scrapecreators API error' } }];\n}\n\nconst top_countries = Array.isArray(raw.audienceLocations)\n  ? raw.audienceLocations.map((l) => ({ country: l.country, percent: pct(l.percentage) }))\n  : [];\n\nreturn [{\n  json: {\n    ok: true,\n    audience: {\n      platform: platform,\n      handle: handle,\n      gender: [],\n      age_ranges: [],\n      top_countries: top_countries\n    }\n  }\n}];"
+      },
+      "id": "dddddddd-1111-2222-3333-555555555551",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        140,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "12345678-1111-2222-3333-555555555551",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        340,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"ok\":false,\"error\":\"unsupported platform: audience data available only for tiktok\"}",
+        "options": {}
+      },
+      "id": "12345678-1111-2222-3333-555555555552",
+      "name": "Error Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -60,
+        320
+      ]
+    }
+  ],
+  "connections": {
+    "audience-webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch platform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch platform": {
+      "main": [
+        [
+          {
+            "node": "HTTP TikTok Audience",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP TikTok Audience": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {},
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "8f431a5f-64da-4ed2-8ba6-b48a8ab4bd73",
+  "activeVersionId": "8f431a5f-64da-4ed2-8ba6-b48a8ab4bd73",
+  "versionCounter": 1,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-08-13T11:09:15.486Z",
+      "createdAt": "2026-08-13T11:09:15.486Z",
+      "role": "workflow:owner",
+      "workflowId": "20000000-0000-4000-8000-000000000017",
+      "projectId": "M9eH49D0HafLr8AX",
+      "project": {
+        "updatedAt": "2026-08-11T13:27:47.312Z",
+        "createdAt": "2026-08-11T12:45:09.939Z",
+        "id": "M9eH49D0HafLr8AX",
+        "name": "Factory Owner <owner@factory.local>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

@@ -1,0 +1,527 @@
+{
+  "id": "20000000-0000-4000-8000-000000000014",
+  "name": "wf-creator-content",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "factory/creator-content",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "c3a00000-0000-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -400,
+        0
+      ],
+      "webhookId": "6f986189-3c10-45e2-993f-ae0e7ad999f4"
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ ($json.body && $json.body.platform) || $json.platform }}",
+                    "rightValue": "instagram",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ ($json.body && $json.body.platform) || $json.platform }}",
+                    "rightValue": "tiktok",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ ($json.body && $json.body.platform) || $json.platform }}",
+                    "rightValue": "youtube",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ ($json.body && $json.body.platform) || $json.platform }}",
+                    "rightValue": "twitter",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "c3a00000-0000-4000-8000-000000000002",
+      "name": "Switch platform",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.scrapecreators.com/v1/instagram/user/reels",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "handle",
+              "value": "={{ ($json.body && $json.body.handle) || $json.handle }}"
+            },
+            {
+              "name": "trim",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "10000000-0000-4000-8000-000000000001",
+          "name": "scrapecreators"
+        }
+      },
+      "id": "c3a00000-0000-4000-8000-000000000010",
+      "name": "HTTP IG",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.scrapecreators.com/v3/tiktok/profile/videos",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "handle",
+              "value": "={{ ($json.body && $json.body.handle) || $json.handle }}"
+            },
+            {
+              "name": "trim",
+              "value": "true"
+            },
+            {
+              "name": "region",
+              "value": "US"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "10000000-0000-4000-8000-000000000001",
+          "name": "scrapecreators"
+        }
+      },
+      "id": "c3a00000-0000-4000-8000-000000000011",
+      "name": "HTTP TikTok",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.scrapecreators.com/v1/youtube/channel-videos",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "handle",
+              "value": "={{ ($json.body && $json.body.handle) || $json.handle }}"
+            },
+            {
+              "name": "includeExtras",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "10000000-0000-4000-8000-000000000001",
+          "name": "scrapecreators"
+        }
+      },
+      "id": "c3a00000-0000-4000-8000-000000000012",
+      "name": "HTTP YouTube",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.scrapecreators.com/v1/twitter/user-tweets",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "handle",
+              "value": "={{ ($json.body && $json.body.handle) || $json.handle }}"
+            },
+            {
+              "name": "trim",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "10000000-0000-4000-8000-000000000001",
+          "name": "scrapecreators"
+        }
+      },
+      "id": "c3a00000-0000-4000-8000-000000000013",
+      "name": "HTTP Twitter",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const wb = $('Webhook').first().json;\nconst body = (wb.body && typeof wb.body === 'object') ? wb.body : wb;\nconst handle = String(body.handle || '');\nlet lim = parseInt(body.limit, 10);\nif (isNaN(lim) || lim < 1) lim = 10;\nconst limit = Math.min(lim, 50);\nconst num = (v) => { const n = Number(v); return (isNaN(n) || v === null || v === undefined) ? 0 : n; };\nconst iso = (t) => {\n  if (t === undefined || t === null || t === '') return null;\n  const n = typeof t === 'number' ? t * 1000 : Date.parse(t);\n  return isNaN(n) ? null : new Date(n).toISOString();\n};\nconst resp = $input.first().json;\n\nconst raw = (resp && Array.isArray(resp.items)) ? resp.items : [];\nconst posts = raw.map((it) => {\n  const cap = (it.caption && typeof it.caption === 'object') ? (it.caption.text || '') : (it.caption || '');\n  return {\n    id: String(it.id || it.code || ''),\n    url: it.url || (it.code ? 'https://www.instagram.com/reel/' + it.code + '/' : ''),\n    views: num(it.play_count),\n    likes: num(it.like_count),\n    comments: num(it.comment_count),\n    shares: 0,\n    posted_at: iso(it.taken_at),\n    thumb_url: it.display_uri || null,\n    duration: null\n  };\n}).filter((p) => p.id !== '');\nposts.forEach((p) => {\n  p.er = p.views > 0 ? Math.round(((p.likes + p.comments * 3 + p.shares * 5) / p.views) * 10000) / 10000 : 0;\n});\nposts.sort((a, b) => b.er - a.er);\nconst top = posts.slice(0, limit);\nreturn [{ json: { ok: true, count: top.length, platform: 'instagram', handle: handle, posts: top } }];\n"
+      },
+      "id": "c3a00000-0000-4000-8000-000000000020",
+      "name": "Normalize IG",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const wb = $('Webhook').first().json;\nconst body = (wb.body && typeof wb.body === 'object') ? wb.body : wb;\nconst handle = String(body.handle || '');\nlet lim = parseInt(body.limit, 10);\nif (isNaN(lim) || lim < 1) lim = 10;\nconst limit = Math.min(lim, 50);\nconst num = (v) => { const n = Number(v); return (isNaN(n) || v === null || v === undefined) ? 0 : n; };\nconst iso = (t) => {\n  if (t === undefined || t === null || t === '') return null;\n  const n = typeof t === 'number' ? t * 1000 : Date.parse(t);\n  return isNaN(n) ? null : new Date(n).toISOString();\n};\nconst resp = $input.first().json;\n\nconst raw = (resp && Array.isArray(resp.aweme_list)) ? resp.aweme_list : [];\nconst posts = raw.map((it) => {\n  const st = it.statistics || {};\n  const cover = (it.video && it.video.cover) || null;\n  return {\n    id: String(it.aweme_id || ''),\n    url: it.url || '',\n    views: num(st.play_count),\n    likes: num(st.digg_count),\n    comments: num(st.comment_count),\n    shares: num(st.share_count),\n    posted_at: iso(it.create_time),\n    thumb_url: (cover && Array.isArray(cover.url_list) && cover.url_list[0]) || (cover && cover.url) || null,\n    duration: (it.video && it.video.duration) ? Math.round(it.video.duration / 1000) : null\n  };\n}).filter((p) => p.id !== '');\nposts.forEach((p) => {\n  p.er = p.views > 0 ? Math.round(((p.likes + p.comments * 3 + p.shares * 5) / p.views) * 10000) / 10000 : 0;\n});\nposts.sort((a, b) => b.er - a.er);\nconst top = posts.slice(0, limit);\nreturn [{ json: { ok: true, count: top.length, platform: 'tiktok', handle: handle, posts: top } }];\n"
+      },
+      "id": "c3a00000-0000-4000-8000-000000000021",
+      "name": "Normalize TikTok",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const wb = $('Webhook').first().json;\nconst body = (wb.body && typeof wb.body === 'object') ? wb.body : wb;\nconst handle = String(body.handle || '');\nlet lim = parseInt(body.limit, 10);\nif (isNaN(lim) || lim < 1) lim = 10;\nconst limit = Math.min(lim, 50);\nconst num = (v) => { const n = Number(v); return (isNaN(n) || v === null || v === undefined) ? 0 : n; };\nconst iso = (t) => {\n  if (t === undefined || t === null || t === '') return null;\n  const n = typeof t === 'number' ? t * 1000 : Date.parse(t);\n  return isNaN(n) ? null : new Date(n).toISOString();\n};\nconst resp = $input.first().json;\n\nconst raw = (resp && Array.isArray(resp.videos)) ? resp.videos : [];\nconst posts = raw.map((it) => ({\n  id: String(it.id || ''),\n  url: it.url || '',\n  views: num(it.viewCountInt),\n  likes: num(it.likeCountInt),\n  comments: num(it.commentCountInt),\n  shares: 0,\n  posted_at: iso(it.publishedTime || it.publishDate),\n  thumb_url: it.thumbnail || null,\n  duration: it.lengthSeconds ? num(it.lengthSeconds) : null\n})).filter((p) => p.id !== '');\nposts.forEach((p) => {\n  p.er = p.views > 0 ? Math.round(((p.likes + p.comments * 3 + p.shares * 5) / p.views) * 10000) / 10000 : 0;\n});\nposts.sort((a, b) => b.er - a.er);\nconst top = posts.slice(0, limit);\nreturn [{ json: { ok: true, count: top.length, platform: 'youtube', handle: handle, posts: top } }];\n"
+      },
+      "id": "c3a00000-0000-4000-8000-000000000022",
+      "name": "Normalize YouTube",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const wb = $('Webhook').first().json;\nconst body = (wb.body && typeof wb.body === 'object') ? wb.body : wb;\nconst handle = String(body.handle || '');\nlet lim = parseInt(body.limit, 10);\nif (isNaN(lim) || lim < 1) lim = 10;\nconst limit = Math.min(lim, 50);\nconst num = (v) => { const n = Number(v); return (isNaN(n) || v === null || v === undefined) ? 0 : n; };\nconst iso = (t) => {\n  if (t === undefined || t === null || t === '') return null;\n  const n = typeof t === 'number' ? t * 1000 : Date.parse(t);\n  return isNaN(n) ? null : new Date(n).toISOString();\n};\nconst resp = $input.first().json;\n\nconst raw = (resp && Array.isArray(resp.tweets)) ? resp.tweets : (resp && Array.isArray(resp.data)) ? resp.data : (resp && Array.isArray(resp.items)) ? resp.items : [];\nconst posts = raw.map((it) => {\n  const rid = it.rest_id || it.id_str || it.id;\n  const media = it.media || (it.extended_entities && it.extended_entities.media) || [];\n  const m0 = media[0] || {};\n  return {\n    id: String(rid || ''),\n    url: it.url || (rid ? 'https://twitter.com/' + handle + '/status/' + rid : ''),\n    views: num(it.views || it.view_count),\n    likes: num(it.favorite_count),\n    comments: num(it.reply_count),\n    shares: num(it.retweet_count),\n    posted_at: iso(it.created_at),\n    thumb_url: m0.media_url_https || m0.media_url || null,\n    duration: null\n  };\n}).filter((p) => p.id !== '');\nposts.forEach((p) => {\n  p.er = p.views > 0 ? Math.round(((p.likes + p.comments * 3 + p.shares * 5) / p.views) * 10000) / 10000 : 0;\n});\nposts.sort((a, b) => b.er - a.er);\nconst top = posts.slice(0, limit);\nreturn [{ json: { ok: true, count: top.length, platform: 'twitter', handle: handle, posts: top } }];\n"
+      },
+      "id": "c3a00000-0000-4000-8000-000000000023",
+      "name": "Normalize Twitter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const wb = $('Webhook').first().json;\nconst body = (wb.body && typeof wb.body === 'object') ? wb.body : wb;\nreturn [{ json: { ok: false, count: 0, error: 'unsupported platform: ' + String(body.platform || ''), platform: String(body.platform || ''), handle: String(body.handle || ''), posts: [] } }];\n"
+      },
+      "id": "c3a00000-0000-4000-8000-000000000030",
+      "name": "Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "c3a00000-0000-4000-8000-000000000040",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        800,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch platform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch platform": {
+      "main": [
+        [
+          {
+            "node": "HTTP IG",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP TikTok",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Twitter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP IG": {
+      "main": [
+        [
+          {
+            "node": "Normalize IG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP TikTok": {
+      "main": [
+        [
+          {
+            "node": "Normalize TikTok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP YouTube": {
+      "main": [
+        [
+          {
+            "node": "Normalize YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Twitter": {
+      "main": [
+        [
+          {
+            "node": "Normalize Twitter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize IG": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize TikTok": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize YouTube": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Twitter": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fallback": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "pinData": {},
+  "meta": {
+    "description": "SC-3: последние посты автора с метриками (ScrapeCreators) — Webhook /webhook/factory/creator-content"
+  }
+}

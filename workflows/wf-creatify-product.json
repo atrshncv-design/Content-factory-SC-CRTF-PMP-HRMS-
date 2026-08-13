@@ -1,0 +1,448 @@
+{
+  "id": "20000000-0000-4000-8000-000000000024",
+  "name": "wf-creatify-product",
+  "nodes": [
+    {
+      "id": "6c000001-0000-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 0],
+      "webhookId": "cr6-product",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "factory/product",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "6c000001-0000-4000-8000-000000000002",
+      "name": "Code validate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [200, 0],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const body = ($json.body && $json.body) || $json;\nconst s = (v) => (v !== undefined && v !== null) ? String(v).trim() : '';\nconst image_url = s(body.image_url);\nconst product_video_id = s(body.product_video_id);\nconst video_url = s(body.video_url);\nconst isHttp = (u) => /^https?:\\/\\//.test(u);\n// Реальный контракт Creatify (сверено 13.08): gen_image принимает product_url (прямой URL изображения),\n// gen_video принимает {id} задачи в path (НЕ URL видео). video_url как вход не поддерживается.\nif (video_url && !image_url && !product_video_id) {\n  return [{ json: { ok: false, error: \"video_url не поддерживается реальным контрактом Creatify product_to_videos: gen_video принимает id задачи (product_video_id), а не URL видео. Передайте image_url (1 кред, создаёт задачу) или product_video_id (3 кред, генерирует видео)\" } }];\n}\nif (!image_url && !product_video_id) {\n  return [{ json: { ok: false, error: \"image_url или product_video_id обязателен\" } }];\n}\nif (image_url && !isHttp(image_url)) {\n  return [{ json: { ok: false, error: \"image_url должен быть http(s) URL (прямой URL изображения: PNG/JPG/WEBP)\" } }];\n}\nlet aspect_ratio = s(body.aspect_ratio) || '16x9';\nif (['9x16', '16x9', '1x1'].indexOf(aspect_ratio) === -1) aspect_ratio = '16x9';\nconst language = s(body.language) || 'ru';\nconst target_audience = s(body.target_audience) || null;\nconst image_prompt = s(body.image_prompt) || null;\nconst video_prompt = s(body.video_prompt) || null;\nconst motion_style = s(body.motion_style) || null;\nconst webhook_url = s(body.webhook_url) || null;\nconst mode = image_url ? 'gen_image' : 'gen_video';\nreturn [{ json: { ok: true, mode: mode, image_url: image_url || null, product_video_id: product_video_id || null, aspect_ratio: aspect_ratio, language: language, target_audience: target_audience, image_prompt: image_prompt, video_prompt: video_prompt, motion_style: motion_style, webhook_url: webhook_url } }];"
+      }
+    },
+    {
+      "id": "6c000001-0000-4000-8000-000000000003",
+      "name": "HTTP credits",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [400, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.creatify.ai/api/remaining_credits/",
+        "authentication": "none",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-ID",
+              "value": "={{ $env.CREATIFY_API_ID }}"
+            },
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $env.CREATIFY_API_KEY }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000,
+          "retryOnFail": true,
+          "maxTries": 3,
+          "waitBetweenTries": 3000
+        }
+      }
+    },
+    {
+      "id": "6c000001-0000-4000-8000-000000000004",
+      "name": "Code credit check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [600, 0],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// HTTP Request НЕ прокидывает входной item: $json здесь = ответ credits API.\n// Валидацию берём кросс-нод-ссылкой на Code validate.\nconst v = $('Code validate').first().json;\nif (v.ok === false) { return [{ json: v }]; }\nconst balance = Number($json.remaining_credits);\nif (!Number.isFinite(balance)) { return [{ json: { ok: false, error: 'balance_unavailable', raw: $json } }]; }\nif (balance < 20) { return [{ json: { ok: false, error: 'low_credits', balance: balance } }]; }\nreturn [{ json: { ...v, ok: true, balance: balance } }];"
+      }
+    },
+    {
+      "id": "6c000001-0000-4000-8000-000000000005",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [800, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.ok }}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "leftValue": "={{ $json.mode }}",
+                    "rightValue": "gen_image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.ok }}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "leftValue": "={{ $json.mode }}",
+                    "rightValue": "gen_video",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      }
+    },
+    {
+      "id": "6c000001-0000-4000-8000-000000000006",
+      "name": "Build payload image",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, -160],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const d = $json;\nconst p = { product_url: d.image_url, aspect_ratio: d.aspect_ratio || '16x9' };\nif (d.image_prompt) p.image_prompt = d.image_prompt;\nif (d.webhook_url) p.webhook_url = d.webhook_url;\nreturn [{ json: { payload: p, meta: { target_audience: d.target_audience, language: d.language } } }];"
+      }
+    },
+    {
+      "id": "6c000001-0000-4000-8000-000000000007",
+      "name": "HTTP gen_image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [1200, -160],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.creatify.ai/api/product_to_videos/gen_image/",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.payload }}",
+        "options": {
+          "timeout": 120000,
+          "retryOnFail": true,
+          "maxTries": 3,
+          "waitBetweenTries": 5000
+        },
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-ID",
+              "value": "={{ $env.CREATIFY_API_ID }}"
+            },
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $env.CREATIFY_API_KEY }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "6c000001-0000-4000-8000-000000000008",
+      "name": "Normalize image",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1400, -160],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const r = $json;\nreturn [{\n  json: {\n    ok: true,\n    product_video_id: r.id || null,\n    status: r.status || null,\n    generated_photo_url: r.generated_photo_url || null,\n    failed_reason: r.failed_reason || null,\n    credits_used: r.credits_used || 0,\n    raw: r\n  }\n}];"
+      }
+    },
+    {
+      "id": "6c000001-0000-4000-8000-000000000009",
+      "name": "Respond ok image",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [1600, -160],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "6c000001-0000-4000-8000-00000000000a",
+      "name": "Build payload video",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 160],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const d = $json;\nconst p = {};\nif (d.motion_style) p.motion_style = d.motion_style;\nif (d.video_prompt) p.video_prompt = d.video_prompt;\nif (d.webhook_url) p.webhook_url = d.webhook_url;\nconst id = d.product_video_id;\nreturn [{ json: { id: id, url: 'https://api.creatify.ai/api/product_to_videos/' + id + '/gen_video/', payload: p, meta: { target_audience: d.target_audience, language: d.language } } }];"
+      }
+    },
+    {
+      "id": "6c000001-0000-4000-8000-00000000000b",
+      "name": "HTTP gen_video",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [1200, 160],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.url }}",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.payload }}",
+        "options": {
+          "timeout": 120000,
+          "retryOnFail": true,
+          "maxTries": 3,
+          "waitBetweenTries": 5000
+        },
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-ID",
+              "value": "={{ $env.CREATIFY_API_ID }}"
+            },
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $env.CREATIFY_API_KEY }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "6c000001-0000-4000-8000-00000000000c",
+      "name": "Normalize video",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1400, 160],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const r = $json;\nreturn [{\n  json: {\n    ok: true,\n    product_video_id: r.id || null,\n    status: r.status || null,\n    generated_photo_url: r.generated_photo_url || null,\n    generated_video_url: r.generated_video_url || null,\n    failed_reason: r.failed_reason || null,\n    credits_used: r.credits_used || 0,\n    raw: r\n  }\n}];"
+      }
+    },
+    {
+      "id": "6c000001-0000-4000-8000-00000000000d",
+      "name": "Respond ok video",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [1600, 160],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "6c000001-0000-4000-8000-00000000000e",
+      "name": "Respond error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [1000, 320],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code validate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code validate": {
+      "main": [
+        [
+          {
+            "node": "HTTP credits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP credits": {
+      "main": [
+        [
+          {
+            "node": "Code credit check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code credit check": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Build payload image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build payload video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build payload image": {
+      "main": [
+        [
+          {
+            "node": "HTTP gen_image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP gen_image": {
+      "main": [
+        [
+          {
+            "node": "Normalize image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize image": {
+      "main": [
+        [
+          {
+            "node": "Respond ok image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build payload video": {
+      "main": [
+        [
+          {
+            "node": "HTTP gen_video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP gen_video": {
+      "main": [
+        [
+          {
+            "node": "Normalize video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize video": {
+      "main": [
+        [
+          {
+            "node": "Respond ok video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "pinData": {},
+  "meta": {}
+}

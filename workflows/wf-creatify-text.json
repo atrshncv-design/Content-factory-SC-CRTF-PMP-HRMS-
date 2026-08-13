@@ -1,0 +1,591 @@
+{
+ "updatedAt": "2026-08-13T11:43:03.240Z",
+ "createdAt": "2026-08-13T11:38:22.799Z",
+ "id": "20000000-0000-4000-8000-000000000020",
+ "name": "wf-creatify-text",
+ "description": null,
+ "active": true,
+ "isArchived": false,
+ "nodes": [
+  {
+   "parameters": {
+    "httpMethod": "POST",
+    "path": "factory/script",
+    "responseMode": "responseNode",
+    "options": {}
+   },
+   "id": "d2000000-0000-4000-8000-000000000001",
+   "name": "Webhook",
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2.1,
+   "position": [
+    -980,
+    0
+   ],
+   "webhookId": "d2000000-0000-4000-8000-000000000001w"
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const raw = ($json.body && typeof $json.body === 'object') ? $json.body : ($json || {});\nconst topic = String(raw.topic || '').trim();\nconst valid = topic ? 1 : 0;\nconst video_length = [15, 30, 45, 60].includes(Number(raw.video_length)) ? Number(raw.video_length) : 30;\nconst language = String(raw.language || 'ru').trim() || 'ru';\nconst description = String(raw.description || topic || '').trim();\nconst target_audience = raw.target_audience != null ? String(raw.target_audience).trim() : '';\nreturn [{ json: { valid, topic, description, language, target_audience, video_length, title: topic } }];"
+   },
+   "id": "d2000000-0000-4000-8000-000000000002",
+   "name": "Normalize input",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    -780,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "combinator": "and",
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "strict",
+      "version": 3
+     },
+     "conditions": [
+      {
+       "leftValue": "={{ $json.valid }}",
+       "rightValue": 1,
+       "operator": {
+        "type": "number",
+        "operation": "equals"
+       }
+      }
+     ]
+    }
+   },
+   "id": "d2000000-0000-4000-8000-000000000003",
+   "name": "IF topic ok",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.3,
+   "position": [
+    -580,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "{\"ok\":false,\"error\":\"topic_required\"}",
+    "options": {}
+   },
+   "id": "d2000000-0000-4000-8000-000000000004",
+   "name": "Respond topic err",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    -580,
+    240
+   ]
+  },
+  {
+   "parameters": {
+    "method": "GET",
+    "url": "https://api.creatify.ai/api/remaining_credits/",
+    "authentication": "none",
+    "sendHeaders": true,
+    "specifyHeaders": "keypair",
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-API-ID",
+       "value": "={{ $env.CREATIFY_API_ID }}"
+      },
+      {
+       "name": "X-API-KEY",
+       "value": "={{ $env.CREATIFY_API_KEY }}"
+      }
+     ]
+    },
+    "options": {
+     "timeout": 15000
+    }
+   },
+   "id": "d2000000-0000-4000-8000-000000000005",
+   "name": "HTTP credits",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    -400,
+    -160
+   ],
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 1000,
+   "credentials": {}
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const raw = ($json.body && $json.body.remaining_credits != null) ? $json.body : $json;\nconst balance = Number(raw && raw.remaining_credits != null ? raw.remaining_credits : 0);\nreturn [{ json: { ok: 1, balance: balance, remaining_credits: balance } }];"
+   },
+   "id": "d2000000-0000-4000-8000-000000000006",
+   "name": "Code balance",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    -400,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "combinator": "and",
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "strict",
+      "version": 3
+     },
+     "conditions": [
+      {
+       "leftValue": "={{ $json.balance }}",
+       "rightValue": 50,
+       "operator": {
+        "type": "number",
+        "operation": "gte"
+       }
+      }
+     ]
+    }
+   },
+   "id": "d2000000-0000-4000-8000-000000000007",
+   "name": "IF low credits",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.3,
+   "position": [
+    -200,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ {ok: false, error: 'low_credits', balance: $('Code balance').first().json.balance} }}",
+    "options": {}
+   },
+   "id": "d2000000-0000-4000-8000-000000000008",
+   "name": "Respond low credits",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    -200,
+    240
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "https://api.creatify.ai/api/ai_scripts/",
+    "authentication": "none",
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ {title: $('Normalize input').first().json.topic, description: $('Normalize input').first().json.description, language: $('Normalize input').first().json.language, target_audience: $('Normalize input').first().json.target_audience, video_length: $('Normalize input').first().json.video_length} }}",
+    "options": {
+     "timeout": 120000
+    },
+    "sendHeaders": true,
+    "specifyHeaders": "keypair",
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-API-ID",
+       "value": "={{ $env.CREATIFY_API_ID }}"
+      },
+      {
+       "name": "X-API-KEY",
+       "value": "={{ $env.CREATIFY_API_KEY }}"
+      }
+     ]
+    }
+   },
+   "id": "d2000000-0000-4000-8000-000000000009",
+   "name": "HTTP ai_scripts",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    0,
+    -160
+   ],
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 1000,
+   "credentials": {}
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const r = ($json.body && typeof $json.body === 'object' && $json.body.id) ? $json.body : $json;\nconst list = Array.isArray(r.generated_scripts) ? r.generated_scripts : [];\nconst first = list[0] || {};\nconst text = String(first.paragraphs || '');\nconst done = r.status === 'done' && text.length > 0;\nreturn [{ json: { ok: done ? 1 : 0, script_id: String(r.id || ''), status: String(r.status || 'unknown'), text: text, script_name: first.script_name || null, script_style: first.script_style || null, scripts_count: list.length, credits_used: r.credits_used != null ? Number(r.credits_used) : null, failed_reason: r.failed_reason || null, error: done ? null : 'generation_not_ready' } }];"
+   },
+   "id": "d2000000-0000-4000-8000-000000000010",
+   "name": "Normalize",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    200,
+    -160
+   ]
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "combinator": "and",
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "strict",
+      "version": 3
+     },
+     "conditions": [
+      {
+       "leftValue": "={{ $json.ok }}",
+       "rightValue": 1,
+       "operator": {
+        "type": "number",
+        "operation": "equals"
+       }
+      }
+     ]
+    }
+   },
+   "id": "d2000000-0000-4000-8000-000000000011",
+   "name": "IF scripts ok",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.3,
+   "position": [
+    400,
+    -160
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ $json }}",
+    "options": {}
+   },
+   "id": "d2000000-0000-4000-8000-000000000012",
+   "name": "Respond not ready",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    400,
+    80
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "http://db-bridge:8787/query",
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-BRIDGE-TOKEN",
+       "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+      }
+     ]
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ {sql: \"INSERT INTO topics (client_id, cycle_date, title, status) VALUES (1, date('now'), ?, 'pending')\", params: [$('Normalize input').first().json.topic]} }}",
+    "options": {}
+   },
+   "id": "d2000000-0000-4000-8000-000000000013",
+   "name": "HTTP ensure topic",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    600,
+    -160
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const g = $('Normalize').first().json;\nconst inp = $('Normalize input').first().json;\nreturn [{ json: { sql: \"INSERT INTO scripts (client_id, topic_id, full_text, target_length, format_tag, status) VALUES (1, (SELECT MAX(id) FROM topics WHERE title = ?1), ?2, ?3, 'creatify', ?4)\", params: [inp.topic, g.text, Number(inp.video_length), g.status] } }];"
+   },
+   "id": "d2000000-0000-4000-8000-000000000014",
+   "name": "Build insert",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    800,
+    -160
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "http://db-bridge:8787/query",
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-BRIDGE-TOKEN",
+       "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+      }
+     ]
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ $json }}",
+    "options": {}
+   },
+   "id": "d2000000-0000-4000-8000-000000000015",
+   "name": "HTTP insert scripts",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    1000,
+    -160
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const g = $('Normalize').first().json;\nconst ins = $json;\nreturn [{ json: { ok: true, script_id: g.script_id, db_script_id: ins && ins.lastInsertRowid != null ? ins.lastInsertRowid : null, text: g.text, status: g.status, credits_used: g.credits_used, scripts_count: g.scripts_count } }];"
+   },
+   "id": "d2000000-0000-4000-8000-000000000016",
+   "name": "Finalize",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1200,
+    -160
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ $('Finalize').first().json }}",
+    "options": {}
+   },
+   "id": "d2000000-0000-4000-8000-000000000017",
+   "name": "Respond ok",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    1400,
+    -160
+   ]
+  }
+ ],
+ "connections": {
+  "Webhook": {
+   "main": [
+    [
+     {
+      "node": "Normalize input",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Normalize input": {
+   "main": [
+    [
+     {
+      "node": "IF topic ok",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "IF topic ok": {
+   "main": [
+    [
+     {
+      "node": "HTTP credits",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Respond topic err",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP credits": {
+   "main": [
+    [
+     {
+      "node": "Code balance",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Code balance": {
+   "main": [
+    [
+     {
+      "node": "IF low credits",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "IF low credits": {
+   "main": [
+    [
+     {
+      "node": "HTTP ai_scripts",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Respond low credits",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP ai_scripts": {
+   "main": [
+    [
+     {
+      "node": "Normalize",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Normalize": {
+   "main": [
+    [
+     {
+      "node": "IF scripts ok",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "IF scripts ok": {
+   "main": [
+    [
+     {
+      "node": "HTTP ensure topic",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Respond not ready",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP ensure topic": {
+   "main": [
+    [
+     {
+      "node": "Build insert",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Build insert": {
+   "main": [
+    [
+     {
+      "node": "HTTP insert scripts",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP insert scripts": {
+   "main": [
+    [
+     {
+      "node": "Finalize",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Finalize": {
+   "main": [
+    [
+     {
+      "node": "Respond ok",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "executionOrder": "v1"
+ },
+ "staticData": null,
+ "meta": {},
+ "nodeGroups": [],
+ "pinData": {},
+ "versionId": "101cf804-45b7-4822-9cba-25fba73b466a",
+ "activeVersionId": "101cf804-45b7-4822-9cba-25fba73b466a",
+ "versionCounter": 2,
+ "triggerCount": 1,
+ "sourceWorkflowId": null,
+ "tags": [],
+ "shared": [
+  {
+   "updatedAt": "2026-08-13T11:38:22.805Z",
+   "createdAt": "2026-08-13T11:38:22.805Z",
+   "role": "workflow:owner",
+   "workflowId": "20000000-0000-4000-8000-000000000020",
+   "projectId": "M9eH49D0HafLr8AX",
+   "project": {
+    "updatedAt": "2026-08-11T13:27:47.312Z",
+    "createdAt": "2026-08-11T12:45:09.939Z",
+    "id": "M9eH49D0HafLr8AX",
+    "name": "Factory Owner <owner@factory.local>",
+    "type": "personal",
+    "icon": null,
+    "description": null,
+    "customTelemetryTags": [],
+    "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"
+   }
+  }
+ ],
+ "versionMetadata": {
+  "name": null,
+  "description": null
+ }
+}
