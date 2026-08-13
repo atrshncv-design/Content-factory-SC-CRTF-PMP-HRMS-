@@ -1,0 +1,444 @@
+{
+  "updatedAt": "2026-08-12T03:54:16.604Z",
+  "createdAt": "2026-08-11T21:41:57.220Z",
+  "id": "20000000-0000-4000-8000-000000000010",
+  "name": "wf-publish",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "factory/publish",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "31000000-0000-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -720,
+        0
+      ],
+      "webhookId": "32000000-0000-4000-8000-000000000001"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $env.POSTMYPOST_TOKEN }}",
+                    "rightValue": "PLACEHOLDER_UNTIL_TOMORROW",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "31000000-0000-4000-8000-000000000002",
+      "name": "Switch mock upload",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -528,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { id: 12345, file_id: 67890, status: 'FILE_UPLOADED_SUCCESSFULLY', mock: true } }];"
+      },
+      "id": "31000000-0000-4000-8000-000000000003",
+      "name": "Code mock upload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.postmypost.io/v4.1/upload/init",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {project_id: $env.POSTMYPOST_PROJECT_ID, url: $env.WEBHOOK_URL + 'media/' + $json.body.generation_id + '.mp4'} }}",
+        "options": {}
+      },
+      "id": "31000000-0000-4000-8000-000000000004",
+      "name": "HTTP real upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -320,
+        128
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "10000000-0000-4000-8000-000000000003",
+          "name": "postmypost"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const wh = $('Webhook').first().json.body;\nconst fileId = $json.file_id !== undefined ? $json.file_id : null;\nconst platforms = Array.isArray(wh.platforms) ? wh.platforms : [];\nconst captions = wh.captions || {};\nconst accountMap = { instagram: 101, youtube: 102, tiktok: 103, threads: 104, x: 105, telegram: 106 };\nconst details = [];\nconst accountIds = [];\nfor (const p of platforms) {\n  const aid = accountMap[p];\n  if (!aid) continue;\n  accountIds.push(aid);\n  const caption = (captions[p] !== undefined) ? captions[p] : (typeof captions === 'string' ? captions : '');\n  if (p === 'instagram') {\n    details.push({ account_id: aid, publication_type: 4, content: caption, file_ids: [fileId], instagram_share_to_feed: true });\n  } else if (p === 'youtube') {\n    details.push({ account_id: aid, publication_type: 4, content: caption, title: caption, file_ids: [fileId], youtube_privacy_status: 1 });\n  } else if (p === 'tiktok') {\n    details.push({ account_id: aid, publication_type: 1, content: caption, file_ids: [fileId] });\n  } else if (p === 'threads') {\n    details.push({ account_id: aid, publication_type: 1, content: caption });\n  } else if (p === 'x') {\n    details.push({ account_id: aid, publication_type: 1, content: caption });\n  } else if (p === 'telegram') {\n    details.push({ account_id: aid, publication_type: 1, content: caption });\n  }\n}\nconst captionOut = (typeof captions === 'object' && captions.instagram) ? captions.instagram : captions;\nreturn [{ json: { details: details, account_ids: accountIds, file_id: fileId, post_at: wh.post_at, caption: captionOut, platforms: platforms, generation_id: wh.generation_id } }];"
+      },
+      "id": "31000000-0000-4000-8000-000000000005",
+      "name": "Code build details",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $env.POSTMYPOST_TOKEN }}",
+                    "rightValue": "PLACEHOLDER_UNTIL_TOMORROW",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "31000000-0000-4000-8000-000000000006",
+      "name": "Switch mock publication",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        80,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ...$json, id: 999, status: 'PENDING_PUBLICATION', mock: true } }];"
+      },
+      "id": "31000000-0000-4000-8000-000000000007",
+      "name": "Code mock publication",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.postmypost.io/v4.1/publications",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {project_id: $env.POSTMYPOST_PROJECT_ID, post_at: $json.post_at, account_ids: $json.account_ids, publication_status: 5, details: $json.details} }}",
+        "options": {}
+      },
+      "id": "31000000-0000-4000-8000-000000000008",
+      "name": "HTTP real publication",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        288,
+        128
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "10000000-0000-4000-8000-000000000003",
+          "name": "postmypost"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const wh = $('Webhook').first().json.body;\nconst pub = $json;\nlet caption = '';\nif (wh.captions) {\n  caption = typeof wh.captions === 'string' ? wh.captions : (wh.captions.instagram ? wh.captions.instagram : JSON.stringify(wh.captions));\n}\nconst sql = \"INSERT INTO posts (client_id, generation_id, cycle_date, caption, target_platforms, postmypost_id, post_at, status) VALUES (1, ?, date('now'), ?, ?, ?, ?, 'pending_publication')\";\nconst params = [wh.generation_id, caption, JSON.stringify(wh.platforms || []), pub.id, wh.post_at];\nreturn [{ json: { sql: sql, params: params } }];"
+      },
+      "id": "31000000-0000-4000-8000-000000000009",
+      "name": "Code Build body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "31000000-0000-4000-8000-00000000000a",
+      "name": "INSERT posts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        688,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "let pmId = null;\ntry { pmId = $('Code mock publication').first().json.id; } catch (e1) { try { pmId = $('HTTP real publication').first().json.id; } catch (e2) { pmId = null; } }\nconst ins = $('INSERT posts').first().json;\nreturn [{ json: { post_id: ins.lastInsertRowid, postmypost_id: pmId, status: 'pending_publication' } }];"
+      },
+      "id": "31000000-0000-4000-8000-00000000000b",
+      "name": "Code assemble",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "31000000-0000-4000-8000-00000000000c",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1088,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch mock upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch mock upload": {
+      "main": [
+        [
+          {
+            "node": "Code mock upload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP real upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code mock upload": {
+      "main": [
+        [
+          {
+            "node": "Code build details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP real upload": {
+      "main": [
+        [
+          {
+            "node": "Code build details",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code build details": {
+      "main": [
+        [
+          {
+            "node": "Switch mock publication",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch mock publication": {
+      "main": [
+        [
+          {
+            "node": "Code mock publication",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP real publication",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code mock publication": {
+      "main": [
+        [
+          {
+            "node": "Code Build body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP real publication": {
+      "main": [
+        [
+          {
+            "node": "Code Build body",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code Build body": {
+      "main": [
+        [
+          {
+            "node": "INSERT posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "INSERT posts": {
+      "main": [
+        [
+          {
+            "node": "Code assemble",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code assemble": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "4b4276ca-89d1-4244-b74d-1bfd39e6ab43",
+  "activeVersionId": "baa89f73-72b1-4b87-86fb-d48ee1b63c43",
+  "versionCounter": 2,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-08-11T21:41:57.224Z",
+      "createdAt": "2026-08-11T21:41:57.224Z",
+      "role": "workflow:owner",
+      "workflowId": "20000000-0000-4000-8000-000000000010",
+      "projectId": "M9eH49D0HafLr8AX",
+      "project": {
+        "updatedAt": "2026-08-11T13:27:47.312Z",
+        "createdAt": "2026-08-11T12:45:09.939Z",
+        "id": "M9eH49D0HafLr8AX",
+        "name": "Factory Owner <owner@factory.local>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

@@ -1,0 +1,6915 @@
+{
+  "updatedAt": "2026-08-12T19:59:18.000Z",
+  "createdAt": "2026-08-12T13:33:57.375Z",
+  "id": "20000000-0000-4000-8000-000000000013",
+  "name": "wf-tg-bot",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "id": "a990d517-b6ae-46fc-8d23-17276d771906",
+      "name": "tg-trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst item = $input.first().json;\nconst TG = 941296693;\nlet fromId = null;\nif (item.message && item.message.from) fromId = item.message.from.id;\nif (item.callback_query && item.callback_query.from) fromId = item.callback_query.from.id;\nif (fromId !== TG) return [];\nreturn [{ json: item }];\n"
+      },
+      "id": "20b5efb7-d1cc-474a-89e2-1f31b330abac",
+      "name": "Whitelist",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst item = $input.first().json;\nconst TG = 941296693;\n\nfunction parseCommand(text) {\n  const t = String(text || '').toLowerCase().trim();\n  const C = {\n    'start': 'start', 'старт': 'start', '/start': 'start',\n    'help': 'help', 'помощь': 'help', '/help': 'help',\n    'status': 'status', 'статус': 'status', '/status': 'status',\n    'cancel': 'cancel', 'стоп': 'cancel', 'отмена': 'cancel', '/cancel': 'cancel',\n    'ping': 'ping', 'пинг': 'ping', '/ping': 'ping',\n    'start_cycle': 'start_cycle', 'запуск цикла': 'start_cycle', 'старт цикла': 'start_cycle', '/start_cycle': 'start_cycle',\n    'mode': 'mode', 'режим': 'mode',\n    'topics': 'topics', 'темы': 'topics',\n    'competitors': 'competitors', 'конкуренты': 'competitors',\n    'accounts': 'accounts', 'аккаунты': 'accounts',\n    'budget': 'budget', 'бюджет': 'budget',\n    'clients': 'clients', 'клиенты': 'clients',\n  };\n  const words = t.split(/\\s+/);\n  let command = 'unknown';\n  const args = { url: null, id: null, value: null };\n  if (t.startsWith('onboard ') || t === 'onboard' || t.startsWith('/onboard')) { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('онбординг ') || t === 'онбординг') { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('client ') || t.startsWith('клиент ')) { command = 'client'; args.id = words[1] || null; }\n  else if (C[t]) { command = C[t]; }\n  else if (C[words[0]]) { command = C[words[0]]; args.value = words[1] || null; }\n  return { command: command, args: args };\n}\n\nlet out = null;\nif (item.callback_query) {\n  const q = item.callback_query;\n  const fromId = (q.from && q.from.id) || null;\n  const chatId = (q.message && q.message.chat && q.message.chat.id) || null;\n  const msgId = (q.message && q.message.message_id) || null;\n  const data = String(q.data || '');\n  if (data.startsWith('cmd:')) {\n    const parsed = parseCommand(data.slice(4));\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: parsed.command, args: parsed.args, raw: data, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parts = data.split(':');\n    const action = parts[0] || '';\n    const entityType = parts[1] || null;\n    const entityId = parts.slice(2).join(':') || null;\n    const map = {\n      approve: { topic: 'approve_topic', script: 'approve_script', gen: 'publish_gen' },\n      edit: { topic: 'edit_topic', script: 'edit_script' },\n      reject: { topic: 'reject_topic', script: 'reject_script', gen: 'reject_gen' },\n      alt: { topic: 'alt_topic' },\n      regen: { gen: 'regen_gen' },\n      toggle: { platform: 'toggle_platform' },\n      publish: { gen: 'publish_gen' },\n      confirm: { publish: 'confirm_publish' },\n    };\n    let cb = 'unknown';\n    if (action === 'schedule') cb = 'schedule';\n    else if (action === 'confirm') cb = 'confirm_publish';\n    else if (action === 'publish') cb = 'publish_gen';\n    else if (map[action] && map[action][entityType]) cb = map[action][entityType];\n    out = { kind: 'callback', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: null, args: {}, raw: data, callback_action: cb, entity_type: entityType, entity_id: entityId };\n  }\n} else if (item.message) {\n  const m = item.message;\n  const fromId = (m.from && m.from.id) || null;\n  const chatId = (m.chat && m.chat.id) || null;\n  const text = String(m.text || '').trim();\n  const parsed = parseCommand(text);\n  out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n          command: parsed.command, args: parsed.args, raw: text, callback_action: null, entity_type: null, entity_id: null };\n} else {\n  out = { kind: 'unknown', tg_user_id: null, chat_id: null, message_id: null, query_id: null, command: 'unknown', args: {}, raw: '', callback_action: null, entity_type: null, entity_id: null };\n}\nreturn [{ json: out }];\n"
+      },
+      "id": "8a103f8b-937b-4265-989e-b51bcad58551",
+      "name": "Parser",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.kind }}",
+                    "rightValue": "message",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.kind }}",
+                    "rightValue": "callback",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "3444bebc-2ba2-44e1-82f6-6837e153acc5",
+      "name": "Switch kind",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        120,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "ca6247a1-fc08-40b4-8a94-da3c2ad64cfd",
+      "name": "NoOp kind",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "start",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "help",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "status",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "cancel",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "ping",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "start_cycle",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "onboard",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "9c6a6d2a-a5e8-4b26-85cf-e969bfd603d1",
+      "name": "Switch cmd",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"SELECT key, value FROM settings WHERE key IN ('mode','active_client_id','client_name','daily_video_limit','credits_remaining')\", params: [] } }];\n"
+      },
+      "id": "384e8415-fdbb-4c59-bd4c-eb9dbec729eb",
+      "name": "ST Build settings",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "f508724c-2b9b-4cd5-b71d-87af40a6f0bb",
+      "name": "ST HTTP settings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        280,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"SELECT COUNT(*) AS cnt FROM generations WHERE date(created_at) = date('now')\", params: [] } }];\n"
+      },
+      "id": "26000c71-d4c6-436f-9a6e-dd7f0ac6a4f6",
+      "name": "ST Build today",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "d41ded8c-6f36-4dcb-adc5-a8d33c2ddfcc",
+      "name": "ST HTTP today",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        360,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst settings = {};\nfor (const r of ($('ST HTTP settings').first().json.rows || [])) settings[r.key] = r.value;\nconst today = ($('ST HTTP today').first().json.rows || [])[0] || {};\nconst client = settings.client_name || 'не задан — /onboard <url>';\nconst mode = settings.mode || 'manual';\nconst credits = settings.credits_remaining || '?';\nconst daily = settings.daily_video_limit || '?';\nconst text = '🤖 Контент-завод v0.1\\n\\nКлиент: ' + client + '\\nРежим: ' + mode + ' | Сегодня видео: ' + today.cnt + '/' + daily + ' | Кредиты creatify: ' + credits;\nreturn [{ json: { chat_id: p.chat_id, text: text } }];\n"
+      },
+      "id": "8b5b9ceb-1e2e-4534-b1b4-fa1003c3b4b5",
+      "name": "ST Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        },
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "▶️ Запустить цикл",
+                    "additionalFields": {
+                      "callback_data": "cmd:start_cycle"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "📊 Статус",
+                    "additionalFields": {
+                      "callback_data": "cmd:status"
+                    }
+                  },
+                  {
+                    "text": "❓ Помощь",
+                    "additionalFields": {
+                      "callback_data": "cmd:help"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "id": "ecb4eb50-216e-41d8-9359-62655fa210cd",
+      "name": "TG start",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        440,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ '❓ КОМАНДЫ КОНТЕНТ-ЗАВОДА\n\nЦИКЛ:\n/start_cycle — запустить генерацию\n/cancel — отменить текущий шаг\n\nКЛИЕНТЫ:\n/onboard <url> — новый клиент\n\nСОЦСЕТИ:\n/accounts — статус подключённых\n\nСИСТЕМА:\n/status — сводка\n/budget — бюджет creatify\n/mode manual|auto — режим\n/ping — health-check\n\nКоманды можно писать без слеша: старт, статус, запуск цикла, стоп.' }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "143cc59c-d0a7-4697-8a2e-9e668f8486f1",
+      "name": "TG help",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ '✅ Бот работает. n8n wf-tg-bot active (long polling).' }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "7bb5dd30-5b56-4d60-9cc6-462f4ac30d14",
+      "name": "TG ping",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        520,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"SELECT key, value FROM settings\", params: [] } }];\n"
+      },
+      "id": "02e153b0-f04a-4bc2-bc6c-0fffde2d0b7d",
+      "name": "ST2 Build settings",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "a4c9570e-cd0a-4dfb-bf8b-843881e6d015",
+      "name": "ST2 HTTP settings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        600,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"SELECT (SELECT COUNT(*) FROM generations WHERE date(created_at) = date('now')) AS today, (SELECT COUNT(*) FROM generations WHERE strftime('%Y-%m', created_at) = strftime('%Y-%m', 'now')) AS month\", params: [] } }];\n"
+      },
+      "id": "b8ba7157-1fa7-4c42-84a1-86fe39389958",
+      "name": "ST2 Build counts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "483b8640-4e11-4b64-a7b2-030d37e7ed3f",
+      "name": "ST2 HTTP counts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        680,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"SELECT id, name, domain, niche FROM clients WHERE id = (SELECT CAST(value AS INTEGER) FROM settings WHERE key = 'active_client_id')\", params: [] } }];\n"
+      },
+      "id": "d4eac21a-7e2b-4b68-8bf9-7ae3719db3bf",
+      "name": "ST2 Build client",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "517d46a3-4672-466b-b389-8b185d599621",
+      "name": "ST2 HTTP client",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst settings = {};\nfor (const r of ($('ST2 HTTP settings').first().json.rows || [])) settings[r.key] = r.value;\nconst counts = ($('ST2 HTTP counts').first().json.rows || [])[0] || {};\nconst client = ($('ST2 HTTP client').first().json.rows || [])[0] || {};\nconst text = '📊 СТАТУС\\n\\n🏢 Активный клиент: ' + (client.name || 'не задан') + ' (' + (client.domain || '—') + ')\\n🎯 Ниша: ' + (client.niche || settings.client_niche || '—') + '\\n📅 Режим: ' + (settings.mode || 'manual') + '\\n💰 Кредиты creatify: ' + (settings.credits_remaining || '?') + '\\n🎥 Сегодня: ' + counts.today + '/' + (settings.daily_video_limit || '?') + ' видео\\n📆 Этот месяц: ' + counts.month + '/' + (settings.monthly_video_limit || '?') + ' видео';\nreturn [{ json: { chat_id: p.chat_id, text: text } }];\n"
+      },
+      "id": "dd8a7d70-2524-4ad4-8dd5-5a45f218f1b4",
+      "name": "ST2 Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        },
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "▶️ Запустить новый",
+                    "additionalFields": {
+                      "callback_data": "cmd:start_cycle"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "💰 Бюджет",
+                    "additionalFields": {
+                      "callback_data": "cmd:budget"
+                    }
+                  },
+                  {
+                    "text": "📋 Темы",
+                    "additionalFields": {
+                      "callback_data": "cmd:topics"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "id": "8edb6972-7660-4629-bf04-d4453daf6333",
+      "name": "TG status",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        840,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"UPDATE sessions SET state = 'IDLE', topic_id = NULL, script_id = NULL, generation_id = NULL, selected_platforms = NULL, post_at = NULL, updated_at = datetime('now') WHERE tg_user_id = ?\", params: [941296693] } }];\n"
+      },
+      "id": "fcb62ea9-74b5-42df-a399-af5f43cff4e4",
+      "name": "CN Build",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "09fe320b-9800-470d-97a5-a4fdd75e048e",
+      "name": "CN HTTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        920,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ '✅ Цикл отменён. Возврат в IDLE.' }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "1d67fcb7-f9b2-4da8-a179-a9280c943a49",
+      "name": "TG cancel",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        960,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"SELECT state FROM sessions WHERE tg_user_id = ?\", params: [941296693] } }];\n"
+      },
+      "id": "ec2a0b9b-6907-4903-81ee-a77606e5e480",
+      "name": "SC Build state",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "bb705f50-3288-45ec-bfc8-e375d2513372",
+      "name": "SC HTTP state",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1040,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('SC HTTP state').first().json.rows || [];\nconst state = (rows[0] && rows[0].state) || 'IDLE';\nif (state !== 'IDLE') {\n  return [{ json: { allow: false, text: '⏳ Сейчас идёт цикл (состояние ' + state + '). Сначала /cancel.' } }];\n}\nreturn [{ json: { allow: true } }];\n"
+      },
+      "id": "e1544431-1fe0-4d43-a1ab-e8f973c7a0cd",
+      "name": "SC Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.allow }}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "268aab31-2ed3-4399-b8cd-4f97d55ff665",
+      "name": "Switch SC allow",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "e5dc1813-ed7f-41e1-b649-8db3b372767b",
+      "name": "TG SC busy",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1160,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"UPDATE sessions SET state = 'CYCLE_ANALYTICS_PENDING', topic_id = NULL, script_id = NULL, generation_id = NULL, selected_platforms = NULL, post_at = NULL, updated_at = datetime('now') WHERE tg_user_id = ?\", params: [941296693] } }];\n"
+      },
+      "id": "72c3e016-15df-4386-b628-b3003fd4db9c",
+      "name": "SC Build setstate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "93216380-e2e1-4d96-adf8-db88334d9319",
+      "name": "SC HTTP setstate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { client_id: 1, find_competitors: false } }];\n"
+      },
+      "id": "72420c20-0963-48b3-b77e-1830263d4259",
+      "name": "SC Build analytics body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/factory/analytics",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "55f3c1dc-8fa1-4360-b02f-1f63e9d82238",
+      "name": "SC HTTP wf-analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst resp = $('SC HTTP wf-analytics').first().json;\nconst candidates = (resp && resp.candidates) || [];\nlet list = 'нет кандидатов';\nif (candidates.length) {\n  list = candidates.slice(0, 10).map(function (c, i) {\n    const m = c.metrics || {};\n    return (i + 1) + '. ' + c.title + ' [' + (c.source_platform || '?') + '] views=' + (m.views || 0) + ' likes=' + (m.likes || 0) + ' shares=' + (m.shares || 0) + ' age=' + (c.age_hours || '?') + 'h virality=' + (c.virality_index || '?') + ' | ' + (c.transcript_excerpt || '');\n  }).join('\\n');\n}\nconst prompt = 'Клиент: Robotec (промышленная робототехника, интегратор KUKA; тон: экспертно-деловой, ROI).\\nКандидаты трендов (топ-10):\\n' + list + '\\n\\nВыбери ЛУЧШУЮ тему для короткого вертикального видео (30 сек, один голос). Верни строго JSON: {\"chosen\": {\"title\", \"source_url\", \"source_platform\", \"rationale\", \"feasibility\", \"adaptation_for_client\", \"target_length_sec\"}, \"alternatives\": [{\"title\",\"rationale\"}]}. Без markdown.';\nreturn [{ json: { skill: 'analyst', prompt: prompt } }];\n"
+      },
+      "id": "2adc03c1-fd28-4300-ad16-d3df5c485262",
+      "name": "SC Build bridge prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8642/ask",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.HERMES_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "5545f287-495b-4ded-9b7b-ef8b6ad6fada",
+      "name": "SC HTTP bridge analyst",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nfunction extractJSON(s) {\n  if (!s) return null;\n  let t = String(s).trim();\n  const m = t.match(/```(?:json)?\\s*([\\s\\S]*?)```/);\n  if (m) t = m[1].trim();\n  const start = t.indexOf('{');\n  if (start >= 0) {\n    let depth = 0, inStr = false, esc = false;\n    for (let i = start; i < t.length; i++) {\n      const c = t[i];\n      if (inStr) { if (esc) esc = false; else if (c === '\\\\') esc = true; else if (c === '\"') inStr = false; continue; }\n      if (c === '\"') inStr = true;\n      else if (c === '{') depth++;\n      else if (c === '}') { depth--; if (depth === 0) { try { return JSON.parse(t.slice(start, i + 1)); } catch (e) { return null; } } }\n    }\n  }\n  try { return JSON.parse(t); } catch (e) { return null; }\n}\n\nconst raw = $('SC HTTP bridge analyst').first().json.answer || '';\nconst j = extractJSON(raw);\nif (!j || !j.chosen) return [{ json: { ok: false, text: '🤖 Аналитик не смог выбрать тему. Аналитика пуста — попробуй /start_cycle позже.' } }];\nconst c = j.chosen;\nreturn [{ json: { ok: true, title: String(c.title || 'Тема без названия'), source_url: String(c.source_url || ''), source_platform: String(c.source_platform || ''), rationale: String(c.rationale || ''), feasibility: String(c.feasibility || 'medium'), adaptation_for_client: String(c.adaptation_for_client || ''), target_length: Number(c.target_length_sec || 30) } }];\n"
+      },
+      "id": "a5eb209d-957f-4262-85be-83a13956d051",
+      "name": "SC Parse topic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.ok }}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "df242556-dc8c-41fc-9db9-08d52a1280b6",
+      "name": "Switch SC parse",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "d94e1780-11fd-4f29-9857-15ecc40acd53",
+      "name": "TG no candidates",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1520,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst t = $('SC Parse topic').first().json;\nconst metrics = JSON.stringify({ views: 0, likes: 0, shares: 0 });\nreturn [{ json: { sql: \"INSERT INTO topics (client_id, cycle_date, title, rationale, source_url, source_platform, source_metrics, feasibility, status) VALUES (1, date('now'), ?, ?, ?, ?, ?, ?, 'pending')\", params: [t.title, t.rationale, t.source_url, t.source_platform, metrics, t.feasibility] } }];\n"
+      },
+      "id": "f8f33888-d2c8-4b6c-84dc-764e8c8d5db6",
+      "name": "SC Build insert topic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "74db81eb-71e3-4106-83b5-e15b38168b7a",
+      "name": "SC HTTP insert topic",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1600,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst id = Number($('SC HTTP insert topic').first().json.lastInsertRowid);\nreturn [{ json: { sql: \"UPDATE sessions SET topic_id = ?, updated_at = datetime('now') WHERE tg_user_id = ?\", params: [id, 941296693] } }];\n"
+      },
+      "id": "061ad2cf-d9ab-47b4-9c7e-4c297dadb8bf",
+      "name": "SC Build set topic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1640,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "d92eedab-7543-42dc-98f6-3473376ca0d6",
+      "name": "SC HTTP set topic",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1680,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst t = $('SC Parse topic').first().json;\nconst id = Number($('SC HTTP insert topic').first().json.lastInsertRowid);\nconst text = '📊 Этап 1/4 — Тема выбрана\\n\\n🎯 ' + t.title + '\\nИсточник: ' + (t.source_url || '—') + '\\nРеализуемость: ' + t.feasibility + '\\n\\nПочему выбрал: ' + t.rationale + '\\nАдаптация под клиента: ' + t.adaptation_for_client + '\\nДлина ролика: ' + t.target_length + ' сек';\nreturn [{ json: { chat_id: p.chat_id, text: text, topic_id: id } }];\n"
+      },
+      "id": "c6224c92-d4aa-4095-8b86-fda5722b5a0f",
+      "name": "SC Stage1 Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1720,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        },
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Утвердить",
+                    "additionalFields": {
+                      "callback_data": "approve:topic:{{ $json.topic_id }}"
+                    }
+                  },
+                  {
+                    "text": "✏️ Изменить",
+                    "additionalFields": {
+                      "callback_data": "edit:topic:{{ $json.topic_id }}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "❌ Отклонить",
+                    "additionalFields": {
+                      "callback_data": "reject:topic:{{ $json.topic_id }}"
+                    }
+                  },
+                  {
+                    "text": "🔄 Другая тема",
+                    "additionalFields": {
+                      "callback_data": "alt:topic:{{ $json.topic_id }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "id": "5b3aca9f-4d13-4aa9-b132-0b5ea4fda40c",
+      "name": "TG stage1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"UPDATE sessions SET state = 'ONBOARDING_PENDING', updated_at = datetime('now') WHERE tg_user_id = ?\", params: [941296693] } }];\n"
+      },
+      "id": "3086ab6b-de0a-404a-b590-71d59640bbbc",
+      "name": "OB Build state",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1800,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "1faf677e-4a24-4bc2-92cb-fc33f1c23ef4",
+      "name": "OB HTTP state",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1840,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst url = (p.args && p.args.url) || '';\nreturn [{ json: { url: url } }];\n"
+      },
+      "id": "7d6e0e75-92c0-422c-8e0c-0334be58e88c",
+      "name": "OB Build wf body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/factory/onboard",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "14717715-56c7-47b0-8ece-f8d8635fcbb3",
+      "name": "OB HTTP wf-onboard",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1920,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst url = (p.args && p.args.url) || '';\nlet draft = '';\ntry {\n  const r = $('OB HTTP wf-onboard').first().json;\n  draft = JSON.stringify(r).slice(0, 4000);\n} catch (e) { draft = ''; }\nconst prompt = 'Онбординг клиента по URL: ' + url + '\\nЧерновик сайта (если есть): ' + draft + '\\n\\nВерни строго JSON профиль: {\"client_name\", \"domain\", \"industry\", \"niche_description\", \"audience\": {\"type\",\"segments\",\"decision_makers\"}, \"tone\", \"socials_found\": [{\"platform\",\"handle\",\"url\"}], \"competitors_seed\": [{\"name\",\"hint\"}], \"suggested_topics\": [\"...\"], \"suggested_formats\": [\"...\"], \"confidence\": 0.0-1.0, \"gaps\": \"...\"}. Без markdown.';\nreturn [{ json: { skill: 'onboarding', prompt: prompt } }];\n"
+      },
+      "id": "f73d1c91-de2a-4db4-a3ea-cf552dfe3f1d",
+      "name": "OB Build bridge prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1960,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8642/ask",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.HERMES_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "36b187c7-205d-43cd-926d-f28cfcce707a",
+      "name": "OB HTTP bridge onboarding",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2000,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nfunction extractJSON(s) {\n  if (!s) return null;\n  let t = String(s).trim();\n  const m = t.match(/```(?:json)?\\s*([\\s\\S]*?)```/);\n  if (m) t = m[1].trim();\n  const start = t.indexOf('{');\n  if (start >= 0) {\n    let depth = 0, inStr = false, esc = false;\n    for (let i = start; i < t.length; i++) {\n      const c = t[i];\n      if (inStr) { if (esc) esc = false; else if (c === '\\\\') esc = true; else if (c === '\"') inStr = false; continue; }\n      if (c === '\"') inStr = true;\n      else if (c === '{') depth++;\n      else if (c === '}') { depth--; if (depth === 0) { try { return JSON.parse(t.slice(start, i + 1)); } catch (e) { return null; } } }\n    }\n  }\n  try { return JSON.parse(t); } catch (e) { return null; }\n}\n\nconst raw = $('OB HTTP bridge onboarding').first().json.answer || '';\nconst j = extractJSON(raw);\nif (!j) return [{ json: { ok: false, text: '⚠️ Не удалось проанализировать сайт. Попробуй /onboard <url> ещё раз.' } }];\nreturn [{ json: { ok: true, name: String(j.client_name || ''), domain: String(j.domain || ''), industry: String(j.industry || ''), niche: String(j.niche_description || ''), audience: j.audience || {}, tone: String(j.tone || ''), socials: j.socials_found || [], competitors: j.competitors_seed || [], topics: j.suggested_topics || [], confidence: Number(j.confidence || 0) } }];\n"
+      },
+      "id": "fed41ce9-eed7-4822-9209-b9b302a40700",
+      "name": "OB Parse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2040,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.ok }}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "59c5d0ff-ba9a-4adc-b112-05f7fb7fb712",
+      "name": "Switch OB parse",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2080,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "f9caa4d6-6977-4b46-aade-4ae22626b7c3",
+      "name": "TG ob fail",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2120,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst t = $('OB Parse').first().json;\nreturn [{ json: { sql: \"INSERT INTO clients (name, domain, industry, niche, audience_json, tone, profile_json, confidence, status, onboarded_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', 941296693)\", params: [t.name, t.domain, t.industry, t.niche, JSON.stringify(t.audience), t.tone, JSON.stringify({ socials: t.socials, competitors: t.competitors, topics: t.topics }), t.confidence] } }];\n"
+      },
+      "id": "394d532c-2ad1-4eca-a290-7a6a3a79ee9e",
+      "name": "OB Build insert client",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "dd06cfbc-a33c-4e46-8895-5fb7204cfb3a",
+      "name": "OB HTTP insert client",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst id = Number($('OB HTTP insert client').first().json.lastInsertRowid);\nreturn [{ json: { sql: \"UPDATE settings SET value = ?, updated_at = datetime('now') WHERE key = 'active_client_id'\", params: [String(id)] } }];\n"
+      },
+      "id": "c162e10e-a19e-4e48-9ae4-074f40c7914b",
+      "name": "OB Build set active",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "c756c688-e037-46b1-bd5e-9f478d7b087c",
+      "name": "OB HTTP set active",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2280,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"UPDATE sessions SET state = 'IDLE', updated_at = datetime('now') WHERE tg_user_id = ?\", params: [941296693] } }];\n"
+      },
+      "id": "8ad06f84-e64e-447c-8fe8-375f2f1f2b2a",
+      "name": "OB Build session idle",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "a4701289-95c0-42c0-8b1e-d6916bba3267",
+      "name": "OB HTTP session idle",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2360,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst t = $('OB Parse').first().json;\nconst lines = ['🏢 Профиль клиента', '', 'Название: ' + (t.name || '—'), 'Домен: ' + (t.domain || '—'), 'Отрасль: ' + (t.industry || '—'), 'Аудитория: ' + ((t.audience && t.audience.type) || '—'), 'Тон: ' + (t.tone || '—'), '', 'Соцсети найдены: ' + (t.socials || []).length, 'Готовые темы (' + (t.topics || []).length + '):'];\nfor (const tp of (t.topics || []).slice(0, 5)) lines.push('• ' + tp);\nlines.push('', 'Уверенность: ' + Math.round(t.confidence * 100) + '%');\nreturn [{ json: { chat_id: p.chat_id, text: lines.join('\\n') } }];\n"
+      },
+      "id": "13d43357-9395-4f39-8396-eb19258d985e",
+      "name": "OB Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "1860ef9b-c9c0-4db6-85f8-fee503894d95",
+      "name": "TG onboard profile",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2440,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"SELECT state FROM sessions WHERE tg_user_id = ?\", params: [941296693] } }];\n"
+      },
+      "id": "514711c5-9824-4607-b739-8bdc37755b3e",
+      "name": "Gate Build",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "f6c27b79-1b08-4851-b743-552191efe775",
+      "name": "Gate HTTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('Gate HTTP').first().json.rows || [];\nconst state = (rows[0] && rows[0].state) || 'IDLE';\nif (p.command === 'unknown' && state === 'CYCLE_SCRIPT_EDITING') return [{ json: { mode: 'script_edit' } }];\nreturn [{ json: { mode: 'normal' } }];\n"
+      },
+      "id": "74c9e39a-8cbc-4758-a504-3f85b72422bd",
+      "name": "Gate Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2560,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.mode }}",
+                    "rightValue": "script_edit",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "56e785f0-62e7-4581-b403-88fd93b288d0",
+      "name": "Switch gate",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2600,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ 'Не понял. /help — список команд.' }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "9262852b-0741-4045-bc51-9f8ec4f01eb2",
+      "name": "TG unknown",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2640,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"INSERT INTO scripts (client_id, topic_id, hook, body, cta, target_length, format_tag, full_text, status) SELECT 1, topic_id, '', '', '', 30, 'user', ?, 'pending' FROM sessions WHERE tg_user_id = ?\", params: [p.raw, 941296693] } }];\n"
+      },
+      "id": "14723f27-ca16-4da7-95be-64e397c72a25",
+      "name": "GE Build insert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2680,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "98e820a2-e2d1-4589-abc5-f0bf348e94b5",
+      "name": "GE HTTP insert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2720,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst id = Number($('GE HTTP insert').first().json.lastInsertRowid);\nreturn [{ json: { sql: \"UPDATE sessions SET script_id = ?, state = 'CYCLE_SCRIPT_PENDING', updated_at = datetime('now') WHERE tg_user_id = ?\", params: [id, 941296693] } }];\n"
+      },
+      "id": "4e7fa458-4429-4b65-a953-775a2230a698",
+      "name": "GE Build session",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "678a0858-eada-423c-b671-6785224d827d",
+      "name": "GE HTTP session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2800,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst id = Number($('GE HTTP insert').first().json.lastInsertRowid);\nreturn [{ json: { chat_id: p.chat_id, text: '✍️ Сценарий сохранён (твой текст). Проверь и подтверди:', script_id: id } }];\n"
+      },
+      "id": "0a3c962d-29d3-4b86-aac4-7aa2934ef0fb",
+      "name": "GE Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2840,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        },
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Утвердить",
+                    "additionalFields": {
+                      "callback_data": "approve:script:{{ $json.script_id }}"
+                    }
+                  },
+                  {
+                    "text": "✏️ Изменить",
+                    "additionalFields": {
+                      "callback_data": "edit:script:{{ $json.script_id }}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "❌ Отклонить",
+                    "additionalFields": {
+                      "callback_data": "reject:script:{{ $json.script_id }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "id": "ba44a2e1-6141-44e4-86e9-3966678f9de5",
+      "name": "TG script saved",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2880,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_action }}",
+                    "rightValue": "approve_topic",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_action }}",
+                    "rightValue": "edit_topic",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_action }}",
+                    "rightValue": "alt_topic",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_action }}",
+                    "rightValue": "reject_topic",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_action }}",
+                    "rightValue": "approve_script",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_action }}",
+                    "rightValue": "edit_script",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_action }}",
+                    "rightValue": "reject_script",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_action }}",
+                    "rightValue": "publish_gen",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_action }}",
+                    "rightValue": "regen_gen",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_action }}",
+                    "rightValue": "reject_gen",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_action }}",
+                    "rightValue": "toggle_platform",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_action }}",
+                    "rightValue": "schedule",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_action }}",
+                    "rightValue": "confirm_publish",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "8dd8be14-fe97-407d-996b-efcc8ca67bb4",
+      "name": "Switch cb",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2920,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Parser').first().json.query_id }}",
+        "additionalFields": {
+          "text": "✅"
+        }
+      },
+      "id": "fa9d142c-fec8-4032-943f-7ab88774f224",
+      "name": "CT answer",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2960,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT id, title, source_url, source_platform, feasibility, rationale, client_id FROM topics WHERE id = ?\", params: [String(p.entity_id)] } }];\n"
+      },
+      "id": "f40acf15-2b28-454a-8cc8-f18f4456f784",
+      "name": "CT Build topic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3000,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "954404b1-e314-4005-916f-941373f6027e",
+      "name": "CT HTTP topic",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3040,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"UPDATE topics SET status = 'approved', chosen = 1, approved_at = datetime('now'), approved_by = ? WHERE id = ?\", params: [941296693, String(p.entity_id)] } }];\n"
+      },
+      "id": "a426a1bf-0176-4409-96a2-bc651dcb9991",
+      "name": "CT Build approve",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3080,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "9b8324c5-6c53-4ca5-b076-925a9740dd7b",
+      "name": "CT HTTP approve",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3120,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"UPDATE sessions SET state = 'CYCLE_SCRIPT_PENDING', topic_id = ?, updated_at = datetime('now') WHERE tg_user_id = ?\", params: [String(p.entity_id), 941296693] } }];\n"
+      },
+      "id": "6db35156-5f37-420e-b1a3-fafdaa35bc90",
+      "name": "CT Build session",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "bc3504a5-a136-41cf-b5ba-4ad1482fca16",
+      "name": "CT HTTP session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst topic = ($('CT HTTP topic').first().json.rows || [])[0] || {};\nconst prompt = 'Напиши сценарий короткого вертикального видео (30 сек, ~65 слов, русский) для клиента Robotec (промышленная робототехника, интегратор KUKA; тон: экспертно-деловой, ROI, окупаемость).\\nТема: ' + (topic.title || '') + '\\nИсточник: ' + (topic.source_url || '') + '\\nРационале: ' + (topic.rationale || '') + '\\n\\nВерни строго JSON: {\"hook\", \"body\", \"cta\", \"full_text\", \"target_length_sec\", \"estimated_words\", \"format_tag\", \"notes\"}. Без markdown.';\nreturn [{ json: { skill: 'scriptwriter', prompt: prompt } }];\n"
+      },
+      "id": "39ec93d9-9b26-4f8c-9707-3e51d0d21a66",
+      "name": "CT Build bridge prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8642/ask",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.HERMES_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "f94627e4-a849-4ada-8bf4-c4cab2988c68",
+      "name": "CT HTTP bridge scriptwriter",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3280,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nfunction extractJSON(s) {\n  if (!s) return null;\n  let t = String(s).trim();\n  const m = t.match(/```(?:json)?\\s*([\\s\\S]*?)```/);\n  if (m) t = m[1].trim();\n  const start = t.indexOf('{');\n  if (start >= 0) {\n    let depth = 0, inStr = false, esc = false;\n    for (let i = start; i < t.length; i++) {\n      const c = t[i];\n      if (inStr) { if (esc) esc = false; else if (c === '\\\\') esc = true; else if (c === '\"') inStr = false; continue; }\n      if (c === '\"') inStr = true;\n      else if (c === '{') depth++;\n      else if (c === '}') { depth--; if (depth === 0) { try { return JSON.parse(t.slice(start, i + 1)); } catch (e) { return null; } } }\n    }\n  }\n  try { return JSON.parse(t); } catch (e) { return null; }\n}\n\nconst raw = $('CT HTTP bridge scriptwriter').first().json.answer || '';\nconst j = extractJSON(raw);\nif (!j) return [{ json: { ok: false, text: '⚠️ Сценарист не смог написать сценарий. Попробуй ещё раз или /start_cycle.' } }];\nreturn [{ json: { ok: true, hook: String(j.hook || ''), body: String(j.body || ''), cta: String(j.cta || ''), full_text: String(j.full_text || ''), target_length: Number(j.target_length_sec || 30), words: Number(j.estimated_words || 65), format_tag: String(j.format_tag || 'demo') } }];\n"
+      },
+      "id": "eb6d129d-13a2-4b2c-b4b3-5e85e0c43491",
+      "name": "CT Parse script",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.ok }}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "54b36e61-abf9-41f7-9796-62d744f90d65",
+      "name": "Switch CT parse",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        3360,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "b0a74d85-66f4-4aff-8464-905e589f6347",
+      "name": "TG script fail",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3400,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst s = $('CT Parse script').first().json;\nreturn [{ json: { sql: \"INSERT INTO scripts (client_id, topic_id, hook, body, cta, target_length, format_tag, full_text, status) VALUES (1, ?, ?, ?, ?, ?, ?, ?, 'pending')\", params: [String(p.entity_id), s.hook, s.body, s.cta, s.target_length, s.format_tag, s.full_text] } }];\n"
+      },
+      "id": "a979e364-b3a1-4c98-a2bc-a02df1539bf0",
+      "name": "CT Build insert script",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "077ebfcd-371d-42f1-a8bd-260fb8b24af0",
+      "name": "CT HTTP insert script",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst id = Number($('CT HTTP insert script').first().json.lastInsertRowid);\nreturn [{ json: { sql: \"UPDATE sessions SET script_id = ?, updated_at = datetime('now') WHERE tg_user_id = ?\", params: [id, 941296693] } }];\n"
+      },
+      "id": "8ca251dc-e204-4fbd-a3c5-a405d6d99a4c",
+      "name": "CT Build set script",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "3b24b6db-016f-46b9-9e1b-13a28d513d2b",
+      "name": "CT HTTP set script",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3560,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst s = $('CT Parse script').first().json;\nconst id = Number($('CT HTTP insert script').first().json.lastInsertRowid);\nconst text = '✍️ Этап 2/4 — Сценарий готов (' + s.target_length + ' сек, ~' + s.words + ' слов)\\n\\n🪝 HOOK (3 сек):\\n' + s.hook + '\\n\\n📖 BODY (~20 сек):\\n' + s.body + '\\n\\n🎯 CTA (3-5 сек):\\n' + s.cta + '\\n\\n──────────────\\n📝 Полный текст для озвучки:\\n' + s.full_text;\nreturn [{ json: { chat_id: p.chat_id, text: text, script_id: id } }];\n"
+      },
+      "id": "fc3771c4-ce2c-4ac7-9132-02a0d9017407",
+      "name": "CT Stage2 Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3600,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        },
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Утвердить",
+                    "additionalFields": {
+                      "callback_data": "approve:script:{{ $json.script_id }}"
+                    }
+                  },
+                  {
+                    "text": "✏️ Изменить",
+                    "additionalFields": {
+                      "callback_data": "edit:script:{{ $json.script_id }}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "❌ Отклонить",
+                    "additionalFields": {
+                      "callback_data": "reject:script:{{ $json.script_id }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "id": "21e26101-08f7-4e7a-9ab5-d9db5fd1b05c",
+      "name": "TG stage2",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3640,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Parser').first().json.query_id }}",
+        "additionalFields": {
+          "text": "🔄"
+        }
+      },
+      "id": "5ba9c4db-ca9b-4ace-af2d-603f7354b8b7",
+      "name": "ET answer",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3680,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"UPDATE topics SET status = 'rejected' WHERE id = ? AND status != 'approved'\", params: [String(p.entity_id)] } }];\n"
+      },
+      "id": "a9bab88c-9760-420b-927b-5f7a76072dd9",
+      "name": "ET Build reject old",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3720,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "59ddce9f-a70f-4f73-8919-2dd476a5fbc2",
+      "name": "ET HTTP reject old",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst prompt = 'Клиент: Robotec (промышленная робототехника, интегратор KUKA; тон: экспертно-деловой, ROI).\\nОператор отклонил предыдущую тему. Предложи ДРУГУЮ, не похожую на неё, но в той же нише.\\nВерни строго JSON: {\"chosen\": {\"title\", \"source_url\", \"source_platform\", \"rationale\", \"feasibility\", \"adaptation_for_client\", \"target_length_sec\"}}. Без markdown.';\nreturn [{ json: { skill: 'analyst', prompt: prompt } }];\n"
+      },
+      "id": "4224245f-a200-4c72-9882-0f2c2d927d1e",
+      "name": "ET Build bridge prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3800,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8642/ask",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.HERMES_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "be8346e0-6681-4da1-b026-6e0064a3664e",
+      "name": "ET HTTP bridge analyst",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3840,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nfunction extractJSON(s) {\n  if (!s) return null;\n  let t = String(s).trim();\n  const m = t.match(/```(?:json)?\\s*([\\s\\S]*?)```/);\n  if (m) t = m[1].trim();\n  const start = t.indexOf('{');\n  if (start >= 0) {\n    let depth = 0, inStr = false, esc = false;\n    for (let i = start; i < t.length; i++) {\n      const c = t[i];\n      if (inStr) { if (esc) esc = false; else if (c === '\\\\') esc = true; else if (c === '\"') inStr = false; continue; }\n      if (c === '\"') inStr = true;\n      else if (c === '{') depth++;\n      else if (c === '}') { depth--; if (depth === 0) { try { return JSON.parse(t.slice(start, i + 1)); } catch (e) { return null; } } }\n    }\n  }\n  try { return JSON.parse(t); } catch (e) { return null; }\n}\n\nconst raw = $('ET HTTP bridge analyst').first().json.answer || '';\nconst j = extractJSON(raw);\nif (!j || !j.chosen) return [{ json: { ok: false, text: '🤖 Аналитик не смог предложить другую тему. Попробуй /start_cycle.' } }];\nconst c = j.chosen;\nreturn [{ json: { ok: true, title: String(c.title || 'Тема без названия'), source_url: String(c.source_url || ''), source_platform: String(c.source_platform || ''), rationale: String(c.rationale || ''), feasibility: String(c.feasibility || 'medium'), adaptation_for_client: String(c.adaptation_for_client || ''), target_length: Number(c.target_length_sec || 30) } }];\n"
+      },
+      "id": "060169bb-c843-44e2-8a20-eacaa5b00f49",
+      "name": "ET Parse topic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.ok }}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "eb5a82cf-d9e1-40a3-b3a4-870b8be460b4",
+      "name": "Switch ET parse",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        3920,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "e1db1dbf-4f25-4e08-97e6-cc008511709d",
+      "name": "TG ET fail",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3960,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst t = $('ET Parse topic').first().json;\nconst metrics = JSON.stringify({ views: 0, likes: 0, shares: 0 });\nreturn [{ json: { sql: \"INSERT INTO topics (client_id, cycle_date, title, rationale, source_url, source_platform, source_metrics, feasibility, status) VALUES (1, date('now'), ?, ?, ?, ?, ?, ?, 'pending')\", params: [t.title, t.rationale, t.source_url, t.source_platform, metrics, t.feasibility] } }];\n"
+      },
+      "id": "87bb6c7d-6115-43fc-8423-1c9a3ddbf3e3",
+      "name": "ET Build insert topic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4000,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "08538d70-d704-4ee5-80c6-d31a08471b47",
+      "name": "ET HTTP insert topic",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4040,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst id = Number($('ET HTTP insert topic').first().json.lastInsertRowid);\nreturn [{ json: { sql: \"UPDATE sessions SET topic_id = ?, state = 'CYCLE_ANALYTICS_PENDING', updated_at = datetime('now') WHERE tg_user_id = ?\", params: [id, 941296693] } }];\n"
+      },
+      "id": "bc4fe64b-46b7-4653-b206-f565916354d9",
+      "name": "ET Build session",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4080,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "b05fc309-4efd-4d27-8ec3-b37f84d64a0c",
+      "name": "ET HTTP session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4120,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst t = $('ET Parse topic').first().json;\nconst id = Number($('ET HTTP insert topic').first().json.lastInsertRowid);\nconst text = '📊 Этап 1/4 — Другая тема\\n\\n🎯 ' + t.title + '\\nИсточник: ' + (t.source_url || '—') + '\\nРеализуемость: ' + t.feasibility + '\\n\\nПочему выбрал: ' + t.rationale + '\\nАдаптация под клиента: ' + t.adaptation_for_client + '\\nДлина ролика: ' + t.target_length + ' сек';\nreturn [{ json: { chat_id: p.chat_id, text: text, topic_id: id } }];\n"
+      },
+      "id": "6a13f516-a227-42e5-80d5-2ea295876db4",
+      "name": "ET Stage1 Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        },
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Утвердить",
+                    "additionalFields": {
+                      "callback_data": "approve:topic:{{ $json.topic_id }}"
+                    }
+                  },
+                  {
+                    "text": "✏️ Изменить",
+                    "additionalFields": {
+                      "callback_data": "edit:topic:{{ $json.topic_id }}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "❌ Отклонить",
+                    "additionalFields": {
+                      "callback_data": "reject:topic:{{ $json.topic_id }}"
+                    }
+                  },
+                  {
+                    "text": "🔄 Другая тема",
+                    "additionalFields": {
+                      "callback_data": "alt:topic:{{ $json.topic_id }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "id": "2ddb88ce-bec0-47ed-902d-def80d672905",
+      "name": "TG stage1 edit",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4200,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Parser').first().json.query_id }}",
+        "additionalFields": {
+          "text": "❌"
+        }
+      },
+      "id": "efa48caa-f7e2-4495-9605-88fd5c813636",
+      "name": "RT answer",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4240,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"UPDATE topics SET status = 'rejected' WHERE id = ?\", params: [String(p.entity_id)] } }];\n"
+      },
+      "id": "3a1ccaed-bbae-46be-90e9-019adac00452",
+      "name": "RT Build",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4280,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "e7fd3d7e-d014-4968-bb7f-a478bbe521b5",
+      "name": "RT HTTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"UPDATE sessions SET state = 'IDLE', topic_id = NULL, updated_at = datetime('now') WHERE tg_user_id = ?\", params: [941296693] } }];\n"
+      },
+      "id": "057ec062-eca1-46b7-a262-c6de860ab27e",
+      "name": "RT Build session",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4360,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "7b1e662e-703f-4bfd-b151-64cc076d3998",
+      "name": "RT HTTP session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ '❌ Тема отклонена. /start_cycle — выбрать другую.' }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "8ec4d951-eac9-44ef-8aa1-6b570ff087e7",
+      "name": "TG topic rejected",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4440,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Parser').first().json.query_id }}",
+        "additionalFields": {
+          "text": "✅"
+        }
+      },
+      "id": "c3aa92a1-c27e-4565-abe4-f1767f7869a6",
+      "name": "AS answer",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4480,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"UPDATE scripts SET status = 'approved', approved_at = datetime('now'), approved_by = ? WHERE id = ?\", params: [941296693, String(p.entity_id)] } }];\n"
+      },
+      "id": "694b82a8-85cb-423d-b6c4-c1ec2405f94c",
+      "name": "AS Build approve",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "9eef6351-04e6-4723-b637-027917d2fd89",
+      "name": "AS HTTP approve",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4560,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"UPDATE sessions SET state = 'CYCLE_GENERATION_PENDING', script_id = ?, updated_at = datetime('now') WHERE tg_user_id = ?\", params: [String(p.entity_id), 941296693] } }];\n"
+      },
+      "id": "58673509-582a-44a5-8fc6-8f7f4a4fb8c7",
+      "name": "AS Build session",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4600,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "0e3fcca9-5562-4f8a-8212-d7a4942a9df2",
+      "name": "AS HTTP session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4640,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { url: 'https://example.com' } }];\n"
+      },
+      "id": "dba60e99-5d8a-4b2b-a12f-33472e449260",
+      "name": "AS Build link body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4680,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/factory/creatify-link",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "e582f7db-bfc4-4121-be7b-74bb96a1cca4",
+      "name": "AS HTTP creatify-link",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4720,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT hook, body, cta, full_text, target_length FROM scripts WHERE id = ?\", params: [String(p.entity_id)] } }];\n"
+      },
+      "id": "95e0fbaa-ce15-49cf-82b3-9df31a03b582",
+      "name": "AS Build select script",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "6b8c4f0a-79e1-4bb3-a780-b2b3f01c235f",
+      "name": "AS HTTP select script",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4800,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst linkId = $('AS HTTP creatify-link').first().json.link_id || '';\nconst script = ($('AS HTTP select script').first().json.rows || [])[0] || {};\nconst prompt = 'Собери валидный JSON для POST /api/link_to_videos (creatify) по сценарию.\\nСценарий: ' + (script.full_text || '') + ' (длина ' + (script.target_length || 30) + ' сек)\\nlink (UUID): ' + linkId + '\\nwebhook_url: https://assessment-fossil-assignments-alice.trycloudflare.com/webhook/factory/creatify/6d8f2a41c9e7b3d5f0a1c4e8\\nvoice: русский экспертный; avatar: не задан; язык: ru; aspect_ratio: 9x16; target_platform: Instagram; model_version: aurora_v1_fast.\\nВерни ТОЛЬКО JSON payload (name, link, visual_style, script_style, aspect_ratio, video_length, language, target_audience, target_platform, model_version, override_script, webhook_url). Без markdown.';\nreturn [{ json: { skill: 'json-builder', prompt: prompt } }];\n"
+      },
+      "id": "ed23a691-9a3d-48ee-8874-2eae5e1c06ae",
+      "name": "AS Build bridge prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4840,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8642/ask",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.HERMES_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "36a86a3f-8045-4e07-88e2-bec676bade5d",
+      "name": "AS HTTP bridge json-builder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nfunction extractJSON(s) {\n  if (!s) return null;\n  let t = String(s).trim();\n  const m = t.match(/```(?:json)?\\s*([\\s\\S]*?)```/);\n  if (m) t = m[1].trim();\n  const start = t.indexOf('{');\n  if (start >= 0) {\n    let depth = 0, inStr = false, esc = false;\n    for (let i = start; i < t.length; i++) {\n      const c = t[i];\n      if (inStr) { if (esc) esc = false; else if (c === '\\\\') esc = true; else if (c === '\"') inStr = false; continue; }\n      if (c === '\"') inStr = true;\n      else if (c === '{') depth++;\n      else if (c === '}') { depth--; if (depth === 0) { try { return JSON.parse(t.slice(start, i + 1)); } catch (e) { return null; } } }\n    }\n  }\n  try { return JSON.parse(t); } catch (e) { return null; }\n}\n\nconst raw = $('AS HTTP bridge json-builder').first().json.answer || '';\nconst j = extractJSON(raw);\nif (!j) return [{ json: { ok: false, text: '⚠️ JSON-сборщик не смог собрать payload генерации. Попробуй ещё раз.' } }];\nreturn [{ json: { ok: true, payload: j } }];\n"
+      },
+      "id": "82448a4d-21dd-44c2-9900-23070d7cb701",
+      "name": "AS Parse payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4920,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.ok }}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "e6668f92-c89b-4680-a568-52c997579213",
+      "name": "Switch AS parse",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        4960,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "729aa653-d62c-4957-a258-129d87c9fee9",
+      "name": "TG AS fail",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5000,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst pl = $('AS Parse payload').first().json;\nconst linkId = $('AS HTTP creatify-link').first().json.link_id || '';\nreturn [{ json: { script_id: Number(p.entity_id), client_id: 1, json_payload: pl.payload, link_id: String(linkId) } }];\n"
+      },
+      "id": "7c2864e8-3b79-470d-98a2-aa2b1f748264",
+      "name": "AS Build submit body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5040,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/factory/creatify-submit",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "13fce5bc-5542-40c3-9102-575579753913",
+      "name": "AS HTTP creatify-submit",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        5080,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ '🎬 Этап 3/4 — видео генерируется (mock)...\n\nКак только creatify ответит, придёт этап 3. /cancel — отмена.' }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "b21631ce-e538-483a-b1fc-78ec52ad8641",
+      "name": "TG generating",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5120,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Parser').first().json.query_id }}",
+        "additionalFields": {
+          "text": "✏️"
+        }
+      },
+      "id": "00088b5c-8e11-4052-bf19-c019ed5da831",
+      "name": "ES answer",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5160,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"UPDATE sessions SET state = 'CYCLE_SCRIPT_EDITING', updated_at = datetime('now') WHERE tg_user_id = ?\", params: [941296693] } }];\n"
+      },
+      "id": "3c93b628-2c8c-4d4b-9069-b15afd1b0b6c",
+      "name": "ES Build session",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "37ebc04c-4680-4095-b48a-d817e2f1e947",
+      "name": "ES HTTP session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        5240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ '✏️ Пришли новый текст сценария одним сообщением. /cancel — отмена.' }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "8936e71e-c1d3-415d-a8c0-1828f33e313a",
+      "name": "TG edit script",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5280,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Parser').first().json.query_id }}",
+        "additionalFields": {
+          "text": "❌"
+        }
+      },
+      "id": "28e03d32-a342-4016-a190-33154a7fd788",
+      "name": "RS answer",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5320,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"UPDATE scripts SET status = 'rejected' WHERE id = ?\", params: [String(p.entity_id)] } }];\n"
+      },
+      "id": "97a92510-c5db-4b51-adf5-a17ba8283bc0",
+      "name": "RS Build",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5360,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "53012b8b-5e2a-4caf-9d18-785c902e9932",
+      "name": "RS HTTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        5400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"UPDATE sessions SET state = 'IDLE', script_id = NULL, updated_at = datetime('now') WHERE tg_user_id = ?\", params: [941296693] } }];\n"
+      },
+      "id": "9d2d3883-9412-4a52-a50f-d6dc00d07dd5",
+      "name": "RS Build session",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "948e9622-70d6-4241-9e08-f0afd2448e3c",
+      "name": "RS HTTP session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        5480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ '❌ Сценарий отклонён. /start_cycle — новый цикл.' }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "800bdfe8-9857-4a6e-9305-d13f9ebe5882",
+      "name": "TG script rejected",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5520,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Parser').first().json.query_id }}",
+        "additionalFields": {
+          "text": "✅"
+        }
+      },
+      "id": "da6fc5ce-6f32-4dd9-98ca-3d0e1c4dac8a",
+      "name": "PG answer",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5560,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"UPDATE sessions SET state = 'CYCLE_PUBLISH_PENDING', generation_id = ?, updated_at = datetime('now') WHERE tg_user_id = ?\", params: [String(p.entity_id), 941296693] } }];\n"
+      },
+      "id": "15fc2c73-57e0-4f7f-8f84-a86d389b3725",
+      "name": "PG Build session",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5600,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "3d486452-3009-443c-b7ad-140694ff5dd4",
+      "name": "PG HTTP session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        5640,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst text = '📤 Этап 4/4 — Куда публикуем?\\n\\n☐ Instagram Reels\\n☐ YouTube Shorts\\n☐ TikTok\\n☐ Telegram\\n☐ Threads (текст)\\n☐ X (текст)\\n\\n⏰ Время: не выбрано\\n\\nВыбери площадки (toggle), время (schedule), затем «📤 Запланировать».';\nreturn [{ json: { chat_id: p.chat_id, text: text } }];\n"
+      },
+      "id": "964422d3-e7cb-4c60-af2a-de2353410682",
+      "name": "PG Stage4 Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5680,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        },
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "☑️ Instagram",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:instagram"
+                    }
+                  },
+                  {
+                    "text": "☑️ YouTube",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:youtube"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "☑️ TikTok",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:tiktok"
+                    }
+                  },
+                  {
+                    "text": "☑️ Telegram",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:telegram"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "☑️ Threads",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:threads"
+                    }
+                  },
+                  {
+                    "text": "☑️ X",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:x"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "⏰ Сейчас",
+                    "additionalFields": {
+                      "callback_data": "schedule:now"
+                    }
+                  },
+                  {
+                    "text": "+2 часа",
+                    "additionalFields": {
+                      "callback_data": "schedule:2h"
+                    }
+                  },
+                  {
+                    "text": "Завтра 12:00",
+                    "additionalFields": {
+                      "callback_data": "schedule:tomorrow_12"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "📤 Запланировать",
+                    "additionalFields": {
+                      "callback_data": "confirm:publish"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "id": "adba5ca1-0ed6-4ef9-83d5-543e0ba723be",
+      "name": "TG stage4",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5720,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Parser').first().json.query_id }}",
+        "additionalFields": {
+          "text": "🔁"
+        }
+      },
+      "id": "b93fb235-f67d-4bc2-a525-878036c0600a",
+      "name": "RG answer",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5760,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ '🔁 Перегенерация в mock-режиме недоступна. /start_cycle — новый цикл.' }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "a095f972-7d0c-433a-bdb0-e91f64801e35",
+      "name": "TG regen",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5800,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Parser').first().json.query_id }}",
+        "additionalFields": {
+          "text": "❌"
+        }
+      },
+      "id": "9dd5ca99-5d8f-475c-8401-708bbd58dcdc",
+      "name": "JG answer",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5840,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"UPDATE generations SET status = 'rejected' WHERE id = ?\", params: [String(p.entity_id)] } }];\n"
+      },
+      "id": "86daaee7-25cb-453f-873b-8a6e0384629c",
+      "name": "JG Build",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "d875f863-a776-4a6d-8e81-8847c3cbd35a",
+      "name": "JG HTTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        5920,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"UPDATE sessions SET state = 'IDLE', generation_id = NULL, updated_at = datetime('now') WHERE tg_user_id = ?\", params: [941296693] } }];\n"
+      },
+      "id": "8c132ef3-031f-4e24-8db3-dc256f7ac2ef",
+      "name": "JG Build session",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5960,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "754d678e-1859-4b67-bd06-97b4656104a0",
+      "name": "JG HTTP session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        6000,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ '❌ Видео отклонено. /start_cycle — новый цикл.' }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "35653d05-bebc-4284-a5ce-41b6f177d16e",
+      "name": "TG gen rejected",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        6040,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Parser').first().json.query_id }}",
+        "additionalFields": {
+          "text": "☑️"
+        }
+      },
+      "id": "5b7b356d-0067-443b-9bca-f9a12476b517",
+      "name": "TP answer",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        6080,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"SELECT selected_platforms, post_at FROM sessions WHERE tg_user_id = ?\", params: [941296693] } }];\n"
+      },
+      "id": "60aed6cc-1a3e-46dd-adce-1f4b5e8d7646",
+      "name": "TP Build select",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6120,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "39982960-1af3-437c-9d74-1c329a811406",
+      "name": "TP HTTP select",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        6160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('TP HTTP select').first().json.rows || [];\nlet platforms = [];\ntry { platforms = JSON.parse(rows[0] && rows[0].selected_platforms || '[]'); } catch (e) { platforms = []; }\nif (!Array.isArray(platforms)) platforms = [];\nconst plat = p.entity_id;\nconst i = platforms.indexOf(plat);\nif (i >= 0) platforms.splice(i, 1); else platforms.push(plat);\nreturn [{ json: { platforms: platforms } }];\n"
+      },
+      "id": "ec66046f-c7f1-4c51-bbf5-1d6f14374a40",
+      "name": "TP Toggle",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst pl = $('TP Toggle').first().json.platforms;\nreturn [{ json: { sql: \"UPDATE sessions SET selected_platforms = ?, updated_at = datetime('now') WHERE tg_user_id = ?\", params: [JSON.stringify(pl), 941296693] } }];\n"
+      },
+      "id": "777785d4-ec25-4ddc-9c1c-3c85ce793d67",
+      "name": "TP Build update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "096c8708-3d7c-453b-93e6-f1fd770d962d",
+      "name": "TP HTTP update",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        6280,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst pl = $('TP Toggle').first().json.platforms || [];\nconst rows = $('TP HTTP select').first().json.rows || [];\nconst postAt = (rows[0] && rows[0].post_at) || 'не выбрано';\nconst all = [['instagram', 'Instagram Reels'], ['youtube', 'YouTube Shorts'], ['tiktok', 'TikTok'], ['telegram', 'Telegram'], ['threads', 'Threads (текст)'], ['x', 'X (текст)']];\nconst lines = ['📤 Этап 4/4 — Куда публикуем?', ''];\nfor (const a of all) lines.push((pl.indexOf(a[0]) >= 0 ? '☑️' : '☐') + ' ' + a[1]);\nlines.push('', '⏰ Время: ' + postAt);\nreturn [{ json: { chat_id: p.chat_id, text: lines.join('\\n') } }];\n"
+      },
+      "id": "4fd35369-a32c-4f89-a40f-7ed567ffa4a0",
+      "name": "TP Stage4 Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        },
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "☑️ Instagram",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:instagram"
+                    }
+                  },
+                  {
+                    "text": "☑️ YouTube",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:youtube"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "☑️ TikTok",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:tiktok"
+                    }
+                  },
+                  {
+                    "text": "☑️ Telegram",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:telegram"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "☑️ Threads",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:threads"
+                    }
+                  },
+                  {
+                    "text": "☑️ X",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:x"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "⏰ Сейчас",
+                    "additionalFields": {
+                      "callback_data": "schedule:now"
+                    }
+                  },
+                  {
+                    "text": "+2 часа",
+                    "additionalFields": {
+                      "callback_data": "schedule:2h"
+                    }
+                  },
+                  {
+                    "text": "Завтра 12:00",
+                    "additionalFields": {
+                      "callback_data": "schedule:tomorrow_12"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "📤 Запланировать",
+                    "additionalFields": {
+                      "callback_data": "confirm:publish"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "id": "9aca66af-6edd-4d62-8f71-759a8c556f9c",
+      "name": "TG stage4 toggle",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        6360,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Parser').first().json.query_id }}",
+        "additionalFields": {
+          "text": "⏰"
+        }
+      },
+      "id": "e73cec23-3a43-4672-a96c-2ee5d57b8fe6",
+      "name": "SCH answer",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        6400,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst w = p.entity_id || 'now';\nlet postAt = null;\nconst now = new Date();\nif (w === '2h') { now.setHours(now.getHours() + 2); postAt = now.toISOString(); }\nelse if (w === 'tomorrow_12') { const t = new Date(); t.setDate(t.getDate() + 1); t.setHours(12, 0, 0, 0); postAt = t.toISOString(); }\nelse { postAt = now.toISOString(); }\nreturn [{ json: { post_at: postAt } }];\n"
+      },
+      "id": "3e861682-6062-4e59-ba68-b6346a79f32c",
+      "name": "SCH Calc",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst v = $('SCH Calc').first().json.post_at;\nreturn [{ json: { sql: \"UPDATE sessions SET post_at = ?, updated_at = datetime('now') WHERE tg_user_id = ?\", params: [v, 941296693] } }];\n"
+      },
+      "id": "bc477077-52fd-41a9-a871-5adde9dacf01",
+      "name": "SCH Build update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "97d02937-9915-471d-b1b7-fd93486162a2",
+      "name": "SCH HTTP update",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        6520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"SELECT selected_platforms, post_at FROM sessions WHERE tg_user_id = ?\", params: [941296693] } }];\n"
+      },
+      "id": "a3a3a533-b644-40b9-9cc6-1d35881bbcb7",
+      "name": "SCH Build select",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6560,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "b352abdc-79ec-47ec-9a4b-9df10da94815",
+      "name": "SCH HTTP select",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        6600,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('SCH HTTP select').first().json.rows || [];\nlet platforms = [];\ntry { platforms = JSON.parse(rows[0] && rows[0].selected_platforms || '[]'); } catch (e) { platforms = []; }\nconst postAt = (rows[0] && rows[0].post_at) || 'не выбрано';\nconst all = [['instagram', 'Instagram Reels'], ['youtube', 'YouTube Shorts'], ['tiktok', 'TikTok'], ['telegram', 'Telegram'], ['threads', 'Threads (текст)'], ['x', 'X (текст)']];\nconst lines = ['📤 Этап 4/4 — Куда публикуем?', ''];\nfor (const a of all) lines.push((platforms.indexOf(a[0]) >= 0 ? '☑️' : '☐') + ' ' + a[1]);\nlines.push('', '⏰ Время: ' + postAt);\nreturn [{ json: { chat_id: p.chat_id, text: lines.join('\\n') } }];\n"
+      },
+      "id": "b14f9c59-74cd-4831-b4b2-63e26a5ff782",
+      "name": "SCH Stage4 Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6640,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        },
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "☑️ Instagram",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:instagram"
+                    }
+                  },
+                  {
+                    "text": "☑️ YouTube",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:youtube"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "☑️ TikTok",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:tiktok"
+                    }
+                  },
+                  {
+                    "text": "☑️ Telegram",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:telegram"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "☑️ Threads",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:threads"
+                    }
+                  },
+                  {
+                    "text": "☑️ X",
+                    "additionalFields": {
+                      "callback_data": "toggle:platform:x"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "⏰ Сейчас",
+                    "additionalFields": {
+                      "callback_data": "schedule:now"
+                    }
+                  },
+                  {
+                    "text": "+2 часа",
+                    "additionalFields": {
+                      "callback_data": "schedule:2h"
+                    }
+                  },
+                  {
+                    "text": "Завтра 12:00",
+                    "additionalFields": {
+                      "callback_data": "schedule:tomorrow_12"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "📤 Запланировать",
+                    "additionalFields": {
+                      "callback_data": "confirm:publish"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "id": "1fa47776-b9b0-4c84-84b9-af4f9894215b",
+      "name": "TG stage4 sched",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        6680,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Parser').first().json.query_id }}",
+        "additionalFields": {
+          "text": "📤"
+        }
+      },
+      "id": "0886f03f-8b8b-404b-a0dd-6c4b7882e211",
+      "name": "CP answer",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        6720,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"SELECT state, selected_platforms, post_at, generation_id FROM sessions WHERE tg_user_id = ?\", params: [941296693] } }];\n"
+      },
+      "id": "ba7da2b8-1016-4c6f-a8b0-e6065c104276",
+      "name": "CP Build select",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "eb5922fe-760b-4ef2-9924-252d9b78a0cb",
+      "name": "CP HTTP select",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        6800,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst rows = $('CP HTTP select').first().json.rows || [];\nconst row = rows[0] || {};\nlet platforms = [];\ntry { platforms = JSON.parse(row.selected_platforms || '[]'); } catch (e) { platforms = []; }\nif (!platforms.length) return [{ json: { allow: false, text: '☝️ Сначала выбери хотя бы одну площадку (toggle) и время (schedule).' } }];\nreturn [{ json: { allow: true, platforms: platforms, post_at: row.post_at || null, generation_id: row.generation_id || null } }];\n"
+      },
+      "id": "6fd6e1cb-a25e-43f4-bb9d-e64a1dcc090e",
+      "name": "CP Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6840,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.allow }}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "dd01a7d4-b2c8-44cc-8bee-c52fe6f466cd",
+      "name": "Switch CP allow",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        6880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "f52ca639-8423-4e9d-b127-7c819b83993b",
+      "name": "TG CP refuse",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        6920,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nconst c = $('CP Check').first().json;\nreturn [{ json: { platforms: c.platforms, captions: {}, post_at: c.post_at, generation_id: c.generation_id } }];\n"
+      },
+      "id": "85758778-e6fc-4a4b-92f6-405bbfbc53c8",
+      "name": "CP Build publish body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6960,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/factory/publish",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "8d8bf587-4143-4b7c-a536-98c620b5cd00",
+      "name": "CP HTTP wf-publish",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        7000,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "\nreturn [{ json: { sql: \"UPDATE sessions SET state = 'IDLE', selected_platforms = NULL, post_at = NULL, generation_id = NULL, updated_at = datetime('now') WHERE tg_user_id = ?\", params: [941296693] } }];\n"
+      },
+      "id": "0bc03b65-aa77-467a-9994-7e4a4a62413d",
+      "name": "CP Build final",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7040,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://db-bridge:8787/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-BRIDGE-TOKEN",
+              "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "eb39e06a-0861-4663-a118-8fc3b27ee423",
+      "name": "CP HTTP final",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        7080,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Parser').first().json.chat_id }}",
+        "text": "={{ '✅ Опубликовано (mock). Возврат в IDLE.' }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "cb52eaeb-b107-4229-ad95-092cce79f23e",
+      "name": "TG published",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        7120,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Parser').first().json.query_id }}",
+        "additionalFields": {
+          "text": "🤷 Не знаю такую кнопку"
+        }
+      },
+      "id": "017ae28e-a9d2-4cf0-9af8-40c4e1040e02",
+      "name": "CB answer unknown",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        7160,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "tg-trigger": {
+      "main": [
+        [
+          {
+            "node": "Whitelist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Whitelist": {
+      "main": [
+        [
+          {
+            "node": "Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parser": {
+      "main": [
+        [
+          {
+            "node": "Switch kind",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch kind",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch kind": {
+      "main": [
+        [
+          {
+            "node": "Switch cmd",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch cb",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "NoOp kind",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch cmd": {
+      "main": [
+        [
+          {
+            "node": "ST Build settings",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TG help",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ST2 Build settings",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CN Build",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TG ping",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SC Build state",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OB Build state",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gate Build",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ST Build settings": {
+      "main": [
+        [
+          {
+            "node": "ST HTTP settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ST HTTP settings": {
+      "main": [
+        [
+          {
+            "node": "ST Build today",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ST Build today": {
+      "main": [
+        [
+          {
+            "node": "ST HTTP today",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ST HTTP today": {
+      "main": [
+        [
+          {
+            "node": "ST Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ST Format": {
+      "main": [
+        [
+          {
+            "node": "TG start",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ST2 Build settings": {
+      "main": [
+        [
+          {
+            "node": "ST2 HTTP settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ST2 HTTP settings": {
+      "main": [
+        [
+          {
+            "node": "ST2 Build counts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ST2 Build counts": {
+      "main": [
+        [
+          {
+            "node": "ST2 HTTP counts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ST2 HTTP counts": {
+      "main": [
+        [
+          {
+            "node": "ST2 Build client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ST2 Build client": {
+      "main": [
+        [
+          {
+            "node": "ST2 HTTP client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ST2 HTTP client": {
+      "main": [
+        [
+          {
+            "node": "ST2 Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ST2 Format": {
+      "main": [
+        [
+          {
+            "node": "TG status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CN Build": {
+      "main": [
+        [
+          {
+            "node": "CN HTTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CN HTTP": {
+      "main": [
+        [
+          {
+            "node": "TG cancel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC Build state": {
+      "main": [
+        [
+          {
+            "node": "SC HTTP state",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC HTTP state": {
+      "main": [
+        [
+          {
+            "node": "SC Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC Check": {
+      "main": [
+        [
+          {
+            "node": "Switch SC allow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch SC allow": {
+      "main": [
+        [
+          {
+            "node": "SC Build setstate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TG SC busy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC Build setstate": {
+      "main": [
+        [
+          {
+            "node": "SC HTTP setstate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC HTTP setstate": {
+      "main": [
+        [
+          {
+            "node": "SC Build analytics body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC Build analytics body": {
+      "main": [
+        [
+          {
+            "node": "SC HTTP wf-analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC HTTP wf-analytics": {
+      "main": [
+        [
+          {
+            "node": "SC Build bridge prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC Build bridge prompt": {
+      "main": [
+        [
+          {
+            "node": "SC HTTP bridge analyst",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC HTTP bridge analyst": {
+      "main": [
+        [
+          {
+            "node": "SC Parse topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC Parse topic": {
+      "main": [
+        [
+          {
+            "node": "Switch SC parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch SC parse": {
+      "main": [
+        [
+          {
+            "node": "SC Build insert topic",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TG no candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC Build insert topic": {
+      "main": [
+        [
+          {
+            "node": "SC HTTP insert topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC HTTP insert topic": {
+      "main": [
+        [
+          {
+            "node": "SC Build set topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC Build set topic": {
+      "main": [
+        [
+          {
+            "node": "SC HTTP set topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC HTTP set topic": {
+      "main": [
+        [
+          {
+            "node": "SC Stage1 Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC Stage1 Format": {
+      "main": [
+        [
+          {
+            "node": "TG stage1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OB Build state": {
+      "main": [
+        [
+          {
+            "node": "OB HTTP state",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OB HTTP state": {
+      "main": [
+        [
+          {
+            "node": "OB Build wf body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OB Build wf body": {
+      "main": [
+        [
+          {
+            "node": "OB HTTP wf-onboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OB HTTP wf-onboard": {
+      "main": [
+        [
+          {
+            "node": "OB Build bridge prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OB Build bridge prompt": {
+      "main": [
+        [
+          {
+            "node": "OB HTTP bridge onboarding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OB HTTP bridge onboarding": {
+      "main": [
+        [
+          {
+            "node": "OB Parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OB Parse": {
+      "main": [
+        [
+          {
+            "node": "Switch OB parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch OB parse": {
+      "main": [
+        [
+          {
+            "node": "OB Build insert client",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TG ob fail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OB Build insert client": {
+      "main": [
+        [
+          {
+            "node": "OB HTTP insert client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OB HTTP insert client": {
+      "main": [
+        [
+          {
+            "node": "OB Build set active",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OB Build set active": {
+      "main": [
+        [
+          {
+            "node": "OB HTTP set active",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OB HTTP set active": {
+      "main": [
+        [
+          {
+            "node": "OB Build session idle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OB Build session idle": {
+      "main": [
+        [
+          {
+            "node": "OB HTTP session idle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OB HTTP session idle": {
+      "main": [
+        [
+          {
+            "node": "OB Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OB Format": {
+      "main": [
+        [
+          {
+            "node": "TG onboard profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gate Build": {
+      "main": [
+        [
+          {
+            "node": "Gate HTTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gate HTTP": {
+      "main": [
+        [
+          {
+            "node": "Gate Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gate Check": {
+      "main": [
+        [
+          {
+            "node": "Switch gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch gate": {
+      "main": [
+        [
+          {
+            "node": "GE Build insert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TG unknown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GE Build insert": {
+      "main": [
+        [
+          {
+            "node": "GE HTTP insert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GE HTTP insert": {
+      "main": [
+        [
+          {
+            "node": "GE Build session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GE Build session": {
+      "main": [
+        [
+          {
+            "node": "GE HTTP session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GE HTTP session": {
+      "main": [
+        [
+          {
+            "node": "GE Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GE Format": {
+      "main": [
+        [
+          {
+            "node": "TG script saved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch cb": {
+      "main": [
+        [
+          {
+            "node": "CT answer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ET answer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ET answer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "RT answer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AS answer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ES answer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "RS answer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PG answer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "RG answer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "JG answer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TP answer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SCH answer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CP answer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CB answer unknown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CT answer": {
+      "main": [
+        [
+          {
+            "node": "CT Build topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CT Build topic": {
+      "main": [
+        [
+          {
+            "node": "CT HTTP topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CT HTTP topic": {
+      "main": [
+        [
+          {
+            "node": "CT Build approve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CT Build approve": {
+      "main": [
+        [
+          {
+            "node": "CT HTTP approve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CT HTTP approve": {
+      "main": [
+        [
+          {
+            "node": "CT Build session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CT Build session": {
+      "main": [
+        [
+          {
+            "node": "CT HTTP session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CT HTTP session": {
+      "main": [
+        [
+          {
+            "node": "CT Build bridge prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CT Build bridge prompt": {
+      "main": [
+        [
+          {
+            "node": "CT HTTP bridge scriptwriter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CT HTTP bridge scriptwriter": {
+      "main": [
+        [
+          {
+            "node": "CT Parse script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CT Parse script": {
+      "main": [
+        [
+          {
+            "node": "Switch CT parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch CT parse": {
+      "main": [
+        [
+          {
+            "node": "CT Build insert script",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TG script fail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CT Build insert script": {
+      "main": [
+        [
+          {
+            "node": "CT HTTP insert script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CT HTTP insert script": {
+      "main": [
+        [
+          {
+            "node": "CT Build set script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CT Build set script": {
+      "main": [
+        [
+          {
+            "node": "CT HTTP set script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CT HTTP set script": {
+      "main": [
+        [
+          {
+            "node": "CT Stage2 Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CT Stage2 Format": {
+      "main": [
+        [
+          {
+            "node": "TG stage2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ET answer": {
+      "main": [
+        [
+          {
+            "node": "ET Build reject old",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ET Build reject old": {
+      "main": [
+        [
+          {
+            "node": "ET HTTP reject old",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ET HTTP reject old": {
+      "main": [
+        [
+          {
+            "node": "ET Build bridge prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ET Build bridge prompt": {
+      "main": [
+        [
+          {
+            "node": "ET HTTP bridge analyst",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ET HTTP bridge analyst": {
+      "main": [
+        [
+          {
+            "node": "ET Parse topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ET Parse topic": {
+      "main": [
+        [
+          {
+            "node": "Switch ET parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch ET parse": {
+      "main": [
+        [
+          {
+            "node": "ET Build insert topic",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TG ET fail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ET Build insert topic": {
+      "main": [
+        [
+          {
+            "node": "ET HTTP insert topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ET HTTP insert topic": {
+      "main": [
+        [
+          {
+            "node": "ET Build session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ET Build session": {
+      "main": [
+        [
+          {
+            "node": "ET HTTP session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ET HTTP session": {
+      "main": [
+        [
+          {
+            "node": "ET Stage1 Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ET Stage1 Format": {
+      "main": [
+        [
+          {
+            "node": "TG stage1 edit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RT answer": {
+      "main": [
+        [
+          {
+            "node": "RT Build",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RT Build": {
+      "main": [
+        [
+          {
+            "node": "RT HTTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RT HTTP": {
+      "main": [
+        [
+          {
+            "node": "RT Build session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RT Build session": {
+      "main": [
+        [
+          {
+            "node": "RT HTTP session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RT HTTP session": {
+      "main": [
+        [
+          {
+            "node": "TG topic rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AS answer": {
+      "main": [
+        [
+          {
+            "node": "AS Build approve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AS Build approve": {
+      "main": [
+        [
+          {
+            "node": "AS HTTP approve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AS HTTP approve": {
+      "main": [
+        [
+          {
+            "node": "AS Build session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AS Build session": {
+      "main": [
+        [
+          {
+            "node": "AS HTTP session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AS HTTP session": {
+      "main": [
+        [
+          {
+            "node": "AS Build link body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AS Build link body": {
+      "main": [
+        [
+          {
+            "node": "AS HTTP creatify-link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AS HTTP creatify-link": {
+      "main": [
+        [
+          {
+            "node": "AS Build select script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AS Build select script": {
+      "main": [
+        [
+          {
+            "node": "AS HTTP select script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AS HTTP select script": {
+      "main": [
+        [
+          {
+            "node": "AS Build bridge prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AS Build bridge prompt": {
+      "main": [
+        [
+          {
+            "node": "AS HTTP bridge json-builder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AS HTTP bridge json-builder": {
+      "main": [
+        [
+          {
+            "node": "AS Parse payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AS Parse payload": {
+      "main": [
+        [
+          {
+            "node": "Switch AS parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch AS parse": {
+      "main": [
+        [
+          {
+            "node": "AS Build submit body",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TG AS fail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AS Build submit body": {
+      "main": [
+        [
+          {
+            "node": "AS HTTP creatify-submit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AS HTTP creatify-submit": {
+      "main": [
+        [
+          {
+            "node": "TG generating",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ES answer": {
+      "main": [
+        [
+          {
+            "node": "ES Build session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ES Build session": {
+      "main": [
+        [
+          {
+            "node": "ES HTTP session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ES HTTP session": {
+      "main": [
+        [
+          {
+            "node": "TG edit script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RS answer": {
+      "main": [
+        [
+          {
+            "node": "RS Build",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RS Build": {
+      "main": [
+        [
+          {
+            "node": "RS HTTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RS HTTP": {
+      "main": [
+        [
+          {
+            "node": "RS Build session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RS Build session": {
+      "main": [
+        [
+          {
+            "node": "RS HTTP session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RS HTTP session": {
+      "main": [
+        [
+          {
+            "node": "TG script rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PG answer": {
+      "main": [
+        [
+          {
+            "node": "PG Build session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PG Build session": {
+      "main": [
+        [
+          {
+            "node": "PG HTTP session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PG HTTP session": {
+      "main": [
+        [
+          {
+            "node": "PG Stage4 Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PG Stage4 Format": {
+      "main": [
+        [
+          {
+            "node": "TG stage4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RG answer": {
+      "main": [
+        [
+          {
+            "node": "TG regen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JG answer": {
+      "main": [
+        [
+          {
+            "node": "JG Build",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JG Build": {
+      "main": [
+        [
+          {
+            "node": "JG HTTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JG HTTP": {
+      "main": [
+        [
+          {
+            "node": "JG Build session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JG Build session": {
+      "main": [
+        [
+          {
+            "node": "JG HTTP session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JG HTTP session": {
+      "main": [
+        [
+          {
+            "node": "TG gen rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TP answer": {
+      "main": [
+        [
+          {
+            "node": "TP Build select",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TP Build select": {
+      "main": [
+        [
+          {
+            "node": "TP HTTP select",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TP HTTP select": {
+      "main": [
+        [
+          {
+            "node": "TP Toggle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TP Toggle": {
+      "main": [
+        [
+          {
+            "node": "TP Build update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TP Build update": {
+      "main": [
+        [
+          {
+            "node": "TP HTTP update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TP HTTP update": {
+      "main": [
+        [
+          {
+            "node": "TP Stage4 Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TP Stage4 Format": {
+      "main": [
+        [
+          {
+            "node": "TG stage4 toggle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SCH answer": {
+      "main": [
+        [
+          {
+            "node": "SCH Calc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SCH Calc": {
+      "main": [
+        [
+          {
+            "node": "SCH Build update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SCH Build update": {
+      "main": [
+        [
+          {
+            "node": "SCH HTTP update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SCH HTTP update": {
+      "main": [
+        [
+          {
+            "node": "SCH Build select",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SCH Build select": {
+      "main": [
+        [
+          {
+            "node": "SCH HTTP select",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SCH HTTP select": {
+      "main": [
+        [
+          {
+            "node": "SCH Stage4 Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SCH Stage4 Format": {
+      "main": [
+        [
+          {
+            "node": "TG stage4 sched",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CP answer": {
+      "main": [
+        [
+          {
+            "node": "CP Build select",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CP Build select": {
+      "main": [
+        [
+          {
+            "node": "CP HTTP select",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CP HTTP select": {
+      "main": [
+        [
+          {
+            "node": "CP Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CP Check": {
+      "main": [
+        [
+          {
+            "node": "Switch CP allow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch CP allow": {
+      "main": [
+        [
+          {
+            "node": "CP Build publish body",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TG CP refuse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CP Build publish body": {
+      "main": [
+        [
+          {
+            "node": "CP HTTP wf-publish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CP HTTP wf-publish": {
+      "main": [
+        [
+          {
+            "node": "CP Build final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CP Build final": {
+      "main": [
+        [
+          {
+            "node": "CP HTTP final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CP HTTP final": {
+      "main": [
+        [
+          {
+            "node": "TG published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {},
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "045e5e3b-77e8-4d47-bf86-a9b5e7484b36",
+  "activeVersionId": "045e5e3b-77e8-4d47-bf86-a9b5e7484b36",
+  "versionCounter": 2,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-08-12T13:33:57.380Z",
+      "createdAt": "2026-08-12T13:33:57.380Z",
+      "role": "workflow:owner",
+      "workflowId": "20000000-0000-4000-8000-000000000013",
+      "projectId": "M9eH49D0HafLr8AX",
+      "project": {
+        "updatedAt": "2026-08-11T13:27:47.312Z",
+        "createdAt": "2026-08-11T12:45:09.939Z",
+        "id": "M9eH49D0HafLr8AX",
+        "name": "Factory Owner <owner@factory.local>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

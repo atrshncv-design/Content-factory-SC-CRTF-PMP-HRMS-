@@ -97,7 +97,7 @@ curl -X POST http://localhost:5678/webhook/factory/tg-alert -H 'Content-Type: ap
 
 ## 7. Доступы (напоминание)
 
-- n8n UI: `https://assessment-fossil-assignments-alice.trycloudflare.com`, owner@factory.local / PASSWORD_PLACEHOLDER
+- n8n UI: `https://assessment-fossil-assignments-alice.trycloudflare.com`, owner@factory.local / PASSWORD_PLACEHOLDER (см. `.env` на сервере)
 - SSH: `ssh -i <ключ>.pem ubuntu@83.166.233.95`
 - Hermes: `source ~/hermes-agent/.venv/bin/activate && hermes ...`
 - БД: `sqlite3 ~/factory/data/factory.db`
@@ -108,6 +108,20 @@ curl -X POST http://localhost:5678/webhook/factory/tg-alert -H 'Content-Type: ap
 - Quick-tunnel cloudflared меняет URL при пересоздании контейнера cloudflared (для прода — named tunnel).
 - RAM 4GB+swap 4GB — мониторить при тяжёлых циклах.
 - free-тир deepseek v4 — временная акция; запасной: deepseek-v4-flash.
+
+## 8a. Rate limits (opencode zen free-тир, HTTP 429)
+
+- Симптом: `HTTP 429: Rate limit exceeded` от opencode zen free-тира (`deepseek-v4-flash-free`); в `~/.hermes/logs/agent.log` — `API call failed ... error_type=RateLimitError`. Частота: десятки раз за сессию — это НОРМА, лечится повтором через паузу (встроенный backoff: cooldown 60s).
+- Fallback-цепочка НАСТРОЕНА (12.08, штатно через `hermes config set`, НЕ ручной правкой yaml):
+  ```yaml
+  fallback_providers:
+    provider: opencode-zen
+    model: deepseek-v4-flash   # платный тир, тот же OPENCODE_ZEN_API_KEY
+  ```
+  Активация подтверждена в логе: `Fallback activated: deepseek-v4-flash-free → deepseek-v4-flash (opencode-zen)`.
+  Управление: `hermes fallback list|add|remove|clear`; смена модели — `hermes config set fallback_providers.model <model> --force`.
+- ВАЖНО (на 12.08): платный `deepseek-v4-flash` отвечает `HTTP 401 CreditsError: No payment method` — у workspace `wrk_01KZNN7MGAH7Z7V3SR49KMYD90` нет способа оплаты (https://opencode.ai/workspace/wrk_01KZNN7MGAH7Z7V3SR49KMYD90/billing). Пока биллинг не добавлен, fallback НЕ спасает от 429 — итог тот же: повторный запрос позже. После добавления оплаты fallback заработает без изменений конфига.
+- Практика: при 429 в автоматике — повторять запрос с паузой 60–120с (backoff уже встроен, попытки 1/3); для одноразовых прогонов — `hermes chat -q ... --cli -Q` с таймаутом ≥600с (см. скилл content-factory-development).
 
 ## 9. Интеграционный тест цикла (T-S): ✅ ПРОЙДЕН на mock-данных
 
@@ -221,3 +235,52 @@ postmypost Bearer token) → Switch-ноды уходят в real-ветку а�
 
 Без аргументов скрипт печатает usage и выходит с кодом 1; при `N` на подтверждении —
 отмена без изменений. `--dry-run` НИКОГДА не пишет в `.env`.
+
+## 13. НОВАЯ АРХИТЕКТУРА (спека 13): n8n = оркестратор TG, Hermes = LLM-движок
+
+**Дата миграции:** 12.08.2026 (M-1..M-7). Основание: Hermes-gateway непригоден как
+client-facing TG-бот (служебные сообщения, встроенные slash-команды, approvals).
+
+### Компоненты
+- **n8n = оркестратор UI/UX**: Telegram Trigger (webhook-режим) → whitelist → парсер
+  команд → Switch → Telegram Send с inline-кнопками. State machine — таблица `sessions` в factory.db.
+- **hermes-bridge = LLM-движок**: хостовый systemd-сервис (Python stdlib http.server,
+  порт 8642, токен HERMES_BRIDGE_TOKEN в ~/factory/.env). POST /ask {skill, prompt} →
+  subprocess hermes chat -q ... -s content-factory/<skill>. n8n вызывает через
+  http://host.docker.internal:8642/ask (extra_hosts добавлен).
+- **Hermes-gateway: ОСТАНОВЛЕН** (systemctl disable hermes). Hermes — только CLI через bridge.
+  Telegram platform отключена; register-tg-commands.sh убран из ExecStartPost.
+
+### Воркфлоу
+- **wf-tg-bot** (id ...013, АКТИВЕН, 180 нод): Telegram Trigger (webhook, allowed_updates
+  message+callback_query) → whitelist (941296693) → парсер текстовых триггеров (en+ru)
+  → команды start/help/status/cancel/ping/start_cycle/onboard + callback-обработчики
+  (approve/edit/reject/alt:topic, approve/edit/reject:script, publish/regen/reject:gen,
+  toggle:platform, schedule:*, confirm:publish) → db-bridge (sessions/topics/scripts) +
+  hermes-bridge (analyst/scriptwriter/json-builder/onboarding) + reply_markup кнопки.
+  Активация: эмуляция Publish через БД (activeVersionId + active=1 + рестарт).
+- **wf-creatify-webhook** (…00e): done-ветка теперь слает Этап 3 в TG с inline-кнопками
+  (publish:gen/regen/reject) + UPDATE sessions state='CYCLE_VIDEO_PENDING' (21 нода).
+
+### Проверка
+- getWebhookInfo: URL = cloudflared/webhook/...013/tg%20trigger/webhook, allowed_updates
+  message+callback_query, pending=0.
+- hermes-bridge: systemctl is-active hermes-bridge = active; curl localhost:8642/health → {ok:true}.
+- sessions: 941296693|IDLE.
+- Live TG-тест (за оператором): start / help / status / cancel / start_cycle → кнопки.
+
+### ПИТФОЛЛ: webhook-путь telegramTrigger (важно!)
+- Имя триггерной ноды **НЕ должно содержать пробелов**: n8n генерирует webhookPath
+  из имени ноды. «TG Trigger» → путь `.../tg%20trigger/webhook` — маршрут НЕ
+  регистрировался (404 «is not registered»), при этом setWebhook ставился
+  (getWebhookInfo показывал URL) и n8n логировал «Activated workflow».
+- Исправление (12.08, после аудита A-4): переименование ноды в **tg-trigger**
+  в workflow_history[activeVersionId] + workflow_entity + DELETE строки
+  webhook_entity + docker restart → маршрут `.../tg-trigger/webhook` встал
+  (probe → 403 «Provided secret is not valid» = маршрут жив, секретная защита).
+- Проверка маршрута: POST на /webhook/<id>/<path> БЕЗ секретного заголовка
+  должен давать 403 (не 404). 404 = маршрут не зарегистрирован.
+
+### Команды оператора (live TG)
+start, help, status, cancel, ping, start_cycle, onboard <url> (текстовые триггеры без слеша;
+slash-формы в автокомплите есть). «напиши стих» → канонический отказ.

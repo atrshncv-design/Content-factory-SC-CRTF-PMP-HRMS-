@@ -1,0 +1,101 @@
+{
+  "updatedAt": "2026-08-11T19:22:21.276Z",
+  "createdAt": "2026-08-11T19:22:21.276Z",
+  "id": "20000000-0000-4000-8000-00000000000a",
+  "name": "wf-tg-alerts",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "factory/tg-alert",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "aaaaaaaa-1111-2222-3333-444444444441",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -140,
+        0
+      ],
+      "webhookId": "bbbbbbbb-1111-2222-3333-444444444441"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $json.body.chat_id }}",
+        "text": "={{ $json.body.text }}",
+        "additionalFields": {}
+      },
+      "id": "cccccccc-1111-2222-3333-444444444441",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "10000000-0000-4000-8000-000000000004",
+          "name": "telegram"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {},
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "7e2c4aad-6d91-4d18-984f-4c8ae71e245a",
+  "activeVersionId": "7e2c4aad-6d91-4d18-984f-4c8ae71e245a",
+  "versionCounter": 1,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-08-11T19:22:21.280Z",
+      "createdAt": "2026-08-11T19:22:21.280Z",
+      "role": "workflow:owner",
+      "workflowId": "20000000-0000-4000-8000-00000000000a",
+      "projectId": "M9eH49D0HafLr8AX",
+      "project": {
+        "updatedAt": "2026-08-11T13:27:47.312Z",
+        "createdAt": "2026-08-11T12:45:09.939Z",
+        "id": "M9eH49D0HafLr8AX",
+        "name": "Factory Owner <owner@factory.local>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": "Version 7e2c4aad",
+    "description": ""
+  }
+}

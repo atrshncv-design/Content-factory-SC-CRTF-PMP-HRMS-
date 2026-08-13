@@ -1,0 +1,649 @@
+{
+  "updatedAt": "2026-08-12T18:18:18.627Z",
+  "createdAt": "2026-08-11T19:36:51.978Z",
+  "id": "20000000-0000-4000-8000-00000000000b",
+  "name": "wf-analytics",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "factory/analytics",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "30000000-0000-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -760,
+        0
+      ],
+      "webhookId": "30000000-0000-4000-8000-0000000000f1"
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $env.SCRAPECREATORS_API_KEY }}",
+                    "rightValue": "PLACEHOLDER_UNTIL_TOMORROW",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "30000000-0000-4000-8000-000000000002",
+      "name": "Switch IG",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $env.SCRAPECREATORS_API_KEY }}",
+                    "rightValue": "PLACEHOLDER_UNTIL_TOMORROW",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "30000000-0000-4000-8000-000000000003",
+      "name": "Switch TikTok",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $env.SCRAPECREATORS_API_KEY }}",
+                    "rightValue": "PLACEHOLDER_UNTIL_TOMORROW",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "30000000-0000-4000-8000-000000000004",
+      "name": "Switch YouTube",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const now = Math.floor(Date.now() / 1000);\nconst H = 3600;\nreturn [\n  { json: {\n      title: 'KUKA welding robot perfect arc on car body',\n      source_platform: 'instagram',\n      source_url: 'https://www.instagram.com/reel/CxKUKA01/',\n      author: '@robotwelding.pro',\n      metrics: { views: 120000, likes: 8000, shares: 1500, comments: 300 },\n      ts_unix: now - 26 * H,\n      transcript_excerpt: 'KUKA KR16 welding cell with seamless arc control',\n      feasibility_hint: 'high'\n  }},\n  { json: {\n      title: 'Palletizer robot loads 40 boxes per minute',\n      source_platform: 'instagram',\n      source_url: 'https://www.instagram.com/reel/CxPALL02/',\n      author: '@palletrobot',\n      metrics: { views: 34000, likes: 2100, shares: 600, comments: 90 },\n      ts_unix: now - 5 * H,\n      transcript_excerpt: 'Fanuc M-410 palletizing line in a beverage plant',\n      feasibility_hint: 'medium'\n  }},\n  { json: {\n      title: 'Cobot picks and places tiny electronics parts',\n      source_platform: 'instagram',\n      source_url: 'https://www.instagram.com/reel/CxCOBOT03/',\n      author: '@cobotlab',\n      metrics: { views: 45000, likes: 3200, shares: 400, comments: 120 },\n      ts_unix: now - 50 * H,\n      transcript_excerpt: 'UR10e with adaptive gripper on SMD assembly line',\n      feasibility_hint: 'high'\n  }},\n  { json: {\n      title: 'Six-axis arm sorts parcels in warehouse',\n      source_platform: 'instagram',\n      source_url: 'https://www.instagram.com/reel/CxARM04/',\n      author: '@warehouserobots',\n      metrics: { views: 28000, likes: 1500, shares: 250, comments: 60 },\n      ts_unix: now - 100 * H,\n      transcript_excerpt: 'Auto-pickup robot arm with vision system',\n      feasibility_hint: 'medium'\n  }}\n];"
+      },
+      "id": "30000000-0000-4000-8000-000000000005",
+      "name": "Mock IG",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -340,
+        -340
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const now = Math.floor(Date.now() / 1000);\nconst H = 3600;\nreturn [\n  { json: {\n      title: 'KUKA welding robot perfect arc on car body',\n      source_platform: 'tiktok',\n      source_url: 'https://www.instagram.com/reel/CxKUKA01/',\n      author: '@robotwelding.pro',\n      metrics: { views: 99000, likes: 6100, shares: 2100, comments: 180 },\n      ts_unix: now - 30 * H,\n      transcript_excerpt: 'Same KUKA welding reel cross-posted to TikTok',\n      feasibility_hint: 'high'\n  }},\n  { json: {\n      title: 'Cobot auto-pickup from moving conveyor',\n      source_platform: 'tiktok',\n      source_url: 'https://www.tiktok.com/@cobotlab/video/7300000001',\n      author: '@cobotlab',\n      metrics: { views: 89000, likes: 5100, shares: 2200, comments: 80 },\n      ts_unix: now - 60 * H,\n      transcript_excerpt: 'UR5e auto-pickup with 3D vision, 60 parts per minute',\n      feasibility_hint: 'high'\n  }},\n  { json: {\n      title: 'Welding robot sparks in slow motion',\n      source_platform: 'tiktok',\n      source_url: 'https://www.tiktok.com/@weldslow/video/7300000002',\n      author: '@weldslow',\n      metrics: { views: 52000, likes: 3900, shares: 800, comments: 150 },\n      ts_unix: now - 5 * H,\n      transcript_excerpt: 'Welding robot sparks slow-motion close-up',\n      feasibility_hint: 'medium'\n  }},\n  { json: {\n      title: 'Palletizer dance with boxes',\n      source_platform: 'tiktok',\n      source_url: 'https://www.tiktok.com/@palletrobot/video/7300000003',\n      author: '@palletrobot',\n      metrics: { views: 41000, likes: 2300, shares: 500, comments: 70 },\n      ts_unix: now - 100 * H,\n      transcript_excerpt: 'Palletizer rhythmically stacking boxes',\n      feasibility_hint: 'medium'\n  }}\n];"
+      },
+      "id": "30000000-0000-4000-8000-000000000006",
+      "name": "Mock TikTok",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -340,
+        -60
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const now = Math.floor(Date.now() / 1000);\nconst H = 3600;\nreturn [\n  { json: {\n      title: 'Why industrial robots are taking over factories',\n      source_platform: 'youtube',\n      source_url: 'https://www.youtube.com/watch?v=YTROBOT01',\n      author: '@factorytech',\n      metrics: { views: 210000, likes: 15000, shares: 900, comments: 700 },\n      ts_unix: now - 20 * H,\n      transcript_excerpt: 'Full breakdown of KUKA, ABB and Fanuc robot arms',\n      feasibility_hint: 'high'\n  }},\n  { json: {\n      title: 'Welding robot vs human welder speed test',\n      source_platform: 'youtube',\n      source_url: 'https://www.youtube.com/watch?v=YTROBOT02',\n      author: '@weldwars',\n      metrics: { views: 67000, likes: 4100, shares: 300, comments: 250 },\n      ts_unix: now - 45 * H,\n      transcript_excerpt: 'KUKA welds a chassis in 3 minutes flat',\n      feasibility_hint: 'high'\n  }},\n  { json: {\n      title: 'Cobot safety: working right next to humans',\n      source_platform: 'youtube',\n      source_url: 'https://www.youtube.com/watch?v=YTROBOT03',\n      author: '@safetyrobots',\n      metrics: { views: 39000, likes: 2600, shares: 200, comments: 140 },\n      ts_unix: now - 5 * H,\n      transcript_excerpt: 'UR cobot with force-limited joints and touch detection',\n      feasibility_hint: 'medium'\n  }},\n  { json: {\n      title: 'Palletizer installation timelapse',\n      source_platform: 'youtube',\n      source_url: 'https://www.youtube.com/watch?v=YTROBOT04',\n      author: '@pallettech',\n      metrics: { views: 25000, likes: 1400, shares: 150, comments: 40 },\n      ts_unix: now - 100 * H,\n      transcript_excerpt: 'Fanuc palletizer installed and commissioned in one day',\n      feasibility_hint: 'medium'\n  }}\n];"
+      },
+      "id": "30000000-0000-4000-8000-000000000007",
+      "name": "Mock YouTube",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -340,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.scrapecreators.com/v2/instagram/reels/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "industrial robot"
+            },
+            {
+              "name": "date_posted",
+              "value": "last-day"
+            },
+            {
+              "name": "page",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "30000000-0000-4000-8000-000000000008",
+      "name": "HTTP IG",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -340,
+        -140
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "10000000-0000-4000-8000-000000000001",
+          "name": "scrapecreators"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.scrapecreators.com/v1/tiktok/search/keyword",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "industrial robot"
+            },
+            {
+              "name": "region",
+              "value": "US"
+            },
+            {
+              "name": "trim",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "30000000-0000-4000-8000-000000000009",
+      "name": "HTTP TikTok",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -340,
+        80
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "10000000-0000-4000-8000-000000000001",
+          "name": "scrapecreators"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.scrapecreators.com/v1/youtube/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "industrial robot"
+            },
+            {
+              "name": "sortBy",
+              "value": "popular"
+            },
+            {
+              "name": "uploadDate",
+              "value": "today"
+            },
+            {
+              "name": "type",
+              "value": "videos"
+            },
+            {
+              "name": "region",
+              "value": "RU"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "30000000-0000-4000-8000-00000000000a",
+      "name": "HTTP YouTube",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -340,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "10000000-0000-4000-8000-000000000001",
+          "name": "scrapecreators"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 3,
+        "options": {}
+      },
+      "id": "30000000-0000-4000-8000-00000000000b",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -80,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const HOUR = 3600;\nconst MIN_AGE = 12;\nconst MAX_AGE = 72;\n\nconst records = ($input.all() || []).map((item) => item.json).filter((r) => r && typeof r.ts_unix === 'number');\n\nconst normUrl = (u) => String(u || '').trim().toLowerCase().replace(/^https?:\\/\\//, '').replace(/\\/+$/, '').split('?')[0].split('#')[0];\n\nconst now = Date.now() / 1000;\nconst seen = new Set();\nconst pool = [];\nfor (const r of records) {\n  const age = (now - r.ts_unix) / HOUR;\n  if (age < MIN_AGE || age > MAX_AGE) continue;\n  const key = normUrl(r.source_url);\n  if (!key || seen.has(key)) continue;\n  seen.add(key);\n  pool.push({ ...r, age_hours: Math.round(age * 10) / 10 });\n}\n\nconst arr = (f) => pool.map((c) => (c.metrics && c.metrics[f]) || 0);\nconst vmin = Math.min(...arr('views'), 0);\nconst vmax = Math.max(...arr('views'), 1);\nconst lmin = Math.min(...arr('likes'), 0);\nconst lmax = Math.max(...arr('likes'), 1);\nconst smin = Math.min(...arr('shares'), 0);\nconst smax = Math.max(...arr('shares'), 1);\nconst norm = (v, lo, hi) => (hi === lo ? 1 : (v - lo) / (hi - lo));\n\nfor (const c of pool) {\n  const m = c.metrics || {};\n  const vn = norm(m.views || 0, vmin, vmax);\n  const ln = norm(m.likes || 0, lmin, lmax);\n  const sn = norm(m.shares || 0, smin, smax);\n  c.virality_index = Math.round((vn * 0.4 + ln * 0.3 + sn * 0.3) * 100) / 100;\n}\n\npool.sort((a, b) => b.virality_index - a.virality_index);\n\nconst candidates = pool.slice(0, 20).map((c) => ({\n  title: c.title,\n  source_platform: c.source_platform,\n  source_url: c.source_url,\n  author: c.author,\n  metrics: c.metrics,\n  age_hours: c.age_hours,\n  virality_index: c.virality_index,\n  transcript_excerpt: c.transcript_excerpt,\n  feasibility_hint: c.feasibility_hint\n}));\n\nconst platforms = new Set(records.map((r) => r.source_platform));\nconst platforms_ok = platforms.size;\n\nreturn [{ json: {\n  candidates,\n  meta: { credits_spent: 0, platforms_ok, platforms_failed: 3 - platforms_ok }\n} }];"
+      },
+      "id": "30000000-0000-4000-8000-00000000000c",
+      "name": "Postprocess",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "30000000-0000-4000-8000-00000000000d",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        420,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const input = $input.all()[0] ? $input.all()[0].json : {};\nconst items = (input && Array.isArray(input.reels)) ? input.reels : [];\nconst out = [];\nfor (const r of items) {\n  if (!r) continue;\n  let ts = 0;\n  if (typeof r.taken_at === 'number') ts = r.taken_at;\n  else if (r.taken_at) ts = Math.floor(Date.parse(r.taken_at) / 1000);\n  if (!ts) continue;\n  const caption = String(r.caption || '');\n  out.push({ json: {\n    title: caption,\n    source_platform: 'instagram',\n    source_url: String(r.url || (r.shortcode ? 'https://www.instagram.com/reel/' + r.shortcode + '/' : '')),\n    author: String((r.owner && r.owner.username) || ''),\n    metrics: {\n      views: Number(r.video_view_count || r.video_play_count || 0),\n      likes: Number(r.like_count || 0),\n      shares: 0,\n      comments: Number(r.comment_count || 0)\n    },\n    ts_unix: ts,\n    transcript_excerpt: caption.slice(0, 200),\n    feasibility_hint: 'medium'\n  }});\n}\nreturn out;"
+      },
+      "id": "30000000-0000-4000-8000-00000000000e",
+      "name": "Normalize IG",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const input = $input.all()[0] ? $input.all()[0].json : {};\nconst items = (input && Array.isArray(input.search_item_list)) ? input.search_item_list : [];\nconst out = [];\nfor (const t of items) {\n  if (!t) continue;\n  const st = t.statistics || t.stats || {};\n  let ts = 0;\n  if (typeof t.create_time === 'number') ts = t.create_time;\n  else if (t.create_time) ts = Math.floor(Date.parse(t.create_time) / 1000);\n  if (!ts) continue;\n  const desc = String(t.desc || '');\n  const au = t.author || {};\n  out.push({ json: {\n    title: desc,\n    source_platform: 'tiktok',\n    source_url: String(t.url || (t.aweme_id ? 'https://www.tiktok.com/video/' + t.aweme_id : '')),\n    author: String(au.unique_id || au.nickname || ''),\n    metrics: {\n      views: Number(st.play_count || 0),\n      likes: Number(st.digg_count || 0),\n      shares: Number(st.share_count || 0),\n      comments: Number(st.comment_count || 0)\n    },\n    ts_unix: ts,\n    transcript_excerpt: desc.slice(0, 200),\n    feasibility_hint: 'medium'\n  }});\n}\nreturn out;"
+      },
+      "id": "30000000-0000-4000-8000-00000000000f",
+      "name": "Normalize TikTok",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const input = $input.all()[0] ? $input.all()[0].json : {};\nconst items = (input && Array.isArray(input.videos)) ? input.videos : [];\nconst out = [];\nfor (const v of items) {\n  if (!v) continue;\n  let ts = 0;\n  if (typeof v.publishedTime === 'number') ts = v.publishedTime;\n  else if (v.publishedTime) ts = Math.floor(Date.parse(v.publishedTime) / 1000);\n  else if (typeof v.publishedAt === 'number') ts = v.publishedAt;\n  else if (v.publishedAt) ts = Math.floor(Date.parse(v.publishedAt) / 1000);\n  if (!ts) continue;\n  const title = String(v.title || '');\n  const ch = v.channel || {};\n  out.push({ json: {\n    title: title,\n    source_platform: 'youtube',\n    source_url: String(v.url || ''),\n    author: String(ch.title || ch.name || v.channelTitle || ''),\n    metrics: {\n      views: Number(v.viewCountInt || v.viewCount || v.view_count || 0),\n      likes: Number(v.likeCount || v.like_count || 0),\n      shares: 0,\n      comments: 0\n    },\n    ts_unix: ts,\n    transcript_excerpt: title.slice(0, 200),\n    feasibility_hint: 'medium'\n  }});\n}\nreturn out;"
+      },
+      "id": "30000000-0000-4000-8000-000000000010",
+      "name": "Normalize YouTube",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        224
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch IG",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Switch TikTok",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Switch YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch IG": {
+      "main": [
+        [
+          {
+            "node": "Mock IG",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP IG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch TikTok": {
+      "main": [
+        [
+          {
+            "node": "Mock TikTok",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP TikTok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch YouTube": {
+      "main": [
+        [
+          {
+            "node": "Mock YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mock IG": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mock TikTok": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Mock YouTube": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "HTTP IG": {
+      "main": [
+        [
+          {
+            "node": "Normalize IG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP TikTok": {
+      "main": [
+        [
+          {
+            "node": "Normalize TikTok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP YouTube": {
+      "main": [
+        [
+          {
+            "node": "Normalize YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Postprocess",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postprocess": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize IG": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize TikTok": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Normalize YouTube": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "9d733a60-a974-4586-b346-e27b4ac68d82",
+  "activeVersionId": "a3446e2f-d9f4-4137-b753-959fb9c3bce5",
+  "versionCounter": 4,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-08-11T19:36:51.984Z",
+      "createdAt": "2026-08-11T19:36:51.984Z",
+      "role": "workflow:owner",
+      "workflowId": "20000000-0000-4000-8000-00000000000b",
+      "projectId": "M9eH49D0HafLr8AX",
+      "project": {
+        "updatedAt": "2026-08-11T13:27:47.312Z",
+        "createdAt": "2026-08-11T12:45:09.939Z",
+        "id": "M9eH49D0HafLr8AX",
+        "name": "Factory Owner <owner@factory.local>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

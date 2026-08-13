@@ -201,7 +201,7 @@ model:
 
 Env в `~/.hermes/.env` (chmod 600):
 ```bash
-OPENCODE_ZEN_API_KEY=sk-PLACEHOLDER_REPLACE_WITH_REAL_KEY
+OPENCODE_ZEN_API_KEY=sk-REDACTED_KEY
 ```
 
 > Замечания:

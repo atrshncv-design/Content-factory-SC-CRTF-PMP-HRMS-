@@ -1,0 +1,121 @@
+{
+  "updatedAt": "2026-08-11T18:22:31.310Z",
+  "createdAt": "2026-08-11T18:22:31.310Z",
+  "id": "20000000-0000-4000-8000-000000000001",
+  "name": "zz-test-sqlite",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "factory/_test",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "aaaaaaaa-1111-2222-3333-444444444444",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -140,
+        0
+      ],
+      "webhookId": "bbbbbbbb-1111-2222-3333-444444444444"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const { DatabaseSync } = require('node:sqlite');\nconst db = new DatabaseSync('/var/data/factory.db');\nconst rows = db.prepare('SELECT key, value FROM settings LIMIT 3').all();\nreturn [{ json: { ok: true, rows: rows, echo: $json } }];"
+      },
+      "id": "cccccccc-1111-2222-3333-444444444444",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "dddddddd-1111-2222-3333-444444444444",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        140,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "8aa97696-b779-413b-b73f-2a5323036b53",
+  "activeVersionId": "8aa97696-b779-413b-b73f-2a5323036b53",
+  "versionCounter": 1,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-08-11T18:22:31.316Z",
+      "createdAt": "2026-08-11T18:22:31.316Z",
+      "role": "workflow:owner",
+      "workflowId": "20000000-0000-4000-8000-000000000001",
+      "projectId": "M9eH49D0HafLr8AX",
+      "project": {
+        "updatedAt": "2026-08-11T13:27:47.312Z",
+        "createdAt": "2026-08-11T12:45:09.939Z",
+        "id": "M9eH49D0HafLr8AX",
+        "name": "Factory Owner <owner@factory.local>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": "Version 8aa97696",
+    "description": ""
+  }
+}

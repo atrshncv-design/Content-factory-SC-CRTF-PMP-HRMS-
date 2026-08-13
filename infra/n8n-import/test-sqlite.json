@@ -1,0 +1,52 @@
+{
+  "id": "20000000-0000-4000-8000-000000000001",
+  "name": "zz-test-sqlite",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "factory/_test",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "aaaaaaaa-1111-2222-3333-444444444444",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-140, 0],
+      "webhookId": "bbbbbbbb-1111-2222-3333-444444444444"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const { DatabaseSync } = require('node:sqlite');\nconst db = new DatabaseSync('/var/data/factory.db');\nconst rows = db.prepare('SELECT key, value FROM settings LIMIT 3').all();\nreturn [{ json: { ok: true, rows: rows, echo: $json } }];"
+      },
+      "id": "cccccccc-1111-2222-3333-444444444444",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "dddddddd-1111-2222-3333-444444444444",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [140, 0]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Code", "type": "main", "index": 0 }]] },
+    "Code": { "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "active": false,
+  "pinData": {},
+  "meta": { "templateCredsSetupCompleted": true }
+}

@@ -1,6 +1,11 @@
 {
-  "id": "20000000-0000-4000-8000-00000000000b",
+  "updatedAt": "2026-08-11T20:16:29.580Z",
+  "createdAt": "2026-08-11T20:16:29.580Z",
+  "id": "20000000-0000-4000-8000-00000000000c",
   "name": "wf-creatify-link",
+  "description": null,
+  "active": true,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {
@@ -13,7 +18,10 @@
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
-      "position": [-360, 0],
+      "position": [
+        -360,
+        0
+      ],
       "webhookId": "gggggggg-1111-2222-3333-444444444451"
     },
     {
@@ -43,13 +51,18 @@
             }
           ]
         },
-        "options": {}
+        "options": {
+          "fallbackOutput": "extra"
+        }
       },
       "id": "bbbbbbbb-1111-2222-3333-444444444451",
       "name": "Switch",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
-      "position": [-140, 0]
+      "position": [
+        -140,
+        0
+      ]
     },
     {
       "parameters": {
@@ -61,43 +74,60 @@
       "name": "Code mock",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [80, -120]
+      "position": [
+        80,
+        -120
+      ]
     },
     {
       "parameters": {
         "method": "POST",
         "url": "https://api.creatify.ai/api/links/",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpMultipleHeadersAuth",
+        "authentication": "none",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "{\"url\":\"={{ $json.body.url }}\"}",
-        "options": {}
+        "jsonBody": "={{ {url: ($json.body && $json.body.url) || $json.url, aspect_ratio: ($json.body && $json.body.aspect_ratio) || $json.aspect_ratio || '9x16', video_length: Number(($json.body && $json.body.video_length) || $json.video_length || 30), language: ($json.body && $json.body.language) || $json.language || 'ru', webhook_url: 'https://assessment-fossil-assignments-alice.trycloudflare.com/webhook/factory/creatify/6d8f2a41c9e7b3d5f0a1c4e8'} }}",
+        "options": {},
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-ID",
+              "value": "={{ $env.CREATIFY_API_ID }}"
+            },
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $env.CREATIFY_API_KEY }}"
+            }
+          ]
+        }
       },
       "id": "dddddddd-1111-2222-3333-444444444451",
       "name": "HTTP Request",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
-      "position": [80, 120],
-      "credentials": {
-        "httpMultipleHeadersAuth": {
-          "id": "10000000-0000-4000-8000-000000000002",
-          "name": "creatify"
-        }
-      }
+      "position": [
+        80,
+        120
+      ],
+      "credentials": {}
     },
     {
       "parameters": {
         "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "const link_id = $json.id;\nreturn [{ json: { link_id: link_id, raw: $json } }];"
+        "jsCode": "const link_id = ($json.link && $json.link.id) || $json.id;\nreturn [{ json: { link_id: link_id, raw: $json } }];"
       },
       "id": "eeeeeeee-1111-2222-3333-444444444451",
       "name": "Code assemble",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [300, 0]
+      "position": [
+        300,
+        0
+      ]
     },
     {
       "parameters": {
@@ -109,31 +139,113 @@
       "name": "Respond to Webhook",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
-      "position": [520, 0]
+      "position": [
+        520,
+        0
+      ]
     }
   ],
   "connections": {
     "Webhook": {
-      "main": [[{ "node": "Switch", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Switch": {
       "main": [
-        [{ "node": "Code mock", "type": "main", "index": 0 }],
-        [{ "node": "HTTP Request", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Code mock",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Code mock": {
-      "main": [[{ "node": "Code assemble", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Code assemble",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "HTTP Request": {
-      "main": [[{ "node": "Code assemble", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Code assemble",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Code assemble": {
-      "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "settings": { "executionOrder": "v1" },
-  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
   "pinData": {},
-  "meta": { "templateCredsSetupCompleted": true }
+  "versionId": "2a968861-a411-4131-9ef5-044d7673becf",
+  "activeVersionId": "2a968861-a411-4131-9ef5-044d7673becf",
+  "versionCounter": 6,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-08-11T20:16:29.585Z",
+      "createdAt": "2026-08-11T20:16:29.585Z",
+      "role": "workflow:owner",
+      "workflowId": "20000000-0000-4000-8000-00000000000c",
+      "projectId": "M9eH49D0HafLr8AX",
+      "project": {
+        "updatedAt": "2026-08-11T13:27:47.312Z",
+        "createdAt": "2026-08-11T12:45:09.939Z",
+        "id": "M9eH49D0HafLr8AX",
+        "name": "Factory Owner <owner@factory.local>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": "Version 2a968861",
+    "description": ""
+  }
 }

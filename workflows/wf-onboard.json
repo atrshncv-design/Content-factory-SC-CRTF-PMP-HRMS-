@@ -1,0 +1,186 @@
+{
+  "updatedAt": "2026-08-11T19:42:28.181Z",
+  "createdAt": "2026-08-11T19:42:28.181Z",
+  "id": "0dbb4ea9-0cf0-4672-b1a0-973dfe8cb743",
+  "name": "wf-onboard",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "id": "fec962d2-2142-4b01-b006-3034f7309fbb",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "14b8d725-dd1e-4a8b-9e9c-bde478d0b53e",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "factory/onboard",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "cc7b6114-6ded-4e59-b930-2bbbc885be17",
+      "name": "SSRF check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const body = $json.body || {};\nconst url = body.url;\nif (!url || typeof url !== 'string') {\n  throw new Error('URL is required: body.url missing');\n}\nconst m = url.match(/^https?:\\/\\/([^\\/?#]+)/i);\nif (!m) {\n  throw new Error('Invalid URL format: ' + url);\n}\nlet hostport = m[1];\nlet hostname = hostport.split(':')[0].toLowerCase().replace(/^\\[|\\]$/g, '');\nconst isIpv4 = /^\\d+\\.\\d+\\.\\d+\\.\\d+$/.test(hostname);\nlet blocked = false;\nif (isIpv4) {\n  const ipToNum = (ip) => ip.split('.').reduce((a, o) => (a << 8) + parseInt(o, 10), 0) >>> 0;\n  const n = ipToNum(hostname);\n  const inRange = (a, b) => n >= ipToNum(a) && n <= ipToNum(b);\n  blocked = inRange('10.0.0.0', '10.255.255.255') || inRange('172.16.0.0', '172.31.255.255') || inRange('192.168.0.0', '192.168.255.255') || inRange('127.0.0.0', '127.255.255.255') || inRange('169.254.0.0', '169.254.255.255') || n === 0;\n} else {\n  blocked = hostname === 'localhost' || hostname.endsWith('.local') || hostname.endsWith('.internal') || hostname.endsWith('.localhost') || hostname === '::1';\n}\nif (blocked) {\n  throw new Error('SSRF blocked: private address (' + hostname + ')');\n}\nreturn [{ json: { url: url } }];"
+      }
+    },
+    {
+      "id": "a6793be3-cfc0-4ce0-9506-3f2c14825736",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.url }}",
+        "authentication": "none",
+        "options": {
+          "timeout": 10000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "fullResponse": false,
+              "responseFormat": "text",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "e8cb29c3-e37d-4c1a-8d52-1793ec45e8b5",
+      "name": "Extract",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const html = String($json.body || $json.data || '');\nconst url = $json.url || ($('SSRF check').first() ? $('SSRF check').first().json.url : '');\nconst pick = (regexes) => {\n  for (const re of regexes) {\n    const m = html.match(re);\n    if (m && m[1] !== undefined && m[1].trim() !== '') return m[1].trim();\n  }\n  return '';\n};\nconst title = pick([/<title[^>]*>([^<]+)<\\/title>/i]);\nconst meta_description = pick([\n  /<meta[^>]+name=[\"']description[\"'][^>]+content=[\"']([^\"']+)[\"'][^>]*>/i,\n  /<meta[^>]+content=[\"']([^\"']+)[\"'][^>]+name=[\"']description[\"'][^>]*>/i,\n]);\nconst ogPick = (prop) => pick([\n  new RegExp('<meta[^>]+property=[\"\\']' + prop + '[\"\\'][^>]+content=[\"\\']([^\"\\']+)[\"\\'][^>]*>', 'i'),\n  new RegExp('<meta[^>]+content=[\"\\']([^\"\\']+)[\"\\'][^>]+property=[\"\\']' + prop + '[\"\\'][^>]*>', 'i'),\n]);\nconst og = {\n  title: ogPick('og:title'),\n  description: ogPick('og:description'),\n  image: ogPick('og:image'),\n};\nconst h1m = html.match(/<h1[^>]*>([^<]+)<\\/h1>/i);\nconst h1 = h1m ? h1m[1].trim() : '';\nconst socialDomains = [\n  ['instagram.com', 'instagram'],\n  ['t.me', 'telegram'],\n  ['youtube.com', 'youtube'],\n  ['vk.com', 'vk'],\n  ['tiktok.com', 'tiktok'],\n  ['x.com', 'x'],\n  ['facebook.com', 'facebook'],\n  ['rutube.ru', 'rutube'],\n];\nconst socials = [];\nconst seen = new Set();\nlet origin = '';\ntry { origin = new URL(url).origin; } catch (e) { origin = ''; }\nconst hrefRe = /href=[\"']([^\"']+)[\"']/gi;\nlet mm;\nwhile ((mm = hrefRe.exec(html)) !== null) {\n  let href = mm[1].trim();\n  if (!href) continue;\n  let full = href;\n  if (href.startsWith('//')) full = 'https:' + href;\n  else if (href.startsWith('/')) full = origin + href;\n  for (const [domain, platform] of socialDomains) {\n    if (full.indexOf(domain) !== -1) {\n      if (!seen.has(full)) {\n        seen.add(full);\n        socials.push({ platform, url: full });\n      }\n      break;\n    }\n  }\n  if (socials.length >= 10) break;\n}\nlet text = html\n  .replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')\n  .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')\n  .replace(/<nav[\\s\\S]*?<\\/nav>/gi, ' ')\n  .replace(/<[^>]+>/g, ' ')\n  .replace(/&nbsp;/gi, ' ')\n  .replace(/&amp;/gi, '&')\n  .replace(/\\s+/g, ' ')\n  .trim();\nconst text_excerpt = text.slice(0, 8000);\nreturn [{ json: { url, title, meta_description, og, h1, socials, text_excerpt } }];"
+      }
+    },
+    {
+      "id": "07a21a68-ac1f-4b63-a6a3-0f39664f1c89",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "SSRF check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SSRF check": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {},
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "3187b886-0235-454b-8fb3-904e3f049a21",
+  "activeVersionId": "3187b886-0235-454b-8fb3-904e3f049a21",
+  "versionCounter": 2,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-08-11T19:42:28.186Z",
+      "createdAt": "2026-08-11T19:42:28.186Z",
+      "role": "workflow:owner",
+      "workflowId": "0dbb4ea9-0cf0-4672-b1a0-973dfe8cb743",
+      "projectId": "M9eH49D0HafLr8AX",
+      "project": {
+        "updatedAt": "2026-08-11T13:27:47.312Z",
+        "createdAt": "2026-08-11T12:45:09.939Z",
+        "id": "M9eH49D0HafLr8AX",
+        "name": "Factory Owner <owner@factory.local>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": "Version 3187b886",
+    "description": ""
+  }
+}

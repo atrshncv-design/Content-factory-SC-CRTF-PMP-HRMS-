@@ -1,38 +1,16 @@
-# Caddyfile — reverse-proxy для контент-завода
-# Спека 00: HTTPS, публичны только /webhook/* и /media/*, остальное за защитой.
-# Замените {$DOMAIN} на реальный домен.
-
-{$DOMAIN} {
-	# ─── Публичные маршруты (без авторизации) ───
-
-	# Вебхуки creatify (path-token защищён на уровне n8n)
+83.166.233.95.nip.io {
 	handle /webhook/* {
 		reverse_proxy n8n:5678
 	}
-
-	# Раздача готовых MP4 для postmypost (только чтение, непредсказуемые имена)
 	handle /media/* {
 		uri strip_prefix /media
 		root * /var/media
 		file_server
-		# Запрет листинга
-		# browse off   (по умолчанию off)
 	}
-
-	# ─── Защищённые маршруты (basic-auth или IP-allowlist) ───
-	# n8n UI: только оператор/админ. На деве — без auth; на проде — раскомментить.
-	# @blocked not remote_ip 10.0.0.0/8 192.168.0.0/16
-	# handle @blocked { respond 403 }
-
 	handle {
 		reverse_proxy n8n:5678
 	}
-
-	# Логи
 	log {
-		output file /data/access.log {
-			roll_size 10mb
-			roll_keep 5
-		}
+		output file /data/access.log
 	}
 }

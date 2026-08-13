@@ -1,0 +1,33 @@
+[
+  {
+    "id": "10000000-0000-4000-8000-000000000001",
+    "name": "scrapecreators",
+    "type": "httpHeaderAuth",
+    "data": { "name": "x-api-key", "value": "PLACEHOLDER_UNTIL_TOMORROW" }
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000002",
+    "name": "creatify",
+    "type": "httpMultipleHeadersAuth",
+    "data": {
+      "headers": {
+        "values": [
+          { "name": "X-API-ID", "value": "PLACEHOLDER_UNTIL_TOMORROW" },
+          { "name": "X-API-KEY", "value": "PLACEHOLDER_UNTIL_TOMORROW" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000003",
+    "name": "postmypost",
+    "type": "httpBearerAuth",
+    "data": { "token": "PLACEHOLDER_UNTIL_TOMORROW" }
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000004",
+    "name": "telegram",
+    "type": "telegramApi",
+    "data": { "accessToken": "__TELEGRAM_TOKEN__" }
+  }
+]

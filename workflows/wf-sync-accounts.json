@@ -1,6 +1,11 @@
 {
+  "updatedAt": "2026-08-11T21:39:57.955Z",
+  "createdAt": "2026-08-11T21:39:57.955Z",
   "id": "20000000-0000-4000-8000-000000000012",
   "name": "wf-sync-accounts",
+  "description": null,
+  "active": true,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {
@@ -423,7 +428,38 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "active": false,
+  "staticData": null,
+  "meta": {},
+  "nodeGroups": [],
   "pinData": {},
-  "meta": {}
+  "versionId": "df37c7f2-64b5-45a7-b09e-91db97c149de",
+  "activeVersionId": "df37c7f2-64b5-45a7-b09e-91db97c149de",
+  "versionCounter": 2,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-08-11T21:39:57.959Z",
+      "createdAt": "2026-08-11T21:39:57.959Z",
+      "role": "workflow:owner",
+      "workflowId": "20000000-0000-4000-8000-000000000012",
+      "projectId": "M9eH49D0HafLr8AX",
+      "project": {
+        "updatedAt": "2026-08-11T13:27:47.312Z",
+        "createdAt": "2026-08-11T12:45:09.939Z",
+        "id": "M9eH49D0HafLr8AX",
+        "name": "Factory Owner <owner@factory.local>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": "Version df37c7f2",
+    "description": ""
+  }
 }

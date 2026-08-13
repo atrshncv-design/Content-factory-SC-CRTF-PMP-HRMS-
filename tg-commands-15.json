@@ -1,0 +1,19 @@
+{
+  "commands": [
+    {"command": "start", "description": "Приветствие и главное меню"},
+    {"command": "help", "description": "Список команд с описанием"},
+    {"command": "status", "description": "Сводка: режим, клиент, кредиты, видео сегодня"},
+    {"command": "mode", "description": "Переключить режим manual|auto (admin)"},
+    {"command": "onboard", "description": "Онбординг клиента по URL (admin)"},
+    {"command": "start_cycle", "description": "Запустить цикл аналитики"},
+    {"command": "cancel", "description": "Отменить текущий шаг, вернуться в IDLE"},
+    {"command": "topics", "description": "Темы за сегодня: выбранные и отклонённые"},
+    {"command": "competitors", "description": "Конкуренты активного клиента"},
+    {"command": "accounts", "description": "Статус подключённых соцсетей"},
+    {"command": "budget", "description": "Кредиты creatify: остаток, лимиты, прогноз"},
+    {"command": "client", "description": "Сменить активного клиента (admin)"},
+    {"command": "clients", "description": "Список клиентов (admin)"},
+    {"command": "reload_skills", "description": "Перечитать skills (для разработки, admin)"},
+    {"command": "ping", "description": "Health-check: бот работает"}
+  ]
+}
