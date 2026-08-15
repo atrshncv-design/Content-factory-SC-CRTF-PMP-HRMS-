@@ -17,7 +17,7 @@
 | Hermes gateway (TG-бот) | ✅ active (running) | systemd `hermes.service`; бот `@content_zavod_obrazec_bot` |
 | Скиллы Hermes (6 шт) | ✅ | `~/.hermes/skills/content-factory/{orchestrator,analyst,scriptwriter,json-builder,onboarding}/SKILL.md` (+ n8n-admin) |
 | Credentials n8n (4 шт) | ✅ | scrapecreators/creatify/postmypost — **PLACEHOLDER_UNTIL_TOMORROW**, telegram — реальный |
-| Воркфлоу n8n (11 шт, все активны) | ✅ | см. таблицу ниже |
+| Воркфлоу n8n (все активны; полный перечень с id — п. 5.12) | ✅ | см. таблицу ниже |
 | БД factory.db | ✅ | 13 таблиц, клиент Robotec (active, id=1), тестовые данные |
 
 ## 2. Воркфлоу n8n (все активны, webhook'и зарегистрированы)
@@ -29,7 +29,7 @@
 | wf-analytics | POST `/webhook/factory/analytics` {client_id} | ✅ 3 ветки, постфильтр 12–72ч, топ-20 (mock) |
 | wf-creatify-link | POST `/webhook/factory/creatify-link` {url} | ✅ link_id (UUID, mock) |
 | wf-creatify-submit | POST `/webhook/factory/creatify-submit` {json_payload, link_id, script_id, client_id} | ✅ INSERT generations + creatify_id в БД (mock) |
-| wf-credit-check | POST `/webhook/factory/credit-check` {} | ✅ 200 {ok:true, balance:497} (13.08, live) |
+| wf-credit-check — ❌ НЕ существует | — | Баланс creatify проверяется бесплатным GET `/api/remaining_credits/` (воркфлоу wf-credit-check НЕ существует — удалён из архитектуры 13.08, не создавать) |
 | wf-creatify-webhook | POST `/webhook/factory/creatify/6d8f2a41c9e7b3d5f0a1c4e8` | ✅ done→status=done, повтор→duplicate, failed→failed (идемпотентность) |
 | wf-creatify-poll | Cron `*/5 * * * *` | ✅ исполняется, success |
 | wf-publish | POST `/webhook/factory/publish` {generation_id, platforms, post_at, captions} | ✅ posts строка + postmypost_id=999 (mock) |
@@ -87,7 +87,7 @@ curl -X POST http://localhost:5678/webhook/factory/tg-alert -H 'Content-Type: ap
 9. **Сеть VK Cloud**: часть IP api.telegram.org (149.154.166.x) недоступна → extra_hosts в compose n8n (149.154.167.220/.99) + `TELEGRAM_FALLBACK_IPS` в `~/.hermes/.env` + пин в /etc/hosts.
 10. **SQLite-сравнение времени**: post_at хранится в ISO+таймзона → сравнивать через `julianday(post_at) <= julianday('now','+1 hour')`.
 11. **Экспорт воркфлоу из БД**: `workflow_entity` — колонки nodes/connections (JSON), версии — `workflow_history`.
-12. **Корневые id воркфлоу** — фиксированные (20000000-...-001..012); параллельным субагентам выдавать УНИКАЛЬНЫЕ id (был конфликт 00b).
+12. **Корневые id воркфлоу** — фиксированные (20000000-...-001..025 + wf-onboard = UUID 0dbb4ea9-0cf0-4672-b1a0-973dfe8cb743); параллельным субагентам выдавать УНИКАЛЬНЫЕ id (был конфликт 00b).
 
 ## 6. Что НЕ сделано / на Фазу 2
 
@@ -141,7 +141,7 @@ CYCLE_VIDEO_PENDING, CYCLE_PUBLISH_PENDING, AUTO_CYCLE_RUNNING).
 Правила работы со STATE — в orchestrator/SKILL.md (раздел «ПРАВИЛА РАБОТЫ СО STATE»):
 перед каждым ответом читать MEMORY.md, после перехода — обновлять первую строку.
 
-**Slash-команды (15, зарегистрированы в Telegram через setMyCommands)**:
+**Slash-команды (ядро — 15; всего зарегистрировано 31 через setMyCommands, см. §27)**:
 start, help, status, mode, onboard, start_cycle, cancel, topics, competitors,
 accounts, budget, client, clients, reload_skills, ping.
 Автокомплит в чате при вводе "/" — работает.
@@ -326,7 +326,7 @@ esc = s => String(s ?? '').replace(/([_*[\]`])/g, '\\$1') (применено в
 
 ## 16. SC-2: wf-creator-profile — профиль автора (13.08, LIVE)
 
-**Назначение:** по `platform + handle` вернуть нормализованный профиль автора (подписчики, подписки, посты, bio, верификация, категория, аватар). Источник — ScrapeCreators (кред `...001`, httpHeaderAuth `x-api-key`). JSON: `~/factory/wf-creator-profile.json` (id `20000000-0000-4000-8000-000000000015`, 14 нод, active=1, webhook зарегистрирован). Ветка twitter/yt — дефенсивная, живьём НЕ тестирована (бюджет кредитов).
+**Назначение:** по `platform + handle` вернуть нормализованный профиль автора (подписчики, подписки, посты, bio, верификация, категория, аватар). Источник — ScrapeCreators (кред `...001`, httpHeaderAuth `x-api-key`). JSON: `~/factory/wf-creator-profile.json` (id `20000000-0000-4000-8000-000000000016`, 14 нод, active=1, webhook зарегистрирован). Ветка twitter/yt — дефенсивная, живьём НЕ тестирована (бюджет кредитов).
 
 **Контракт:** `POST /webhook/factory/creator-profile` body `{platform, handle}` (platform: `instagram|tiktok|youtube|twitter`) →
 ```json
@@ -528,3 +528,51 @@ esc = s => String(s ?? '').replace(/([_*[\]`])/g, '\\$1') (применено в
 - Тесты (все БЕСПЛАТНЫЕ, exec 1957–1987 success): my_avatars → реальный список (msg 137); creators robotics → ошибка сервиса (SC баланс -1); publish_type story → settings обновлено (msg 139); валидации 13 команд — осмысленные ошибки
 - Питфолл закрыт: invalid-путь Format-нод экранирует esc(b.text) (12 нод) — `_` в подсказках больше не ломает Markdown
 - КРЕДИТЫ: 0 потрачено (только валидационные пути; HTTP к платным webhook'ам не вызывался)
+
+## 27. UX-2: Меню, инструкция, быстрые сценарии URL→видео и AI Shorts (14.08) — DONE, применено на сервер
+
+Ран 2 UX-реворка (спека `.scratch/bot-ux-menu/spec.md`). Аудит UX выявил: 14 мёртвых кнопок (литеральные `{{ }}` — исправлены ещё в FIX-11/12, реворк на их базе), нет меню, протухшие балансы (settings.credits_remaining=500 — мусор), тупиковые сообщения, тексты «mock/long polling», `shorts <url>` слал несуществующее поле source_video_url.
+
+- **wf-tg-bot: 278 → 404 нод** (active=1, применено apply_fix.sh 14.08). Новое:
+  - Двухуровневое меню: главное (Генерация/Аналитика/Публикация/Система/Инструкция) → разделы с кнопками и пояснениями; кнопка «📋 Меню» (cmd:menu) на ВСЕХ 57 экранах + stage3 wf-creatify-webhook.
+  - Инструкция (§4.7 спеки): старт (кратко) + команда `инструкция` (синоним `help`).
+  - Живые балансы: GET creatify /api/remaining_credits/ + SC /v1/account/credit-balance (бесплатные, typeVersion 4.5, keypair, вложенный neverError) на старте/статусе/бюджете/меню (ноды ST/ST2/BG/MU/UV/DU/SH LB *).
+  - URL→видео: кнопка/команда → ссылка → длительность 30/60/90 (5/10/15 кред) → creatify-link (1 кред) + submit link_to_videos → stage3/publish. Состояния QUICK_URL_*; quick_payload в sessions (DDL: ALTER TABLE sessions ADD COLUMN quick_payload TEXT).
+  - AI Shorts: кнопка/команда → тема → (расширение темы→сценарий в wf-creatify-shorts через hermes-bridge, БЕСПЛАТНО) → ai_shorts → видео в чат + Опубликовать/Перегенерировать/Отклонить/Меню. `shorts <url>` → редирект на URL→видео.
+  - Кредитные гейты: блок при creatify < 10, кап 50 кред/генерация, реген через гейт (фикс оркестратора после T4).
+  - Всё экранировано esc() (линтер 7→0), сломанных callback_data 0, BFS 404/404.
+- **wf-creatify-webhook: 21 → 25 нод** — stage3 кнопки + «📋 Меню».
+- **wf-creatify-shorts: 12 → 17 нод** — тема→сценарий через hermes-bridge (scriptwriter, маркерный контракт <SCRIPT>), source_video_url отклоняется, video_output в ответе (синхронная доставка).
+- **setMyCommands: tg-commands-31.json (31 команда: + menu, instruction, url2video)** — register-tg-commands-31.sh, getMyCommands=31, missing=[].
+- Ограничения (вне тикета): async-доставка шортсов (страховочная ветка есть, wf-creatify-webhook не знает shorts-джобов; ставка на синхронный video_output); интерактивный ввод аргументов вспомогательных команд — хинт-кнопки.
+- КРЕДИТЫ: 0 потрачено (статика + симуляции; live-генерации — по согласованию).
+
+## § Профили клиентов (15.08, autopilot, client-profiles)
+
+Спека: `.scratch/client-profiles/spec.md` · Тикеты: `.scratch/client-profiles/issues/` (01–12) · ADR-0001. Статус: **готово к деплою** (деплой — отдельным гейтом согласия пользователя, тикет 12).
+
+- **Раздел «Профиль»**: кнопка «👤 Профиль» на старте и в меню (Система) → карточка активного профиля (название, ниша, описание, ЦА, тон, счётчики ссылок/документов/референсов); кнопки: Создать/Выбрать/Изменить/Добавить ссылку/Добавить документ/Выйти.
+- **Интервью «Создать профиль»** (8 пропускаемых вопросов: название, ниша, описание, ЦА, ссылки, документы, тон, референсы) — состояния PROFILE_AWAIT/PROFILE_DOCS_SUBMITTING, черновик в `sessions.profile_draft`; «Пропустить»/«Готово»/«Отмена». Редактирование — пере-опрос с предзаполнением («Сейчас: …»); точечные добавления ссылок/документов (PROFILE_ADD_LINK/PROFILE_ADD_DOC).
+- **Документы** (PDF/DOCX/TXT): приём файлом в чат → hermes-bridge `/doc-text` (getFile + извлечение текста pypdf/python-docx + LLM-дайджест; установка библиотек в venv — с согласия пользователя при деплое) или ссылкой.
+- **Активный профиль per-чат**: `users.active_client_id` (fallback `settings.active_client_id` + валидация существования; чинит битый live id 999). Все чтения активного клиента переведены на резолв-шаблон.
+- **Контекст в промптах**: 4 цепочки CTX (SC/CT/ET/AU) подставляют блок контекста активного профиля (описание, ЦА, тон, ссылки ≤5, дайджесты документов ≤2000 симв.) в промпты analyst/scriptwriter вместо хардкода «Клиент: Robotec (…)».
+- **Гейт**: генерация (цикл, URL→видео, шортсы, текстовый пост, ассеты, продукт, баннер) без активного профиля → «Нет активного профиля» + кнопка Профиль (общий GPF-гейт + роутер, 7 входов).
+- **Доступ**: Whitelist → роли `users` (admin/operator); владелец назначает операторов командой «добавить оператора <tg_id>» (роль admin), список — «операторы». Хардкод TG=941296693 убран из access-логики.
+- **Схема** (миграция `.scratch/client-profiles/fixes/migrate-client-profiles.py`): `clients += description, context_links, context_docs, context_refs`; `users += active_client_id`; `sessions += profile_draft`; сид владельца.
+- **Команды**: tg-commands-35.json (35: + profile, profiles, add_operator, operators) — register-tg-commands-35.sh.
+- **wf-tg-bot: 533 → 719 нод** (аккумулировано волной 03–11; снапшоты в `.scratch/client-profiles/fixes/wf-tg-bot.NN.json`). КРЕДИТЫ: 0 потрачено (статика + симуляции + live-сверка read-only).
+
+## § Доводка системы до зелёного (15.08, autopilot, волна 3)
+
+После деплоя профилей клиентов найден и устранён системный дефект платформы:
+
+- **Рёбра connections без `index`/`type`** (158 таргетов в wf-tg-bot — наследие CLI-экспорта): n8n 2.34 молча игнорирует такие рёбра — цепочки «умирали» после HTTP-нод без ошибок (сохранение интервью, движение цикла, аналитика). Исправлено; валидатор скилла теперь проверяет `index`/`type` у каждого таргета и BFS со ВСЕХ триггеров.
+- **telegram-ноды v1.2 без `replyMarkup`** (90 нод): кнопки молча не отправлялись (карточка профиля, интервью, подтверждения). Исправлено; валидатор ловит рецидив.
+- **`UPDATE users`/`UPDATE clients` с несуществующей колонкой `updated_at`** (13 нод): падала активация профиля, удаление, платформы, ссылки/документы. Исправлено (в схеме нет updated_at у clients/users).
+- **Хардкод `client_id: 1`** в 5 генерационных нодах (SC/AS/AU/AVA/AVL) заменён на per-чат резолв.
+- **24 switch'а** с `string/equals` на булевом выражении исправлены на `boolean/equals` (генерация была мертва ещё в базе).
+- Гейт генерации ужесточён: только per-чат активный профиль (без fallback «первый активный»).
+- Тестовый воркфлоу `zz-test-sqlite` деактивирован; тестовые клиенты удалены (мягко).
+- Профиль Robotec заполнен полными данными (ниша, описание, ЦА, тон, 10 ссылок, референсы) — источник: документ владельца.
+
+**Статус**: wf-tg-bot 847 нод, validate 0/lint 0; аудит всех 24 воркфлоу — 0 issues; исполнения без ошибок после 15.08 11:15. Платные тесты — владелец.

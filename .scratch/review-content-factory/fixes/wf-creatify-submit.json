@@ -1,0 +1,582 @@
+{
+ "updatedAt": "2026-08-13T00:00:00.000Z",
+ "createdAt": "2026-08-11T20:37:12.695Z",
+ "id": "20000000-0000-4000-8000-00000000000d",
+ "name": "wf-creatify-submit",
+ "description": null,
+ "active": true,
+ "isArchived": false,
+ "nodes": [
+  {
+   "parameters": {
+    "httpMethod": "POST",
+    "path": "factory/creatify-submit",
+    "responseMode": "responseNode",
+    "options": {}
+   },
+   "id": "d1000000-0000-4000-8000-000000000001",
+   "name": "Webhook",
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2.1,
+   "position": [
+    -600,
+    0
+   ],
+   "webhookId": "d1000000-0000-4000-8000-0000000000w1"
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const raw = ($json.body && typeof $json.body === 'object' && !Array.isArray($json.body)) ? $json.body : ($json || {});\nconst isNum = (v) => v !== undefined && v !== null && String(v).trim() !== '' && Number.isFinite(Number(v));\nconst json_payload = raw.json_payload;\nconst valid = (isNum(raw.script_id) && isNum(raw.client_id)\n  && json_payload !== null && typeof json_payload === 'object' && !Array.isArray(json_payload)\n  && typeof raw.link_id === 'string' && raw.link_id.trim() !== '') ? 1 : 0;\nreturn [{ json: { valid: valid, body: { script_id: raw.script_id, client_id: raw.client_id, json_payload: json_payload, link_id: raw.link_id } } }];"
+   },
+   "id": "d1000000-0000-4000-8000-000000000010",
+   "name": "Code validate",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    -420,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "combinator": "and",
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "strict",
+      "version": 3
+     },
+     "conditions": [
+      {
+       "leftValue": "={{ $json.valid }}",
+       "rightValue": 1,
+       "operator": {
+        "type": "number",
+        "operation": "equals"
+       }
+      }
+     ]
+    }
+   },
+   "id": "d1000000-0000-4000-8000-000000000011",
+   "name": "IF valid",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.3,
+   "position": [
+    -240,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "http://db-bridge:8787/query",
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-BRIDGE-TOKEN",
+       "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+      }
+     ]
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ {sql: \"INSERT INTO generations (script_id, client_id, request_payload, link_id, status) VALUES (?, ?, ?, ?, 'pending')\", params: [String($('Code validate').first().json.body.script_id), String($('Code validate').first().json.body.client_id), JSON.stringify($('Code validate').first().json.body.json_payload), String($('Code validate').first().json.body.link_id)]} }}",
+    "options": {}
+   },
+   "id": "d1000000-0000-4000-8000-000000000002",
+   "name": "INSERT generation",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    -380,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "rules",
+    "rules": {
+     "values": [
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "leftValue": "",
+         "typeValidation": "strict"
+        },
+        "conditions": [
+         {
+          "leftValue": "={{ $env.CREATIFY_API_ID }}",
+          "rightValue": "PLACEHOLDER_UNTIL_TOMORROW",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       }
+      }
+     ]
+    },
+    "options": {
+     "fallbackOutput": "extra"
+    }
+   },
+   "id": "d1000000-0000-4000-8000-000000000003",
+   "name": "Switch mock",
+   "type": "n8n-nodes-base.switch",
+   "typeVersion": 3.4,
+   "position": [
+    -160,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "function uuid(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16)})}\nreturn [{ json: { id: uuid(), status: 'pending', progress: 0, mock: true } }];"
+   },
+   "id": "d1000000-0000-4000-8000-000000000004",
+   "name": "Code mock",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    40,
+    -160
+   ]
+  },
+  {
+   "parameters": {
+    "method": "GET",
+    "url": "https://api.creatify.ai/api/remaining_credits/",
+    "authentication": "none",
+    "sendHeaders": true,
+    "specifyHeaders": "keypair",
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-API-ID",
+       "value": "={{ $env.CREATIFY_API_ID }}"
+      },
+      {
+       "name": "X-API-KEY",
+       "value": "={{ $env.CREATIFY_API_KEY }}"
+      }
+     ]
+    },
+    "options": {
+     "timeout": 15000
+    }
+   },
+   "id": "d1000000-0000-4000-8000-000000000013",
+   "name": "HTTP credits",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    300,
+    160
+   ],
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 1000,
+   "credentials": {}
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const raw = ($json.body && $json.body.remaining_credits != null) ? $json.body : $json;\nconst balance = Number(raw && raw.remaining_credits != null ? raw.remaining_credits : 0);\nreturn [{ json: { ok: 1, balance: balance, remaining_credits: balance } }];"
+   },
+   "id": "d1000000-0000-4000-8000-000000000014",
+   "name": "Code balance",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    480,
+    160
+   ]
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "combinator": "and",
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "strict",
+      "version": 3
+     },
+     "conditions": [
+      {
+       "leftValue": "={{ $json.balance }}",
+       "rightValue": 50,
+       "operator": {
+        "type": "number",
+        "operation": "gte"
+       }
+      }
+     ]
+    }
+   },
+   "id": "d1000000-0000-4000-8000-000000000015",
+   "name": "IF low credits",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.3,
+   "position": [
+    660,
+    160
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ {ok: false, error: 'low_credits', balance: $('Code balance').first().json.balance} }}",
+    "options": {}
+   },
+   "id": "d1000000-0000-4000-8000-000000000016",
+   "name": "Respond low credits",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    660,
+    400
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "https://api.creatify.ai/api/link_to_videos/",
+    "authentication": "none",
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify(Object.assign({}, $('Code validate').first().json.body.json_payload, {webhook_url: $env.WEBHOOK_URL + 'webhook/factory/creatify/6d8f2a41c9e7b3d5f0a1c4e8'})) }}",
+    "options": {},
+    "sendHeaders": true,
+    "specifyHeaders": "keypair",
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-API-ID",
+       "value": "={{ $env.CREATIFY_API_ID }}"
+      },
+      {
+       "name": "X-API-KEY",
+       "value": "={{ $env.CREATIFY_API_KEY }}"
+      }
+     ]
+    }
+   },
+   "id": "d1000000-0000-4000-8000-000000000005",
+   "name": "HTTP POST real",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    40,
+    160
+   ],
+   "credentials": {}
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const creatify_id = $json.id;\nconst generation_id = $('INSERT generation').first().json.lastInsertRowid;\nreturn [{ json: { creatify_id: creatify_id, generation_id: generation_id } }];"
+   },
+   "id": "d1000000-0000-4000-8000-000000000006",
+   "name": "Code extract",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    260,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "http://db-bridge:8787/query",
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-BRIDGE-TOKEN",
+       "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+      }
+     ]
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ $json }}",
+    "options": {}
+   },
+   "id": "d1000000-0000-4000-8000-000000000007",
+   "name": "UPDATE creatify_id",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    1380,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ $('Code extract').first().json }}",
+    "options": {}
+   },
+   "id": "d1000000-0000-4000-8000-000000000008",
+   "name": "Respond to Webhook",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    1560,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const d = $json;\nreturn [{ json: { sql: 'UPDATE generations SET creatify_id=? WHERE id=?', params: [String(d.creatify_id), Number(d.generation_id)] } }];"
+   },
+   "id": "eeeeeeee-0000-4000-8000-00000000000d",
+   "name": "Build update body",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1200,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "{\"ok\":false,\"error\":\"invalid_input\"}",
+    "options": {}
+   },
+   "id": "d1000000-0000-4000-8000-000000000012",
+   "name": "Respond invalid input",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    -240,
+    240
+   ]
+  }
+ ],
+ "connections": {
+  "Webhook": {
+   "main": [
+    [
+     {
+      "node": "Code validate",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Code validate": {
+   "main": [
+    [
+     {
+      "node": "IF valid",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "IF valid": {
+   "main": [
+    [
+     {
+      "node": "INSERT generation",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Respond invalid input",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "INSERT generation": {
+   "main": [
+    [
+     {
+      "node": "Switch mock",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Switch mock": {
+   "main": [
+    [
+     {
+      "node": "Code mock",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "HTTP credits",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Code mock": {
+   "main": [
+    [
+     {
+      "node": "Code extract",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP credits": {
+   "main": [
+    [
+     {
+      "node": "Code balance",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Code balance": {
+   "main": [
+    [
+     {
+      "node": "IF low credits",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "IF low credits": {
+   "main": [
+    [
+     {
+      "node": "HTTP POST real",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Respond low credits",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP POST real": {
+   "main": [
+    [
+     {
+      "node": "Code extract",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Code extract": {
+   "main": [
+    [
+     {
+      "node": "Build update body",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Build update body": {
+   "main": [
+    [
+     {
+      "node": "UPDATE creatify_id",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "UPDATE creatify_id": {
+   "main": [
+    [
+     {
+      "node": "Respond to Webhook",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "executionOrder": "v1"
+ },
+ "staticData": null,
+ "meta": {
+  "templateCredsSetupCompleted": true
+ },
+ "nodeGroups": [],
+ "pinData": {},
+ "versionId": "90ce36ba-0039-4fa3-8a00-3e25faf7a6bb",
+ "activeVersionId": "90ce36ba-0039-4fa3-8a00-3e25faf7a6bb",
+ "versionCounter": 5,
+ "triggerCount": 1,
+ "sourceWorkflowId": null,
+ "tags": [],
+ "shared": [
+  {
+   "updatedAt": "2026-08-11T20:37:12.700Z",
+   "createdAt": "2026-08-11T20:37:12.700Z",
+   "role": "workflow:owner",
+   "workflowId": "20000000-0000-4000-8000-00000000000d",
+   "projectId": "M9eH49D0HafLr8AX",
+   "project": {
+    "updatedAt": "2026-08-11T13:27:47.312Z",
+    "createdAt": "2026-08-11T12:45:09.939Z",
+    "id": "M9eH49D0HafLr8AX",
+    "name": "Factory Owner <owner@factory.local>",
+    "type": "personal",
+    "icon": null,
+    "description": null,
+    "customTelemetryTags": [],
+    "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"
+   }
+  }
+ ],
+ "versionMetadata": {
+  "name": "Version 90ce36ba",
+  "description": ""
+ }
+}

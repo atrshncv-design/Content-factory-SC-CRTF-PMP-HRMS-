@@ -1,0 +1,93 @@
+# =============================================================================
+#  КОНТЕНТ-ЗАВОД — docker-compose (АКТУАЛЬНАЯ live-архитектура, 13.08.2026)
+#  Сервисы: n8n (зафиксирована 2.34.4) + db-bridge (docker0) + cloudflared (quick tunnel).
+#  Hermes на live — host-process (venv + systemd hermes.service + hermes-bridge.service),
+#  в compose НЕ входит; caddy/hermes из спеки 10 — legacy (комментарии ниже).
+#
+#  ⚠️ НЕ перезапускать на сервере: там живой стек (83.166.233.95). Файл — витрина/
+#     референс для следующего деплоя; diff применять вручную.
+#  Запуск: docker compose up -d
+# =============================================================================
+
+services:
+  # ─────────────────────────── n8n — «руки» ──────────────────────────────
+  n8n:
+    image: n8nio/n8n:2.34.4        # FIX-17: версия зафиксирована (live 2.34.4; было :latest)
+    container_name: factory-n8n
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678"     # только localhost; наружу — cloudflared quick tunnel
+    env_file: ~/factory/.env      # live-путь к .env (токены, WEBHOOK_URL, ключи); для
+                                  # локального запуска заменить на ./.env (gitignored)
+    environment:
+      - N8N_HOST=${N8N_HOST}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=${N8N_PROTOCOL}
+      - WEBHOOK_URL=${WEBHOOK_URL}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - GENERIC_TIMEZONE=${TZ}
+      - SQLITE_PATH=/var/data/n8n.sqlite   # внутренняя БД n8n (не factory.db!)
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_SECURE_COOKIE=true             # было false (под Caddy); quick-tunnel = HTTPS
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false # live: $env.* в выражениях (mock-переключатели,
+                                           # X-BRIDGE-TOKEN из env) — было НЕ задано
+    extra_hosts:
+      # VK Cloud блокирует основной IP api.telegram.org — пин на резервные (live, 11.08)
+      - "api.telegram.org:149.154.167.220"
+      - "api.telegram.org:149.154.167.99"
+    volumes:
+      - n8n-data:/home/node/.n8n   # live: ~/factory/.n8n
+      - ./data:/var/data           # factory.db + бэкапы
+      - ./media:/var/media         # MP4
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5678/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ─────────────────── db-bridge — SQL-мост к factory.db ──────────────────
+  # server.js биндит docker0 172.17.0.1:8787 (докстринг; FIX-16, НЕ 0.0.0.0).
+  # Внутри обычного bridge-контейнера 172.17.0.1 не является локальным адресом
+  # (bind упадёт с EADDRNOTAVAIL), поэтому нужен network_mode: host.
+  # Доступ: n8n-контейнер — host.docker.internal:8787; хост — 172.17.0.1:8787.
+  # Наружу НЕ слушает. Альтернатива (если host-режим нежелателен): bridge-сеть +
+  # BRIDGE_HOST=0.0.0.0 и публикация порта только на 127.0.0.1 — но тогда
+  # n8n-контейнер через host.docker.internal:8787 мост не увидит.
+  db-bridge:
+    image: node:22-alpine          # node:sqlite (DatabaseSync) требует Node >= 22.5;
+                                   # image node, т.к. Dockerfile в infra/db-bridge отсутствует
+    container_name: factory-db-bridge
+    restart: unless-stopped
+    network_mode: host
+    working_dir: /app
+    volumes:
+      - ./infra/db-bridge/server.js:/app/server.js:ro
+      - ./data:/var/data           # factory.db (WAL)
+    environment:
+      # FIX-16 (fail-closed): пустой токен => 500 {ok:false,error:'bridge not configured'}
+      - FACTORY_DB_BRIDGE_TOKEN=${FACTORY_DB_BRIDGE_TOKEN}
+      - FACTORY_DB_PATH=/var/data/factory.db
+      - BRIDGE_HOST=172.17.0.1
+      - BRIDGE_PORT=8787
+    command: ["node", "/app/server.js"]
+
+  # ─────────── cloudflared — quick tunnel к n8n UI (live) ────────────────
+  # URL: docker logs factory-cloudflared-n8n | grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' | head -1
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: factory-cloudflared-n8n
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --url http://n8n:5678
+    depends_on:
+      - n8n
+
+  # ─────────────────────── LEGACY (спека 10, НЕ на live) ──────────────────
+  # hermes: УБРАН из compose — на live Hermes работает host-process
+  #   (venv + systemd hermes.service, `hermes gateway run`); доступ для n8n —
+  #   hermes-bridge (host, systemd hermes-bridge.service, :8642, bind 172.17.0.1;
+  #   n8n ходит на host.docker.internal:8642/ask).
+  # caddy: УБРАН — публичный вход только cloudflared quick-tunnel; старый Caddyfile
+  #   (catch-all reverse_proxy n8n:5678 + /media/* без авторизации) небезопасен.
+
+volumes:
+  n8n-data:

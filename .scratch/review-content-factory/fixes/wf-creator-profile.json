@@ -1,0 +1,745 @@
+{
+ "name": "wf-creator-profile",
+ "nodes": [
+  {
+   "parameters": {
+    "httpMethod": "POST",
+    "path": "factory/creator-profile",
+    "responseMode": "responseNode",
+    "options": {}
+   },
+   "id": "aaaaaaaa-1111-2222-3333-444444444461",
+   "name": "creator-profile-webhook",
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2.1,
+   "position": [
+    -460,
+    0
+   ],
+   "webhookId": "gggggggg-1111-2222-3333-444444444461"
+  },
+  {
+   "parameters": {
+    "mode": "rules",
+    "rules": {
+     "values": [
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "leftValue": "",
+         "typeValidation": "strict"
+        },
+        "conditions": [
+         {
+          "leftValue": "={{ ($json.body && $json.body.platform) || $json.platform }}",
+          "rightValue": "instagram",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       }
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "leftValue": "",
+         "typeValidation": "strict"
+        },
+        "conditions": [
+         {
+          "leftValue": "={{ ($json.body && $json.body.platform) || $json.platform }}",
+          "rightValue": "tiktok",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       }
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "leftValue": "",
+         "typeValidation": "strict"
+        },
+        "conditions": [
+         {
+          "leftValue": "={{ ($json.body && $json.body.platform) || $json.platform }}",
+          "rightValue": "youtube",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       }
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "leftValue": "",
+         "typeValidation": "strict"
+        },
+        "conditions": [
+         {
+          "leftValue": "={{ ($json.body && $json.body.platform) || $json.platform }}",
+          "rightValue": "twitter",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       }
+      }
+     ]
+    },
+    "options": {
+     "fallbackOutput": "extra"
+    }
+   },
+   "id": "bbbbbbbb-1111-2222-3333-444444444461",
+   "name": "Switch platform",
+   "type": "n8n-nodes-base.switch",
+   "typeVersion": 3.4,
+   "position": [
+    -260,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "method": "GET",
+    "url": "https://api.scrapecreators.com/v1/instagram/profile",
+    "authentication": "genericCredentialType",
+    "genericAuthType": "httpHeaderAuth",
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "handle",
+       "value": "={{ $('Code validate').first().json.handle }}"
+      },
+      {
+       "name": "trim",
+       "value": "true"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "credentials": {
+    "httpHeaderAuth": {
+     "id": "10000000-0000-4000-8000-000000000001",
+     "name": "scrapecreators"
+    }
+   },
+   "id": "cccccccc-1111-2222-3333-444444444461",
+   "name": "HTTP Instagram",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    -60,
+    -240
+   ]
+  },
+  {
+   "parameters": {
+    "method": "GET",
+    "url": "https://api.scrapecreators.com/v1/tiktok/profile",
+    "authentication": "genericCredentialType",
+    "genericAuthType": "httpHeaderAuth",
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "handle",
+       "value": "={{ $('Code validate').first().json.handle }}"
+      },
+      {
+       "name": "trim",
+       "value": "true"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "credentials": {
+    "httpHeaderAuth": {
+     "id": "10000000-0000-4000-8000-000000000001",
+     "name": "scrapecreators"
+    }
+   },
+   "id": "cccccccc-1111-2222-3333-444444444462",
+   "name": "HTTP TikTok",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    -60,
+    -120
+   ]
+  },
+  {
+   "parameters": {
+    "method": "GET",
+    "url": "https://api.scrapecreators.com/v1/youtube/channel",
+    "authentication": "genericCredentialType",
+    "genericAuthType": "httpHeaderAuth",
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "handle",
+       "value": "={{ $('Code validate').first().json.handle }}"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "credentials": {
+    "httpHeaderAuth": {
+     "id": "10000000-0000-4000-8000-000000000001",
+     "name": "scrapecreators"
+    }
+   },
+   "id": "cccccccc-1111-2222-3333-444444444463",
+   "name": "HTTP YouTube",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    -60,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "method": "GET",
+    "url": "https://api.scrapecreators.com/v1/twitter/profile",
+    "authentication": "genericCredentialType",
+    "genericAuthType": "httpHeaderAuth",
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "handle",
+       "value": "={{ $('Code validate').first().json.handle }}"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "credentials": {
+    "httpHeaderAuth": {
+     "id": "10000000-0000-4000-8000-000000000001",
+     "name": "scrapecreators"
+    }
+   },
+   "id": "cccccccc-1111-2222-3333-444444444464",
+   "name": "HTTP Twitter",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    -60,
+    120
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const wb = $('creator-profile-webhook').first().json;\nconst b = (wb && wb.body) || wb || {};\nreturn [{ json: { platform: 'instagram', handle: b.handle || wb.handle || null, raw: $json } }];"
+   },
+   "id": "dddddddd-1111-2222-3333-444444444461",
+   "name": "Tag Instagram",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    140,
+    -240
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const wb = $('creator-profile-webhook').first().json;\nconst b = (wb && wb.body) || wb || {};\nreturn [{ json: { platform: 'tiktok', handle: b.handle || wb.handle || null, raw: $json } }];"
+   },
+   "id": "dddddddd-1111-2222-3333-444444444462",
+   "name": "Tag TikTok",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    140,
+    -120
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const wb = $('creator-profile-webhook').first().json;\nconst b = (wb && wb.body) || wb || {};\nreturn [{ json: { platform: 'youtube', handle: b.handle || wb.handle || null, raw: $json } }];"
+   },
+   "id": "dddddddd-1111-2222-3333-444444444463",
+   "name": "Tag YouTube",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    140,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const wb = $('creator-profile-webhook').first().json;\nconst b = (wb && wb.body) || wb || {};\nreturn [{ json: { platform: 'twitter', handle: b.handle || wb.handle || null, raw: $json } }];"
+   },
+   "id": "dddddddd-1111-2222-3333-444444444464",
+   "name": "Tag Twitter",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    140,
+    120
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "append",
+    "numberInputs": 4,
+    "options": {}
+   },
+   "id": "eeeeeeee-1111-2222-3333-444444444461",
+   "name": "Merge",
+   "type": "n8n-nodes-base.merge",
+   "typeVersion": 3.2,
+   "position": [
+    340,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const items = $input.all();\n\nfunction num(v) {\n  if (v === null || v === undefined || v === '') return null;\n  const n = Number(v);\n  return Number.isFinite(n) ? n : null;\n}\nfunction boolOrNull(v) { return (v === true || v === false) ? v : null; }\n\nfunction build(p, h, raw) {\n  const profile = { platform: p, handle: h, nickname: null, follower_count: null,\n    following_count: null, post_count: null, avg_engagement: null, bio: null,\n    is_verified: null, category: null, profile_image_url: null };\n  try {\n    if (p === 'instagram') {\n      const u = (raw.data && raw.data.user) || raw.user || {};\n      profile.nickname = u.full_name || u.username || null;\n      profile.follower_count = num(u.edge_followed_by && u.edge_followed_by.count);\n      profile.following_count = num(u.edge_follow && u.edge_follow.count);\n      profile.post_count = num(u.edge_owner_to_timeline_media && u.edge_owner_to_timeline_media.count);\n      if (profile.post_count === null) profile.post_count = num(u.edge_felix_video_timeline && u.edge_felix_video_timeline.count);\n      profile.bio = u.biography || null;\n      profile.is_verified = boolOrNull(u.is_verified);\n      profile.category = u.category_name || null;\n      profile.profile_image_url = u.profile_pic_url_hd || u.profile_pic_url || null;\n      const edges = (u.edge_felix_video_timeline && u.edge_felix_video_timeline.edges) || [];\n      const likes = edges.map(e => {\n        const n = e && e.node;\n        return num(n && ((n.edge_media_preview_like && n.edge_media_preview_like.count) || (n.edge_liked_by && n.edge_liked_by.count)));\n      }).filter(x => x !== null && x > 0);\n      if (likes.length > 0) profile.avg_engagement = Math.round(likes.reduce((a, b) => a + b, 0) / likes.length);\n    } else if (p === 'tiktok') {\n      const u = raw.user || {};\n      const st = raw.statsV2 || raw.stats || {};\n      profile.nickname = u.nickname || u.uniqueId || null;\n      profile.follower_count = num(st.followerCount);\n      profile.following_count = num(st.followingCount);\n      profile.post_count = num(st.videoCount);\n      profile.bio = u.signature || null;\n      profile.is_verified = boolOrNull(u.verified);\n      profile.profile_image_url = u.avatarLarger || u.avatarMedium || null;\n      const vc = profile.post_count;\n      const heart = num(st.heart) || num(st.heartCount);\n      if (vc && heart) profile.avg_engagement = Math.round(heart / vc);\n    } else if (p === 'youtube') {\n      const c = raw.channel || raw.data || raw;\n      profile.nickname = c.title || c.name || null;\n      profile.follower_count = num(c.subscriberCount) || num(c.subscriber_count);\n      profile.post_count = num(c.videoCount) || num(c.video_count);\n      profile.bio = c.description || null;\n      profile.is_verified = boolOrNull(c.isVerified);\n      profile.category = c.category || c.categoryName || null;\n      const th = (c.thumbnails && c.thumbnails[0] && c.thumbnails[0].url) || c.thumbnail || null;\n      profile.profile_image_url = th;\n    } else if (p === 'twitter') {\n      const c = raw.profile || (raw.data && raw.data.user) || raw.data || raw;\n      profile.nickname = c.name || c.full_name || null;\n      profile.follower_count = num(c.followers_count) || num(c.followersCount);\n      profile.following_count = num(c.friends_count) || num(c.following_count);\n      profile.post_count = num(c.statuses_count) || num(c.tweet_count);\n      profile.bio = c.description || null;\n      profile.is_verified = boolOrNull(c.verified);\n      profile.category = c.category || null;\n      profile.profile_image_url = c.profile_image_url_https || c.profile_image_url || c.avatar || null;\n    }\n  } catch (e) { /* keep nulls */ }\n  return profile;\n}\n\nconst out = [];\nfor (const it of items) {\n  const raw = it.json.raw || {};\n  const platform = it.json.platform;\n  const handle = it.json.handle;\n  const meta = { platform, credits_charged: num(raw.credits_charged), credits_remaining: num(raw.credits_remaining) };\n  if (raw.account_deactivated) {\n    out.push({ json: { ok: false, error: 'account_deactivated', message: raw.message || \"Account doesn't exist\", profile: null, meta } });\n  } else if (raw.success === false || num(raw.statusCode) === 402) {\n    const status = num(raw.statusCode);\n    out.push({ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status, message: raw.message || 'API error', profile: null, meta } });\n  } else {\n    out.push({ json: { ok: true, profile: build(platform, handle, raw), meta } });\n  }\n}\nreturn out;"
+   },
+   "id": "ffffffff-1111-2222-3333-444444444461",
+   "name": "Normalize",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    540,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ $json }}",
+    "options": {}
+   },
+   "id": "12345678-1111-2222-3333-444444444461",
+   "name": "Respond",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    740,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ {ok: false, error: 'unsupported platform: ' + String((($json.body && $json.body.platform) || $json.platform || 'unknown'))} }}",
+    "options": {}
+   },
+   "id": "12345678-1111-2222-3333-444444444462",
+   "name": "Error Respond",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    140,
+    320
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "\nconst wb = ($json.body && typeof $json.body === 'object') ? $json.body : $json;\nconst handle = (typeof wb.handle === 'string') ? wb.handle.trim() : '';\nconst platform = (typeof wb.platform === 'string') ? wb.platform.trim().toLowerCase() : '';\nif (!handle) return [{ json: { ok: false, error: 'handle is required' } }];\nif (!['instagram', 'youtube', 'tiktok', 'twitter'].includes(platform)) {\n  return [{ json: { ok: false, error: 'unsupported platform: ' + (platform || 'unknown') } }];\n}\nreturn [{ json: { ok: true, handle, platform } }];\n",
+    "mode": "runOnceForAllItems",
+    "language": "javaScript"
+   },
+   "id": "9339dd5627ee475e90d527c81ce584e2",
+   "name": "Code validate",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    -460,
+    -240
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "rules",
+    "rules": {
+     "values": [
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "leftValue": "",
+         "typeValidation": "strict"
+        },
+        "conditions": [
+         {
+          "leftValue": "={{ $json.ok }}",
+          "rightValue": true,
+          "operator": {
+           "type": "boolean",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       }
+      }
+     ]
+    },
+    "options": {
+     "fallbackOutput": "extra"
+    }
+   },
+   "id": "8fce4dba8a634cb6b68d3913674b2af6",
+   "name": "Switch valid",
+   "type": "n8n-nodes-base.switch",
+   "typeVersion": 3.4,
+   "position": [
+    -460,
+    -80
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "rules",
+    "rules": {
+     "values": [
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "leftValue": "",
+         "typeValidation": "strict"
+        },
+        "conditions": [
+         {
+          "leftValue": "={{ $env.SCRAPECREATORS_API_KEY }}",
+          "rightValue": "PLACEHOLDER_UNTIL_TOMORROW",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       }
+      }
+     ]
+    },
+    "options": {
+     "fallbackOutput": "extra"
+    }
+   },
+   "id": "1a2278f924f8423cb921df013c68fdf3",
+   "name": "Switch mock",
+   "type": "n8n-nodes-base.switch",
+   "typeVersion": 3.4,
+   "position": [
+    -360,
+    -80
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "\nconst v = $('Code validate').first().json;\nconst profile = {\n  platform: v.platform, handle: v.handle, nickname: v.platform + ' mock', follower_count: 1000,\n  following_count: 100, post_count: 50, avg_engagement: 5.2, bio: 'mock profile',\n  is_verified: false, category: null, profile_image_url: ''\n};\nreturn [{ json: { ok: true, profile, meta: { mock: true } } }];\n",
+    "mode": "runOnceForAllItems",
+    "language": "javaScript"
+   },
+   "id": "5cfc6d763e4d466fa83fe4bee3b6d763",
+   "name": "Code mock",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    -360,
+    140
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ $json }}",
+    "options": {}
+   },
+   "id": "317fce80d55e41c8ad5d41d5c9d53f37",
+   "name": "Respond mock",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    -150,
+    140
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ $json }}",
+    "options": {}
+   },
+   "id": "d0480ea62a09490cacca88504840578a",
+   "name": "Respond validate error",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    -460,
+    140
+   ]
+  }
+ ],
+ "connections": {
+  "creator-profile-webhook": {
+   "main": [
+    [
+     {
+      "node": "Code validate",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Switch platform": {
+   "main": [
+    [
+     {
+      "node": "HTTP Instagram",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "HTTP TikTok",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "HTTP YouTube",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "HTTP Twitter",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Error Respond",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP Instagram": {
+   "main": [
+    [
+     {
+      "node": "Tag Instagram",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP TikTok": {
+   "main": [
+    [
+     {
+      "node": "Tag TikTok",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP YouTube": {
+   "main": [
+    [
+     {
+      "node": "Tag YouTube",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP Twitter": {
+   "main": [
+    [
+     {
+      "node": "Tag Twitter",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Tag Instagram": {
+   "main": [
+    [
+     {
+      "node": "Merge",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Tag TikTok": {
+   "main": [
+    [
+     {
+      "node": "Merge",
+      "type": "main",
+      "index": 1
+     }
+    ]
+   ]
+  },
+  "Tag YouTube": {
+   "main": [
+    [
+     {
+      "node": "Merge",
+      "type": "main",
+      "index": 2
+     }
+    ]
+   ]
+  },
+  "Tag Twitter": {
+   "main": [
+    [
+     {
+      "node": "Merge",
+      "type": "main",
+      "index": 3
+     }
+    ]
+   ]
+  },
+  "Merge": {
+   "main": [
+    [
+     {
+      "node": "Normalize",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Normalize": {
+   "main": [
+    [
+     {
+      "node": "Respond",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Code validate": {
+   "main": [
+    [
+     {
+      "node": "Switch valid",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Switch valid": {
+   "main": [
+    [
+     {
+      "node": "Switch mock",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Respond validate error",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Switch mock": {
+   "main": [
+    [
+     {
+      "node": "Code mock",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Switch platform",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Code mock": {
+   "main": [
+    [
+     {
+      "node": "Respond mock",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "executionOrder": "v1"
+ },
+ "active": false,
+ "pinData": {},
+ "meta": {},
+ "id": "20000000-0000-4000-8000-000000000016"
+}

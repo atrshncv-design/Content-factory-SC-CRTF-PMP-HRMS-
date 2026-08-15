@@ -1,0 +1,491 @@
+{
+ "updatedAt": "2026-08-13T11:09:15.482Z",
+ "createdAt": "2026-08-13T11:09:15.482Z",
+ "id": "20000000-0000-4000-8000-000000000017",
+ "name": "wf-audience",
+ "description": null,
+ "active": true,
+ "isArchived": false,
+ "nodes": [
+  {
+   "parameters": {
+    "httpMethod": "POST",
+    "path": "factory/audience",
+    "responseMode": "responseNode",
+    "options": {}
+   },
+   "id": "aaaaaaaa-1111-2222-3333-555555555551",
+   "name": "audience-webhook",
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2.1,
+   "position": [
+    -460,
+    0
+   ],
+   "webhookId": "gggggggg-1111-2222-3333-555555555551"
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const base = ($json && typeof $json === 'object' && !Array.isArray($json)) ? $json : {};\nconst body = (base.body && typeof base.body === 'object' && !Array.isArray(base.body)) ? base.body : base;\nconst platform = String(body.platform || '').trim().toLowerCase();\nconst handle = String(body.handle || '').trim();\nif (!platform) {\n  return [{ json: { valid: 0, error: 'platform обязателен (tiktok)' } }];\n}\nif (platform !== 'tiktok') {\n  return [{ json: { valid: 0, error: 'unsupported platform: audience data available only for tiktok' } }];\n}\nif (!handle) {\n  return [{ json: { valid: 0, error: 'handle обязателен' } }];\n}\nreturn [{ json: { valid: 1, platform: platform, handle: handle } }];\n"
+   },
+   "id": "12345678-1111-2222-3333-555555555553",
+   "name": "Code validate",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    -500,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "rules",
+    "rules": {
+     "values": [
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "leftValue": "",
+         "typeValidation": "strict"
+        },
+        "conditions": [
+         {
+          "leftValue": "={{ $('Code validate').first().json.valid }}",
+          "rightValue": 1,
+          "operator": {
+           "type": "number",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       }
+      }
+     ]
+    },
+    "options": {
+     "fallbackOutput": "extra"
+    }
+   },
+   "id": "bbbbbbbb-1111-2222-3333-555555555551",
+   "name": "Switch platform",
+   "type": "n8n-nodes-base.switch",
+   "typeVersion": 3.4,
+   "position": [
+    -300,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "rules",
+    "rules": {
+     "values": [
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "leftValue": "",
+         "typeValidation": "strict"
+        },
+        "conditions": [
+         {
+          "leftValue": "={{ $env.SCRAPECREATORS_API_KEY }}",
+          "rightValue": "PLACEHOLDER_UNTIL_TOMORROW",
+          "operator": {
+           "type": "string",
+           "operation": "equals"
+          }
+         }
+        ],
+        "combinator": "and"
+       }
+      }
+     ]
+    },
+    "options": {
+     "fallbackOutput": "extra"
+    }
+   },
+   "id": "12345678-1111-2222-3333-555555555554",
+   "name": "Switch mock",
+   "type": "n8n-nodes-base.switch",
+   "typeVersion": 3.4,
+   "position": [
+    -100,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "// mock-ветка Фазы 1 (ключ-плейсхолдер): фиктивный ответ, дорогой эндпоинт НЕ вызывается.\n// handle/platform берём из Code validate (кросс-нод-ссылка, HTTP/Code-ноды не прокидывают входной item).\nconst v = $('Code validate').first().json;\nreturn [{\n  json: {\n    ok: true,\n    mock: true,\n    audience: {\n      platform: v.platform,\n      handle: v.handle,\n      gender: [],\n      age_ranges: [],\n      top_countries: [{ country: 'RU', percent: 50 }]\n    }\n  }\n}];\n"
+   },
+   "id": "12345678-1111-2222-3333-555555555555",
+   "name": "Code mock audience",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    100,
+    -160
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ $json }}",
+    "options": {}
+   },
+   "id": "12345678-1111-2222-3333-555555555556",
+   "name": "Respond mock",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    300,
+    -160
+   ]
+  },
+  {
+   "parameters": {
+    "method": "GET",
+    "url": "https://api.scrapecreators.com/v1/account/credit-balance",
+    "authentication": "genericCredentialType",
+    "genericAuthType": "httpHeaderAuth",
+    "options": {
+     "timeout": 30000
+    },
+    "contentType": "json"
+   },
+   "credentials": {
+    "httpHeaderAuth": {
+     "id": "10000000-0000-4000-8000-000000000001",
+     "name": "scrapecreators"
+    }
+   },
+   "id": "12345678-1111-2222-3333-555555555557",
+   "name": "HTTP Credit Balance",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    100,
+    160
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "// GET /v1/account/credit-balance -> {creditCount: N} (бесплатный, 0 кредитов).\n// Универсальный парсер: ответ может прийти объектом ($json.body / $json) или строкой ($json.data).\nconst raw = ($json && typeof $json === 'object' && !Array.isArray($json)) ? $json : {};\nlet balance = 0;\n// вариант 1: $json.body — объект\nconst body = (raw.body && typeof raw.body === 'object' && !Array.isArray(raw.body)) ? raw.body : null;\nif (body && body.creditCount != null) {\n  balance = Number(body.creditCount);\n} else if (raw.creditCount != null) {\n  // вариант 2: $json напрямую\n  balance = Number(raw.creditCount);\n} else if (typeof raw.data === 'string') {\n  // вариант 3: $json.data — JSON-строка (Content-Type не парсится n8n)\n  try {\n    const parsed = JSON.parse(raw.data);\n    balance = Number(parsed && parsed.creditCount != null ? parsed.creditCount : 0);\n  } catch (err) {\n    balance = 0;\n  }\n}\nreturn [{ json: { balance: balance, creditCount: balance } }];"
+   },
+   "id": "12345678-1111-2222-3333-555555555558",
+   "name": "Code balance",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    300,
+    160
+   ]
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "combinator": "and",
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "strict",
+      "version": 3
+     },
+     "conditions": [
+      {
+       "leftValue": "={{ $json.balance }}",
+       "rightValue": 30,
+       "operator": {
+        "type": "number",
+        "operation": "lt"
+       }
+      }
+     ]
+    }
+   },
+   "id": "12345678-1111-2222-3333-555555555559",
+   "name": "IF low credits",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.3,
+   "position": [
+    500,
+    160
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ {ok: false, error: 'low_credits', balance: $('Code balance').first().json.balance} }}",
+    "options": {}
+   },
+   "id": "12345678-1111-2222-3333-55555555555a",
+   "name": "Respond low credits",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    700,
+    320
+   ]
+  },
+  {
+   "parameters": {
+    "method": "GET",
+    "url": "https://api.scrapecreators.com/v1/tiktok/user/audience",
+    "authentication": "genericCredentialType",
+    "genericAuthType": "httpHeaderAuth",
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "handle",
+       "value": "={{ $('Code validate').first().json.handle }}"
+      }
+     ]
+    },
+    "options": {
+     "retryOnFail": true,
+     "maxTries": 3,
+     "timeout": 30000
+    }
+   },
+   "credentials": {
+    "httpHeaderAuth": {
+     "id": "10000000-0000-4000-8000-000000000001",
+     "name": "scrapecreators"
+    }
+   },
+   "id": "cccccccc-1111-2222-3333-555555555551",
+   "name": "HTTP TikTok Audience",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    700,
+    160
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "// Вход: ответ GET /v1/tiktok/user/audience (26 кред/запрос). handle/platform — из Code validate\n// (HTTP-нода не прокидывает входной item -> кросс-нод-ссылка $('Code validate')).\nconst v = $('Code validate').first().json;\nconst raw = $json;\nconst pct = (s) => {\n  const n = parseFloat(String(s == null ? '' : s).replace('%', ''));\n  return Number.isFinite(n) ? n : 0;\n};\nif (!raw || raw.success === false) {\n  return [{ json: { ok: false, error: 'api_error', message: (raw && raw.message) || 'scrapecreators API error' } }];\n}\nconst top_countries = Array.isArray(raw.audienceLocations)\n  ? raw.audienceLocations.map((l) => ({ country: l.country, percent: pct(l.percentage) }))\n  : [];\nreturn [{\n  json: {\n    ok: true,\n    audience: {\n      platform: v.platform,\n      handle: v.handle,\n      gender: [],\n      age_ranges: [],\n      top_countries: top_countries\n    }\n  }\n}];\n"
+   },
+   "id": "dddddddd-1111-2222-3333-555555555551",
+   "name": "Normalize",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    900,
+    160
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ $json }}",
+    "options": {}
+   },
+   "id": "12345678-1111-2222-3333-555555555551",
+   "name": "Respond",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    340,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ {ok: false, error: $('Code validate').first().json.error} }}",
+    "options": {}
+   },
+   "id": "12345678-1111-2222-3333-555555555552",
+   "name": "Error Respond",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    300,
+    320
+   ]
+  }
+ ],
+ "connections": {
+  "audience-webhook": {
+   "main": [
+    [
+     {
+      "node": "Code validate",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Code validate": {
+   "main": [
+    [
+     {
+      "node": "Switch platform",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Switch platform": {
+   "main": [
+    [
+     {
+      "node": "Switch mock",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Error Respond",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Switch mock": {
+   "main": [
+    [
+     {
+      "node": "Code mock audience",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "HTTP Credit Balance",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Code mock audience": {
+   "main": [
+    [
+     {
+      "node": "Respond mock",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP Credit Balance": {
+   "main": [
+    [
+     {
+      "node": "Code balance",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Code balance": {
+   "main": [
+    [
+     {
+      "node": "IF low credits",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "IF low credits": {
+   "main": [
+    [
+     {
+      "node": "Respond low credits",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "HTTP TikTok Audience",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP TikTok Audience": {
+   "main": [
+    [
+     {
+      "node": "Normalize",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Normalize": {
+   "main": [
+    [
+     {
+      "node": "Respond",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "executionOrder": "v1"
+ },
+ "staticData": null,
+ "meta": {},
+ "nodeGroups": [],
+ "pinData": {},
+ "versionId": "8f431a5f-64da-4ed2-8ba6-b48a8ab4bd73",
+ "activeVersionId": "8f431a5f-64da-4ed2-8ba6-b48a8ab4bd73",
+ "versionCounter": 1,
+ "triggerCount": 1,
+ "sourceWorkflowId": null,
+ "tags": [],
+ "shared": [
+  {
+   "updatedAt": "2026-08-13T11:09:15.486Z",
+   "createdAt": "2026-08-13T11:09:15.486Z",
+   "role": "workflow:owner",
+   "workflowId": "20000000-0000-4000-8000-000000000017",
+   "projectId": "M9eH49D0HafLr8AX",
+   "project": {
+    "updatedAt": "2026-08-11T13:27:47.312Z",
+    "createdAt": "2026-08-11T12:45:09.939Z",
+    "id": "M9eH49D0HafLr8AX",
+    "name": "Factory Owner <owner@factory.local>",
+    "type": "personal",
+    "icon": null,
+    "description": null,
+    "customTelemetryTags": [],
+    "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"
+   }
+  }
+ ],
+ "versionMetadata": {
+  "name": null,
+  "description": null
+ }
+}

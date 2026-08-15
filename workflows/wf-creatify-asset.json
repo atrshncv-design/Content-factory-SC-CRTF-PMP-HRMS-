@@ -1,211 +1,344 @@
-{
+[
+ {
+  "updatedAt": "2026-08-14T13:17:57.640Z",
+  "createdAt": "2026-08-13T12:17:15.103Z",
   "id": "20000000-0000-4000-8000-000000000021",
   "name": "wf-creatify-asset",
+  "description": null,
+  "active": true,
+  "isArchived": false,
   "nodes": [
-    {
-      "id": "aaaaaaaa-1111-2222-3333-444444444471",
-      "name": "Webhook",
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2.1,
-      "position": [0, 0],
-      "webhookId": "aaaaaaaa-1111-2222-3333-444444444471",
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "factory/asset",
-        "responseMode": "responseNode",
-        "options": {}
-      }
-    },
-    {
-      "id": "bbbbbbbb-1111-2222-3333-444444444471",
-      "name": "Code validate",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [180, 0],
-      "parameters": {
-        "mode": "runOnceForAllItems",
-        "language": "javaScript",
-        "jsCode": "const body = ($json.body && $json.body) || $json;\nconst prompt = (body.prompt !== undefined && body.prompt !== null) ? String(body.prompt).trim() : '';\nconst type = (body.type !== undefined && body.type !== null && String(body.type).trim() !== '') ? String(body.type).trim() : 'flux-pro/kontext/text-to-image';\nlet count = (body.count !== undefined && body.count !== null && body.count !== '') ? Number(body.count) : 1;\nif (!Number.isFinite(count) || count < 1) count = 1;\ncount = Math.min(4, Math.floor(count));\nif (prompt === '') {\n  return [{ json: { ok: false, error: 'prompt обязателен' } }];\n}\nreturn [{ json: { ok: true, payload: { model_name: type, input_params: { prompt: prompt, num_images: count } } } }];"
-      }
-    },
-    {
-      "id": "cccccccc-1111-2222-3333-444444444471",
-      "name": "Switch",
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3.4,
-      "position": [360, 0],
-      "parameters": {
-        "mode": "rules",
-        "rules": {
-          "values": [
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict"
-                },
-                "conditions": [
-                  {
-                    "leftValue": "={{ $json.ok }}",
-                    "rightValue": true,
-                    "operator": {
-                      "type": "boolean",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              }
-            }
-          ]
-        },
-        "options": {
-          "fallbackOutput": "extra"
-        }
-      }
-    },
-    {
-      "id": "dddddddd-1111-2222-3333-444444444471",
-      "name": "HTTP Asset",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.5,
-      "position": [560, -120],
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.creatify.ai/api/asset_generator/",
-        "authentication": "none",
-        "sendBody": true,
-        "contentType": "json",
-        "specifyBody": "json",
-        "jsonBody": "={{ $json.payload }}",
-        "options": {
-          "timeout": 120000,
-          "retryOnFail": true,
-          "maxTries": 3,
-          "waitBetweenTries": 5000
-        },
-        "sendHeaders": true,
-        "specifyHeaders": "keypair",
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "X-API-ID",
-              "value": "={{ $env.CREATIFY_API_ID }}"
-            },
-            {
-              "name": "X-API-KEY",
-              "value": "={{ $env.CREATIFY_API_KEY }}"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "eeeeeeee-1111-2222-3333-444444444471",
-      "name": "Code Normalize",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [760, -120],
-      "parameters": {
-        "mode": "runOnceForAllItems",
-        "language": "javaScript",
-        "jsCode": "const r = $json;\nconst assets = Array.isArray(r.assets) ? r.assets : [];\nconst first = assets.length > 0 ? assets[0] : null;\nreturn [{\n  json: {\n    ok: true,\n    asset_id: r.id || null,\n    url: (first && first.url) || null,\n    status: r.status || null,\n    credits_used: r.credits_used || 0,\n    gen_type: r.gen_type || null,\n    failed_reason: r.failed_reason || null,\n    raw: r\n  }\n}];"
-      }
-    },
-    {
-      "id": "ffffffff-1111-2222-3333-444444444471",
-      "name": "Respond ok",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.5,
-      "position": [960, -120],
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={{ $json }}",
-        "options": {}
-      }
-    },
-    {
-      "id": "ffffffff-1111-2222-3333-444444444472",
-      "name": "Respond error",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.5,
-      "position": [560, 160],
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={{ $json }}",
-        "options": {}
-      }
+   {
+    "id": "aaaaaaaa-1111-2222-3333-444444444471",
+    "name": "Webhook",
+    "type": "n8n-nodes-base.webhook",
+    "typeVersion": 2.1,
+    "position": [
+     0,
+     0
+    ],
+    "webhookId": "aaaaaaaa-1111-2222-3333-444444444471",
+    "parameters": {
+     "httpMethod": "POST",
+     "path": "factory/asset",
+     "responseMode": "responseNode",
+     "options": {}
     }
+   },
+   {
+    "id": "bbbbbbbb-1111-2222-3333-444444444471",
+    "name": "Code validate",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     180,
+     0
+    ],
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const body = ($json.body && $json.body) || $json;\nconst prompt = (body.prompt !== undefined && body.prompt !== null) ? String(body.prompt).trim() : '';\nconst type = (body.type !== undefined && body.type !== null && String(body.type).trim() !== '') ? String(body.type).trim() : 'flux-pro/kontext/text-to-image';\nlet count = (body.count !== undefined && body.count !== null && body.count !== '') ? Number(body.count) : 1;\nif (!Number.isFinite(count) || count < 1) count = 1;\ncount = Math.min(4, Math.floor(count));\nif (prompt === '') {\n  return [{ json: { ok: false, error: 'prompt обязателен' } }];\n}\nreturn [{ json: { ok: true, payload: { model_name: type, input_params: { prompt: prompt, num_images: count } } } }];"
+    }
+   },
+   {
+    "id": "6a000001-0000-4000-8000-0000000000f1",
+    "name": "HTTP credits",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     360,
+     0
+    ],
+    "parameters": {
+     "method": "GET",
+     "url": "https://api.creatify.ai/api/remaining_credits/",
+     "authentication": "none",
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-API-ID",
+        "value": "={{ $env.CREATIFY_API_ID }}"
+       },
+       {
+        "name": "X-API-KEY",
+        "value": "={{ $env.CREATIFY_API_KEY }}"
+       }
+      ]
+     },
+     "options": {
+      "timeout": 15000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     }
+    }
+   },
+   {
+    "id": "6a000001-0000-4000-8000-0000000000f2",
+    "name": "Code credit check",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     540,
+     0
+    ],
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "// HTTP Request не прокидывает входной item: $json здесь = ответ credits API.\n// Валидацию и payload берём кросс-нод-ссылкой на Code validate.\nconst v = $('Code validate').first().json;\nif (v.ok === false) { return [{ json: v }]; }\n// Универсальный парсер баланса: body(объект) -> raw -> JSON.parse(data).\n// remaining_credits может быть float (379.0) и лежать прямо в $json или в data-строке.\nconst r = $json;\nconst body = (r.body && typeof r.body === 'object') ? r.body : r;\nconst data = (body && typeof body.data === 'string') ? body.data : (typeof r.data === 'string' ? r.data : null);\nlet balance = null;\ntry {\n  if (body.remaining_credits != null) balance = Number(body.remaining_credits);\n  else if (r.remaining_credits != null) balance = Number(r.remaining_credits);\n  else if (data) balance = Number(JSON.parse(data).remaining_credits);\n} catch (e) {}\nif (balance === null || !Number.isFinite(balance)) { return [{ json: { ok: false, error: 'balance_unavailable', raw: $json } }]; }\n// asset_generator: 1 кред/шт, count 1..4 -> порог 5 покрывает любой count.\nif (balance < 5) { return [{ json: { ok: false, error: 'low_credits', balance: balance } }]; }\nreturn [{ json: { ...v, ok: true, balance: balance } }];"
+    }
+   },
+   {
+    "id": "cccccccc-1111-2222-3333-444444444471",
+    "name": "Switch",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     720,
+     0
+    ],
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.ok }}",
+           "rightValue": true,
+           "operator": {
+            "type": "boolean",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ]
+     },
+     "options": {
+      "fallbackOutput": "extra"
+     }
+    }
+   },
+   {
+    "id": "dddddddd-1111-2222-3333-444444444471",
+    "name": "HTTP Asset",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     920,
+     -120
+    ],
+    "parameters": {
+     "method": "POST",
+     "url": "https://api.creatify.ai/api/asset_generator/",
+     "authentication": "none",
+     "sendBody": true,
+     "contentType": "json",
+     "specifyBody": "json",
+     "jsonBody": "={{ $json.payload }}",
+     "options": {
+      "timeout": 120000,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-API-ID",
+        "value": "={{ $env.CREATIFY_API_ID }}"
+       },
+       {
+        "name": "X-API-KEY",
+        "value": "={{ $env.CREATIFY_API_KEY }}"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "id": "eeeeeeee-1111-2222-3333-444444444471",
+    "name": "Code Normalize",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     1120,
+     -120
+    ],
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const r = $json;\nconst assets = Array.isArray(r.assets) ? r.assets : [];\nconst first = assets.length > 0 ? assets[0] : null;\nreturn [{\n  json: {\n    ok: true,\n    asset_id: r.id || null,\n    url: (first && first.url) || null,\n    status: r.status || null,\n    credits_used: r.credits_used || 0,\n    gen_type: r.gen_type || null,\n    failed_reason: r.failed_reason || null,\n    raw: r\n  }\n}];"
+    }
+   },
+   {
+    "id": "ffffffff-1111-2222-3333-444444444471",
+    "name": "Respond ok",
+    "type": "n8n-nodes-base.respondToWebhook",
+    "typeVersion": 1.5,
+    "position": [
+     1320,
+     -120
+    ],
+    "parameters": {
+     "respondWith": "json",
+     "responseBody": "={{ $json }}",
+     "options": {}
+    }
+   },
+   {
+    "id": "ffffffff-1111-2222-3333-444444444472",
+    "name": "Respond error",
+    "type": "n8n-nodes-base.respondToWebhook",
+    "typeVersion": 1.5,
+    "position": [
+     920,
+     160
+    ],
+    "parameters": {
+     "respondWith": "json",
+     "responseBody": "={{ $json }}",
+     "options": {}
+    }
+   }
   ],
   "connections": {
-    "Webhook": {
-      "main": [
-        [
-          {
-            "node": "Code validate",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code validate": {
-      "main": [
-        [
-          {
-            "node": "Switch",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Switch": {
-      "main": [
-        [
-          {
-            "node": "HTTP Asset",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Respond error",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTTP Asset": {
-      "main": [
-        [
-          {
-            "node": "Code Normalize",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code Normalize": {
-      "main": [
-        [
-          {
-            "node": "Respond ok",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    }
+   "Webhook": {
+    "main": [
+     [
+      {
+       "node": "Code validate",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Code validate": {
+    "main": [
+     [
+      {
+       "node": "HTTP credits",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "HTTP credits": {
+    "main": [
+     [
+      {
+       "node": "Code credit check",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Code credit check": {
+    "main": [
+     [
+      {
+       "node": "Switch",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Switch": {
+    "main": [
+     [
+      {
+       "node": "HTTP Asset",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "Respond error",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "HTTP Asset": {
+    "main": [
+     [
+      {
+       "node": "Code Normalize",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Code Normalize": {
+    "main": [
+     [
+      {
+       "node": "Respond ok",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   }
   },
   "settings": {
-    "executionOrder": "v1"
+   "executionOrder": "v1"
   },
-  "active": false,
+  "staticData": null,
+  "meta": {},
+  "nodeGroups": [],
   "pinData": {},
-  "meta": {}
-}
+  "versionId": "feb2fa29-d2c1-4652-8e57-a75c217f5bf1",
+  "activeVersionId": "feb2fa29-d2c1-4652-8e57-a75c217f5bf1",
+  "versionCounter": 3,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+   {
+    "updatedAt": "2026-08-13T12:17:15.109Z",
+    "createdAt": "2026-08-13T12:17:15.109Z",
+    "role": "workflow:owner",
+    "workflowId": "20000000-0000-4000-8000-000000000021",
+    "projectId": "M9eH49D0HafLr8AX",
+    "project": {
+     "updatedAt": "2026-08-11T13:27:47.312Z",
+     "createdAt": "2026-08-11T12:45:09.939Z",
+     "id": "M9eH49D0HafLr8AX",
+     "name": "Factory Owner <owner@factory.local>",
+     "type": "personal",
+     "icon": null,
+     "description": null,
+     "customTelemetryTags": [],
+     "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"
+    }
+   }
+  ],
+  "versionMetadata": {
+   "name": null,
+   "description": null
+  }
+ }
+]

@@ -1,0 +1,877 @@
+{
+ "updatedAt": "2026-08-13T00:00:00.000Z",
+ "createdAt": "2026-08-11T20:39:19.423Z",
+ "id": "20000000-0000-4000-8000-00000000000e",
+ "name": "wf-creatify-webhook",
+ "description": null,
+ "active": true,
+ "isArchived": false,
+ "nodes": [
+  {
+   "parameters": {
+    "httpMethod": "POST",
+    "path": "factory/creatify/6d8f2a41c9e7b3d5f0a1c4e8",
+    "responseMode": "responseNode",
+    "options": {}
+   },
+   "id": "e0000000-0001-4000-8000-000000000001",
+   "name": "Webhook",
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2.1,
+   "position": [
+    -1400,
+    0
+   ],
+   "webhookId": "e0000000-00ff-4000-8000-0000000000ff"
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "combinator": "and",
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "strict"
+     },
+     "conditions": [
+      {
+       "leftValue": "={{ $env.FACTORY_WEBHOOK_SECRET ? (($json.headers || {})['x-factory-secret'] === $env.FACTORY_WEBHOOK_SECRET) : true }}",
+       "rightValue": true,
+       "operator": {
+        "type": "boolean",
+        "operation": "equals"
+       }
+      }
+     ]
+    }
+   },
+   "id": "e0000000-0017-4000-8000-000000000001",
+   "name": "IF auth",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.3,
+   "position": [
+    -1250,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "http://db-bridge:8787/query",
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-BRIDGE-TOKEN",
+       "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+      }
+     ]
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ {sql: 'SELECT g.id, g.status, substr(s.full_text, 1, 120) AS script_excerpt FROM generations g LEFT JOIN scripts s ON s.id=g.script_id WHERE g.creatify_id = ?', params: [String($json.body.id)]} }}",
+    "options": {
+     "timeout": 15000
+    }
+   },
+   "id": "e0000000-000e-4000-8000-000000000001",
+   "name": "HTTP SELECT",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    -1250,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "combinator": "and",
+     "options": {
+      "caseSensitive": true,
+      "typeValidation": "strict"
+     },
+     "conditions": [
+      {
+       "leftValue": "={{ $json.rows.length }}",
+       "rightValue": 0,
+       "operator": {
+        "type": "number",
+        "operation": "equals"
+       }
+      }
+     ]
+    }
+   },
+   "id": "e0000000-0002-4000-8000-000000000001",
+   "name": "IF found",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.3,
+   "position": [
+    -1100,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "{\"ok\":false,\"error\":\"generation not found\"}"
+   },
+   "id": "e0000000-0003-4000-8000-000000000001",
+   "name": "Respond not found",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    -800,
+    300
+   ]
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "combinator": "and",
+     "options": {
+      "caseSensitive": true,
+      "typeValidation": "strict"
+     },
+     "conditions": [
+      {
+       "leftValue": "={{ $json.rows[0].status }}",
+       "rightValue": "done",
+       "operator": {
+        "type": "string",
+        "operation": "equals"
+       }
+      }
+     ]
+    }
+   },
+   "id": "e0000000-0004-4000-8000-000000000001",
+   "name": "IF already done",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.3,
+   "position": [
+    -800,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "{\"ok\":true,\"duplicate\":true}"
+   },
+   "id": "e0000000-0005-4000-8000-000000000001",
+   "name": "Respond duplicate",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    -500,
+    -300
+   ]
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "combinator": "and",
+     "options": {
+      "caseSensitive": true,
+      "typeValidation": "strict"
+     },
+     "conditions": [
+      {
+       "leftValue": "={{ $('Webhook').first().json.body.status }}",
+       "rightValue": "done",
+       "operator": {
+        "type": "string",
+        "operation": "equals"
+       }
+      }
+     ]
+    }
+   },
+   "id": "e0000000-0006-4000-8000-000000000001",
+   "name": "IF status done",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.3,
+   "position": [
+    -500,
+    0
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const r = ($json.rows && $json.rows[0]) || {};\nconst id = String(r.id);\nconst cb = $('Webhook').first().json.body || {};\nconst video = String(cb.video_output_url || cb.video_output || '');\nreturn [{ json: { id: id, video_output_url: video, script_excerpt: (r.script_excerpt || '').trim() } }];"
+   },
+   "id": "e0000000-0007-4000-8000-000000000001",
+   "name": "Code done build",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    -200,
+    -300
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "http://db-bridge:8787/query",
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-BRIDGE-TOKEN",
+       "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+      }
+     ]
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ $json }}",
+    "options": {
+     "timeout": 15000
+    }
+   },
+   "id": "e0000000-0008-4000-8000-000000000001",
+   "name": "HTTP UPDATE done",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    100,
+    -300
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "{\"ok\":true}"
+   },
+   "id": "e0000000-000a-4000-8000-000000000001",
+   "name": "Respond done",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    700,
+    -300
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "http://db-bridge:8787/query",
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-BRIDGE-TOKEN",
+       "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+      }
+     ]
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ $json }}",
+    "options": {
+     "timeout": 15000
+    }
+   },
+   "id": "e0000000-000b-4000-8000-000000000001",
+   "name": "HTTP UPDATE failed",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    100,
+    300
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "http://localhost:5678/webhook/factory/tg-alert",
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ {chat_id: 941296693, text: $('Build update failed').first().json.alert_text} }}",
+    "options": {
+     "timeout": 15000
+    }
+   },
+   "id": "e0000000-000c-4000-8000-000000000001",
+   "name": "HTTP tg-alert failed",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    400,
+    300
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "{\"ok\":true,\"status\":\"failed\"}"
+   },
+   "id": "e0000000-000d-4000-8000-000000000001",
+   "name": "Respond failed",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    700,
+    300
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const d = $json;\nconst video = String(d.video_output_url || '');\nreturn [{ json: {\n  sql: \"UPDATE generations SET status='done', local_path=?, video_output_url=?, webhook_received=1, completed_at=datetime('now') WHERE id=?\",\n  params: [video, video, String(d.id)]\n} }];"
+   },
+   "id": "eeeeeeee-0000-4000-8000-00000000000e",
+   "name": "Build update done",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    680,
+    220
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const r = ($json.rows && $json.rows[0]) || {};\nconst reason = String($('Webhook').first().json.body.failed_reason || 'unknown');\nconst alert_text = 'Генерация #' + String(r.id) + ' failed: ' + reason;\nreturn [{ json: {\n  sql: \"UPDATE generations SET status='failed', failed_reason=?, webhook_received=1 WHERE id=?\",\n  params: [reason, String(r.id)],\n  alert_text: alert_text\n} }];"
+   },
+   "id": "eeeeeeee-0000-4000-8000-00000000000f",
+   "name": "Build update failed",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    680,
+    620
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const d = $('Code done build').first().json;\nreturn [{ json: {\n  sql: \"UPDATE sessions SET state='CYCLE_VIDEO_PENDING', generation_id=?, updated_at=datetime('now') WHERE tg_user_id=?\",\n  params: [String(d.id), 941296693]\n} }];"
+   },
+   "id": "e0000000-0010-4000-8000-000000000001",
+   "name": "Build session update",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    700,
+    -520
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "http://db-bridge:8787/query",
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-BRIDGE-TOKEN",
+       "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+      }
+     ]
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ $json }}",
+    "options": {
+     "timeout": 15000
+    }
+   },
+   "id": "e0000000-0011-4000-8000-000000000001",
+   "name": "HTTP session update",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    1000,
+    -520
+   ]
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "const d = $('Code done build').first().json;\nconst genId = String(d.id);\nconst excerpt = (d.script_excerpt || '…').slice(0, 200);\nconst wb = $('Webhook').first().json.body || {};\nconst video = String(d.video_output_url || wb.video_output_url || wb.video_output || '');\nconst text = '🎬 Этап 3/4 — Видео готово\\n\\n'\n  + 'Сценарий: ' + excerpt + '\\n\\n'\n  + (video ? 'Видео: ' + video + '\\n\\n' : '')\n  + 'Что делаем с видео?';\nreturn [{ json: { chat_id: 941296693, text: text, gen_id: genId } }];"
+   },
+   "id": "e0000000-0012-4000-8000-000000000001",
+   "name": "Build stage3",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1300,
+    -300
+   ]
+  },
+  {
+   "parameters": {
+    "resource": "message",
+    "operation": "sendMessage",
+    "chatId": "={{ $json.chat_id }}",
+    "text": "={{ $json.text }}",
+    "replyMarkup": "inlineKeyboard",
+    "inlineKeyboard": {
+     "rows": [
+      {
+       "row": {
+        "buttons": [
+         {
+          "text": "✅ Опубликовать",
+          "additionalFields": {
+           "callback_data": "={{ 'publish:gen:' + $json.gen_id }}"
+          }
+         },
+         {
+          "text": "✏️ Перегенерировать",
+          "additionalFields": {
+           "callback_data": "={{ 'regen:gen:' + $json.gen_id }}"
+          }
+         }
+        ]
+       }
+      },
+      {
+       "row": {
+        "buttons": [
+         {
+          "text": "❌ Отклонить",
+          "additionalFields": {
+           "callback_data": "={{ 'reject:gen:' + $json.gen_id }}"
+          }
+         }
+        ]
+       }
+      },
+      {
+       "row": {
+        "buttons": [
+         {
+          "text": "📋 Меню",
+          "additionalFields": {
+           "callback_data": "cmd:menu"
+          }
+         }
+        ]
+       }
+      }
+     ]
+    },
+    "additionalFields": {
+     "appendAttribution": false
+    }
+   },
+   "id": "e0000000-0014-4000-8000-000000000001",
+   "name": "Telegram stage3",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    1600,
+    -300
+   ],
+   "credentials": {
+    "telegramApi": {
+     "id": "10000000-0000-4000-8000-000000000004",
+     "name": "telegram"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "language": "javaScript",
+    "jsCode": "return [{ json: {\n  sql: \"UPDATE sessions SET state='IDLE', generation_id=NULL, updated_at=datetime('now') WHERE tg_user_id=?\",\n  params: [941296693]\n} }];"
+   },
+   "id": "e0000000-0015-4000-8000-000000000001",
+   "name": "Build session reset",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    700,
+    520
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "http://db-bridge:8787/query",
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-BRIDGE-TOKEN",
+       "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+      }
+     ]
+    },
+    "sendBody": true,
+    "contentType": "json",
+    "specifyBody": "json",
+    "jsonBody": "={{ $json }}",
+    "options": {
+     "timeout": 15000
+    }
+   },
+   "id": "e0000000-0016-4000-8000-000000000001",
+   "name": "HTTP session reset",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.5,
+   "position": [
+    1000,
+    520
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "{\"ok\":false,\"error\":\"unauthorized\"}"
+   },
+   "id": "e0000000-0018-4000-8000-000000000001",
+   "name": "Respond unauthorized",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    -1250,
+    300
+   ]
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "combinator": "and",
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "strict"
+     },
+     "conditions": [
+      {
+       "leftValue": "={{ $('Webhook').first().json.body.status }}",
+       "rightValue": "failed",
+       "operator": {
+        "type": "string",
+        "operation": "equals"
+       }
+      }
+     ]
+    }
+   },
+   "id": "e0000000-0019-4000-8000-000000000001",
+   "name": "IF status failed",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.3,
+   "position": [
+    -200,
+    300
+   ]
+  },
+  {
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "{\"ok\":true,\"status\":\"unknown\"}"
+   },
+   "id": "e0000000-001a-4000-8000-000000000001",
+   "name": "Respond unknown",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    -200,
+    600
+   ]
+  }
+ ],
+ "connections": {
+  "Webhook": {
+   "main": [
+    [
+     {
+      "node": "IF auth",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "IF auth": {
+   "main": [
+    [
+     {
+      "node": "HTTP SELECT",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Respond unauthorized",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP SELECT": {
+   "main": [
+    [
+     {
+      "node": "IF found",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "IF found": {
+   "main": [
+    [
+     {
+      "node": "Respond not found",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "IF already done",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "IF already done": {
+   "main": [
+    [
+     {
+      "node": "Respond duplicate",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "IF status done",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "IF status done": {
+   "main": [
+    [
+     {
+      "node": "Code done build",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "IF status failed",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "IF status failed": {
+   "main": [
+    [
+     {
+      "node": "Build update failed",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Respond unknown",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Code done build": {
+   "main": [
+    [
+     {
+      "node": "Build update done",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP UPDATE done": {
+   "main": [
+    [
+     {
+      "node": "Build session update",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP UPDATE failed": {
+   "main": [
+    [
+     {
+      "node": "HTTP tg-alert failed",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP tg-alert failed": {
+   "main": [
+    [
+     {
+      "node": "Build session reset",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Build update done": {
+   "main": [
+    [
+     {
+      "node": "HTTP UPDATE done",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Build update failed": {
+   "main": [
+    [
+     {
+      "node": "HTTP UPDATE failed",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Build session update": {
+   "main": [
+    [
+     {
+      "node": "HTTP session update",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP session update": {
+   "main": [
+    [
+     {
+      "node": "Build stage3",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Build stage3": {
+   "main": [
+    [
+     {
+      "node": "Telegram stage3",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Telegram stage3": {
+   "main": [
+    [
+     {
+      "node": "Respond done",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Build session reset": {
+   "main": [
+    [
+     {
+      "node": "HTTP session reset",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "HTTP session reset": {
+   "main": [
+    [
+     {
+      "node": "Respond failed",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "executionOrder": "v1"
+ },
+ "staticData": null,
+ "meta": {
+  "templateCredsSetupCompleted": true
+ },
+ "nodeGroups": [],
+ "pinData": {},
+ "versionId": "c3222753-2876-41b0-b0ce-903f373d5f01",
+ "activeVersionId": "c3222753-2876-41b0-b0ce-903f373d5f01",
+ "versionCounter": 4,
+ "triggerCount": 1,
+ "sourceWorkflowId": null,
+ "tags": [],
+ "shared": [
+  {
+   "updatedAt": "2026-08-11T20:39:19.428Z",
+   "createdAt": "2026-08-11T20:39:19.428Z",
+   "role": "workflow:owner",
+   "workflowId": "20000000-0000-4000-8000-00000000000e",
+   "projectId": "M9eH49D0HafLr8AX",
+   "project": {
+    "updatedAt": "2026-08-11T13:27:47.312Z",
+    "createdAt": "2026-08-11T12:45:09.939Z",
+    "id": "M9eH49D0HafLr8AX",
+    "name": "Factory Owner <owner@factory.local>",
+    "type": "personal",
+    "icon": null,
+    "description": null,
+    "customTelemetryTags": [],
+    "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"
+   }
+  }
+ ],
+ "versionMetadata": {
+  "name": "Version c3222753",
+  "description": ""
+ }
+}
