@@ -302,9 +302,11 @@ class Handler(BaseHTTPRequestHandler):
                 HERMES_BIN, "chat", "-q", prompt, "--cli", "-Q",
                 "-s", "content-factory/" + skill,
             ]
-            if skill == "caption-adapter":
-                # free-text output: suppress reasoning block noise
-                cmd += ["--reasoning", "none"]
+            # Рассуждения (reasoning) в режиме -Q попадают в stdout и ломают
+            # парсинг ответа (Exp Parse в shorts берёт первую пару <SCRIPT>...</SCRIPT>,
+            # а reasoning LLM упоминает эти теги → «garbage»). Все скиллы отдают
+            # чистый ответ: reasoning подавляем (промпты и так требуют чистый вывод).
+            cmd += ["--reasoning", "none"]
             proc = subprocess.run(
                 cmd, capture_output=True, text=True, timeout=300, env=env
             )
