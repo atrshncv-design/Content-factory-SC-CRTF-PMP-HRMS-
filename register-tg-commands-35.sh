@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # =============================================================================
-# register-tg-commands-35.sh — регистрирует 35 команд контент-завода в Telegram
-# боте через setMyCommands (UX-реворк 14.08: menu, instruction, url2video).
-# Копия register-tg-commands.sh с tg-commands-35.json и verify на 35.
+# register-tg-commands-35.sh — регистрирует 32 команды контент-завода в Telegram
+# боте через setMyCommands (3 формата 16.08: asset/product/banner удалены).
+# Копия register-tg-commands.sh с tg-commands-35.json и verify на 32.
 # Идемпотентен, exit 0 всегда.
 # =============================================================================
 set -u
@@ -55,11 +55,11 @@ verify_ours() {
   total="$(printf '%s' "$resp" | python3 -c 'import sys,json; r=json.load(sys.stdin); print(len(r.get("result") or []))' 2>/dev/null || echo 0)"
   missing="$(printf '%s' "$resp" | python3 -c '
 import sys, json
-want = {"start","menu","instruction","help","status","mode","onboard","start_cycle","url2video","shorts","cancel","topics","competitors","accounts","budget","client","clients","reload_skills","ping","creators","creator","creator_content","audience","transcript","comments","upload_avatar","my_avatars","asset","product","banner","publish_type","profile","profiles","add_operator","operators"}
+want = {"start","menu","instruction","help","status","mode","onboard","start_cycle","url2video","shorts","cancel","topics","competitors","accounts","budget","client","clients","reload_skills","ping","creators","creator","creator_content","audience","transcript","comments","upload_avatar","my_avatars","publish_type","profile","profiles","add_operator","operators"}
 got = {c["command"] for c in (json.load(sys.stdin).get("result") or [])}
 print(",".join(sorted(want - got)))
 ' 2>/dev/null || echo "parse-error")"
-  [ "$total" = "35" ] && [ -z "$missing" ]
+  [ "$total" = "32" ] && [ -z "$missing" ]
 }
 
 log "waiting 20s for housekeeping to settle..."
@@ -82,7 +82,7 @@ for attempt in 1 2 3 4 5; do
 done
 
 if [ "$registered" = "1" ]; then
-  log "OK: all 35 factory commands registered (scopes: default, all_private_chats, all_group_chats)"
+  log "OK: all 32 factory commands registered (scopes: default, all_private_chats, all_group_chats)"
   exit 0
 fi
 log "WARNING: not stable after 5 attempts. Re-run: bash $FACTORY_DIR/register-tg-commands-35.sh" >&2
