@@ -49,6 +49,19 @@ const STOCKS = [
   выбери по имени в меню ниже») + сообщение с кнопками выбора (свои + стоковые).
 - Превью ТОЛЬКО для стоковых (свои без фото — их и так видно в my_avatars).
 
+## 🔥 Найден корень «бот не реагирует» (16.08, post-deploy)
+- **Причина**: callback_data кнопок имел ДВОЙНОЙ бэкслеш перед кавычками —
+  `={{ \\"cmd:avatar_video\\" }}` вместо рабочего `={{ "cmd:avatar_video" }}`.
+  n8n `Expression.renderExpression` → `invalid syntax` → нода падает молча.
+- **Пострадало**: TG start / TG menu gen / TG gen rejected / TG published (кнопка
+  аватара, добавлена в этом тикете) + **10 кнопок AVV-ветки из тикета 15**
+  (TG avv none / TG avv ask topic / TG avv ask dur / TG AVV verify / TG avv ok) —
+  поэтому «Видео с аватаром» в меню молча не работало (жалоба «команд нет в меню»).
+- **Фикс**: fix-all-callback-backslash.py — убраны бэкслеши во всех 14 кнопках;
+  контрольный скрипт: 0 битых (92 на позиции 4), валидаторы 0 issues, pytest 25/25.
+- **ПИТФОЛЛ**: транспорт write_file/patch может удваивать бэкслеши в jsCode/JSON —
+  проверять ордами callback_data после записи (`cb[4] == 34`, не 92).
+
 ## Проверки (обязательно)
 1. `python3 -c "import json; json.load(open('workflows/wf-tg-bot.json'))"` — валиден.
 2. `python3 .scratch/bot-ux-menu/validate_workflow.py workflows/wf-tg-bot.json` — 0 issues.
