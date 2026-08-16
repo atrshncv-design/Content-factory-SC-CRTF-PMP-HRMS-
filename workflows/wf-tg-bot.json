@@ -1188,6 +1188,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:gen_shorts\" }}"
            }
+          },
+          {
+           "text": "🎭 Видео с аватаром",
+           "additionalFields": {
+            "callback_data": "={{ \\\"cmd:avatar_video\\\" }}"
+           }
           }
          ]
         }
@@ -6202,6 +6208,12 @@
            }
           },
           {
+           "text": "🎭 Видео с аватаром",
+           "additionalFields": {
+            "callback_data": "={{ \\\"cmd:avatar_video\\\" }}"
+           }
+          },
+          {
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
@@ -7066,6 +7078,12 @@
            "text": "🎬 AI Shorts",
            "additionalFields": {
             "callback_data": "={{ \"cmd:gen_shorts\" }}"
+           }
+          },
+          {
+           "text": "🎭 Видео с аватаром",
+           "additionalFields": {
+            "callback_data": "={{ \\\"cmd:avatar_video\\\" }}"
            }
           },
           {

@@ -1,132 +1,134 @@
-{
-  "commands": [
-    {
-      "command": "start",
-      "description": "Приветствие и главное меню"
-    },
-    {
-      "command": "menu",
-      "description": "Главное меню: разделы и команды"
-    },
-    {
-      "command": "instruction",
-      "description": "Инструкция: сценарии, цены, публикация"
-    },
-    {
-      "command": "help",
-      "description": "Список команд с описанием"
-    },
-    {
-      "command": "status",
-      "description": "Сводка: режим, клиент, кредиты, видео сегодня"
-    },
-    {
-      "command": "mode",
-      "description": "Переключить режим manual|auto (admin)"
-    },
-    {
-      "command": "onboard",
-      "description": "Онбординг клиента по URL (admin)"
-    },
-    {
-      "command": "start_cycle",
-      "description": "Запустить продвинутый цикл аналитики"
-    },
-    {
-      "command": "url2video",
-      "description": "Ролик из ссылки: /url2video <url>"
-    },
-    {
-      "command": "shorts",
-      "description": "AI Shorts: /shorts <тема>"
-    },
-    {
-      "command": "cancel",
-      "description": "Отменить текущий шаг, вернуться в IDLE"
-    },
-    {
-      "command": "topics",
-      "description": "Темы за сегодня: выбранные и отклонённые"
-    },
-    {
-      "command": "competitors",
-      "description": "Конкуренты активного клиента"
-    },
-    {
-      "command": "accounts",
-      "description": "Статус подключённых соцсетей"
-    },
-    {
-      "command": "budget",
-      "description": "Кредиты creatify и SC: остатки, лимиты, прогноз"
-    },
-    {
-      "command": "client",
-      "description": "Сменить активного клиента (admin)"
-    },
-    {
-      "command": "clients",
-      "description": "Список клиентов (admin)"
-    },
-    {
-      "command": "reload_skills",
-      "description": "Перечитать skills (для разработки, admin)"
-    },
-    {
-      "command": "ping",
-      "description": "Health-check: бот работает"
-    },
-    {
-      "command": "creators",
-      "description": "Поиск авторов по нише: /creators <ниша>"
-    },
-    {
-      "command": "creator",
-      "description": "Профиль автора: /creator <платформа> <handle>"
-    },
-    {
-      "command": "creator_content",
-      "description": "Посты автора с ER: /creator_content <платформа> <handle>"
-    },
-    {
-      "command": "audience",
-      "description": "Демография аудитории: /audience <платформа> <handle>"
-    },
-    {
-      "command": "transcript",
-      "description": "Транскрипт ролика: /transcript <url>"
-    },
-    {
-      "command": "comments",
-      "description": "Топ комментариев: /comments <url>"
-    },
-    {
-      "command": "upload_avatar",
-      "description": "Загрузить кастомный аватар: /upload_avatar <mp4-url>"
-    },
-    {
-      "command": "my_avatars",
-      "description": "Список моих аватаров и их статус"
-    },
-    {
-      "command": "publish_type",
-      "description": "Тип публикации: /publish_type post|reels|story"
-    },
-    {
-      "command": "profile",
-      "description": "Профиль: создать, выбрать, изменить, контекст"
-    },
-    {
-      "command": "profiles",
-      "description": "Список профилей"
-    },
-    {
-      "command": "add_operator",
-      "description": "Добавить оператора (admin)"
-    },
-    {
-      "command": "operators",
-      "description": "Список операторов (admin)"
-    }
-  ]
-}
+[
+ {
+  "command": "start",
+  "description": "Приветствие и главное меню"
+ },
+ {
+  "command": "menu",
+  "description": "Главное меню: разделы и команды"
+ },
+ {
+  "command": "instruction",
+  "description": "Инструкция: сценарии, цены, публикация"
+ },
+ {
+  "command": "help",
+  "description": "Список команд с описанием"
+ },
+ {
+  "command": "status",
+  "description": "Сводка: режим, клиент, кредиты, видео сегодня"
+ },
+ {
+  "command": "mode",
+  "description": "Переключить режим manual|auto (admin)"
+ },
+ {
+  "command": "onboard",
+  "description": "Онбординг клиента по URL (admin)"
+ },
+ {
+  "command": "start_cycle",
+  "description": "Запустить продвинутый цикл аналитики"
+ },
+ {
+  "command": "url2video",
+  "description": "Ролик из ссылки: /url2video <url>"
+ },
+ {
+  "command": "shorts",
+  "description": "AI Shorts: /shorts <тема>"
+ },
+ {
+  "command": "cancel",
+  "description": "Отменить текущий шаг, вернуться в IDLE"
+ },
+ {
+  "command": "topics",
+  "description": "Темы за сегодня: выбранные и отклонённые"
+ },
+ {
+  "command": "competitors",
+  "description": "Конкуренты активного клиента"
+ },
+ {
+  "command": "accounts",
+  "description": "Статус подключённых соцсетей"
+ },
+ {
+  "command": "budget",
+  "description": "Кредиты creatify и SC: остатки, лимиты, прогноз"
+ },
+ {
+  "command": "client",
+  "description": "Сменить активного клиента (admin)"
+ },
+ {
+  "command": "clients",
+  "description": "Список клиентов (admin)"
+ },
+ {
+  "command": "reload_skills",
+  "description": "Перечитать skills (для разработки, admin)"
+ },
+ {
+  "command": "ping",
+  "description": "Health-check: бот работает"
+ },
+ {
+  "command": "creators",
+  "description": "Поиск авторов по нише: /creators <ниша>"
+ },
+ {
+  "command": "creator",
+  "description": "Профиль автора: /creator <платформа> <handle>"
+ },
+ {
+  "command": "creator_content",
+  "description": "Посты автора с ER: /creator_content <платформа> <handle>"
+ },
+ {
+  "command": "audience",
+  "description": "Демография аудитории: /audience <платформа> <handle>"
+ },
+ {
+  "command": "transcript",
+  "description": "Транскрипт ролика: /transcript <url>"
+ },
+ {
+  "command": "comments",
+  "description": "Топ комментариев: /comments <url>"
+ },
+ {
+  "command": "upload_avatar",
+  "description": "Загрузить кастомный аватар: /upload_avatar <mp4-url>"
+ },
+ {
+  "command": "my_avatars",
+  "description": "Список моих аватаров и их статус"
+ },
+ {
+  "command": "publish_type",
+  "description": "Тип публикации: /publish_type post|reels|story"
+ },
+ {
+  "command": "profile",
+  "description": "Профиль: создать, выбрать, изменить, контекст"
+ },
+ {
+  "command": "profiles",
+  "description": "Список профилей"
+ },
+ {
+  "command": "add_operator",
+  "description": "Добавить оператора (admin)"
+ },
+ {
+  "command": "operators",
+  "description": "Список операторов (admin)"
+ },
+ {
+  "command": "avatar_video",
+  "description": "Видео с аватаром (5 кред/30с)"
+ }
+]
