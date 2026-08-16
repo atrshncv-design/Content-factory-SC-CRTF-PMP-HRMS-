@@ -226,7 +226,16 @@
      "contentType": "json",
      "specifyBody": "json",
      "jsonBody": "={{ {chat_id: 941296693, text: 'Аккаунт ' + String($('Build body').item.json.name) + ' требует перелогина в postmypost (connection_status=2)'} }}",
-     "options": {}
+     "options": {},
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
+     }
     },
     "id": "51e00000-0000-4000-8000-00000000010a",
     "name": "HTTP tg-alert",

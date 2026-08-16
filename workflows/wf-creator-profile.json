@@ -13,6 +13,7 @@
      "httpMethod": "POST",
      "path": "factory/creator-profile",
      "responseMode": "responseNode",
+     "authentication": "headerAuth",
      "options": {}
     },
     "id": "aaaaaaaa-1111-2222-3333-444444444461",
@@ -23,7 +24,13 @@
      -460,
      0
     ],
-    "webhookId": "gggggggg-1111-2222-3333-444444444461"
+    "webhookId": "gggggggg-1111-2222-3333-444444444461",
+    "credentials": {
+     "httpHeaderAuth": {
+      "id": "f0000000-0000-4000-8000-00000000000a",
+      "name": "Factory Webhook Auth"
+     }
+    }
    },
    {
     "parameters": {

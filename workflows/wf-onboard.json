@@ -22,7 +22,14 @@
      "httpMethod": "POST",
      "path": "factory/onboard",
      "responseMode": "responseNode",
+     "authentication": "headerAuth",
      "options": {}
+    },
+    "credentials": {
+     "httpHeaderAuth": {
+      "id": "f0000000-0000-4000-8000-00000000000a",
+      "name": "Factory Webhook Auth"
+     }
     }
    },
    {

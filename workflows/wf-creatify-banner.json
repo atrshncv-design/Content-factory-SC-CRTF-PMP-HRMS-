@@ -13,6 +13,7 @@
      "httpMethod": "POST",
      "path": "factory/banner",
      "responseMode": "responseNode",
+     "authentication": "headerAuth",
      "options": {}
     },
     "id": "cr7-wb-banner",
@@ -23,7 +24,13 @@
     "position": [
      -1560,
      0
-    ]
+    ],
+    "credentials": {
+     "httpHeaderAuth": {
+      "id": "f0000000-0000-4000-8000-00000000000a",
+      "name": "Factory Webhook Auth"
+     }
+    }
    },
    {
     "parameters": {
@@ -276,6 +283,7 @@
      "httpMethod": "POST",
      "path": "factory/inspiration",
      "responseMode": "responseNode",
+     "authentication": "headerAuth",
      "options": {}
     },
     "id": "cr7-wb-insp",
@@ -286,7 +294,13 @@
     "position": [
      -1560,
      440
-    ]
+    ],
+    "credentials": {
+     "httpHeaderAuth": {
+      "id": "f0000000-0000-4000-8000-00000000000a",
+      "name": "Factory Webhook Auth"
+     }
+    }
    },
    {
     "parameters": {

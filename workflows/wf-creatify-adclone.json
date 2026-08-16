@@ -13,6 +13,7 @@
      "httpMethod": "POST",
      "path": "factory/adclone",
      "responseMode": "responseNode",
+     "authentication": "headerAuth",
      "options": {}
     },
     "id": "4cfa5766-6747-4d80-af17-8f86f9cf9a45",
@@ -23,7 +24,13 @@
      0,
      0
     ],
-    "webhookId": "cr4-adclone"
+    "webhookId": "cr4-adclone",
+    "credentials": {
+     "httpHeaderAuth": {
+      "id": "f0000000-0000-4000-8000-00000000000a",
+      "name": "Factory Webhook Auth"
+     }
+    }
    },
    {
     "parameters": {

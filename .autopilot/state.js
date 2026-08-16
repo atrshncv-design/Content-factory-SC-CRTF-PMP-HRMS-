@@ -9,7 +9,7 @@ window.STATE =
   "briefFile": "2026-08-16-brief.md",
   "memoryFile": "AGENTS.md",
   "startedAt": "2026-08-16T08:09:59+04:00",
-  "updatedAt": "2026-08-16T11:25:00+04:00",
+  "updatedAt": "2026-08-16T12:15:00+04:00",
   "finishedAt": null,
   "stages": [
     {
@@ -61,8 +61,8 @@ window.STATE =
   ],
   "requirements": {
     "total": 19,
-    "done": 11,
-    "inTicket": 6,
+    "done": 12,
+    "inTicket": 5,
     "inSpec": 0,
     "placeholder": 1,
     "deferred": 1,
@@ -258,7 +258,7 @@ window.STATE =
         "hermes/",
         "infra/"
       ],
-      "status": "pending",
+      "status": "done",
       "retries": 0
     }
   ],
@@ -280,7 +280,9 @@ window.STATE =
       "FACTORY_WEBHOOK_SECRET"
     ]
   },
-  "additions": [],
+  "additions": [
+    "10 — ревью-фиксы безопасности (кросс-ревью волн 1+2): header-auth X-FACTORY-TOKEN на 21 webhook, fail-closed колбэк creatify, хардкод 941296693 убран, LB sc-ноды добавлены — done 16.08"
+  ],
   "coverage": {
     "g2At": "2026-08-16T09:10:00+04:00",
     "findings": 4,

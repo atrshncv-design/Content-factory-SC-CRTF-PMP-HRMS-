@@ -300,6 +300,10 @@
        {
         "name": "Content-Type",
         "value": "application/json"
+       },
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
        }
       ]
      },
@@ -446,6 +450,10 @@
        {
         "name": "Content-Type",
         "value": "application/json"
+       },
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
        }
       ]
      },

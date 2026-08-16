@@ -13,6 +13,7 @@
      "httpMethod": "POST",
      "path": "factory/transcript",
      "responseMode": "responseNode",
+     "authentication": "headerAuth",
      "options": {}
     },
     "id": "ecb3ba17-687c-4547-a327-2fe4770f1a8c",
@@ -23,7 +24,13 @@
      0,
      0
     ],
-    "webhookId": "e45609bb-b57f-453e-89eb-34ea526d2363"
+    "webhookId": "e45609bb-b57f-453e-89eb-34ea526d2363",
+    "credentials": {
+     "httpHeaderAuth": {
+      "id": "f0000000-0000-4000-8000-00000000000a",
+      "name": "Factory Webhook Auth"
+     }
+    }
    },
    {
     "parameters": {
@@ -320,6 +327,7 @@
      "httpMethod": "POST",
      "path": "factory/comments",
      "responseMode": "responseNode",
+     "authentication": "headerAuth",
      "options": {}
     },
     "id": "3c312875-d153-4cff-843c-3f405b0ce112",
@@ -330,7 +338,13 @@
      1600,
      0
     ],
-    "webhookId": "1b4c2e6c-c294-47c0-acc2-fc78f84085a2"
+    "webhookId": "1b4c2e6c-c294-47c0-acc2-fc78f84085a2",
+    "credentials": {
+     "httpHeaderAuth": {
+      "id": "f0000000-0000-4000-8000-00000000000a",
+      "name": "Factory Webhook Auth"
+     }
+    }
    },
    {
     "parameters": {

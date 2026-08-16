@@ -1830,6 +1830,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     },
     "id": "55f3c1dc-8fa1-4360-b02f-1f63e9d82238",
@@ -2241,6 +2250,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     },
     "id": "14717715-56c7-47b0-8ece-f8d8635fcbb3",
@@ -5116,6 +5134,10 @@
        {
         "name": "X-API-KEY",
         "value": "={{ $env.CREATIFY_API_KEY }}"
+       },
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
        }
       ]
      }
@@ -5359,6 +5381,10 @@
        {
         "name": "X-API-KEY",
         "value": "={{ $env.CREATIFY_API_KEY }}"
+       },
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
        }
       ]
      }
@@ -6891,6 +6917,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     },
     "id": "8d8bf587-4143-4b7c-a536-98c620b5cd00",
@@ -8001,6 +8036,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     }
    },
@@ -8139,6 +8183,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     }
    },
@@ -8277,6 +8330,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     }
    },
@@ -8415,6 +8477,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     }
    },
@@ -8553,6 +8624,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     }
    },
@@ -8691,6 +8771,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     }
    },
@@ -8829,6 +8918,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     }
    },
@@ -8967,6 +9065,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     }
    },
@@ -9105,6 +9212,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     }
    },
@@ -9263,6 +9379,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     }
    },
@@ -9401,6 +9526,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     }
    },
@@ -9539,6 +9673,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     }
    },
@@ -11284,6 +11427,39 @@
    },
    {
     "parameters": {
+     "method": "GET",
+     "url": "https://api.scrapecreators.com/v1/account/credit-balance",
+     "authentication": "none",
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
+     },
+     "options": {
+      "timeout": 15000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     }
+    },
+    "id": "87517e61-9ebd-4459-ab82-0395f2ed0536",
+    "name": "UV LB sc",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     2050,
+     -540
+    ]
+   },
+   {
+    "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
      "jsCode": "\nconst __c = (() => { try { return $('UV LB creatify').first().json; } catch (e) { return {}; } })();\nconst __s = (() => { try { return $('UV LB sc').first().json; } catch (e) { return {}; } })();\nconst cb = (__c.body && typeof __c.body === 'object') ? __c.body : __c;\nconst sb = (__s.body && typeof __s.body === 'object') ? __s.body : __s;\nconst cdata = (cb && typeof cb.data === 'string') ? cb.data : (typeof __c.data === 'string' ? __c.data : null);\nconst sdata = (sb && typeof sb.data === 'string') ? sb.data : (typeof __s.data === 'string' ? __s.data : null);\nlet cr = null;\ntry {\n  if (cb.remaining_credits != null) cr = Number(cb.remaining_credits);\n  else if (__c.remaining_credits != null) cr = Number(__c.remaining_credits);\n  else if (cdata) cr = Number(JSON.parse(cdata).remaining_credits);\n} catch (e) {}\nlet sc = null;\ntry {\n  if (sb.creditCount != null) sc = Number(sb.creditCount);\n  else if (__s.creditCount != null) sc = Number(__s.creditCount);\n  else if (sdata) sc = Number(JSON.parse(sdata).creditCount);\n} catch (e) {}\nreturn [{ json: { creatify: cr, sc: sc } }];\n"
@@ -12008,6 +12184,39 @@
    },
    {
     "parameters": {
+     "method": "GET",
+     "url": "https://api.scrapecreators.com/v1/account/credit-balance",
+     "authentication": "none",
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
+     },
+     "options": {
+      "timeout": 15000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     }
+    },
+    "id": "d51eaf69-b6a9-4567-8d80-a835142465ce",
+    "name": "DU LB sc",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     1780,
+     80
+    ]
+   },
+   {
+    "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
      "jsCode": "\nconst __c = (() => { try { return $('DU LB creatify').first().json; } catch (e) { return {}; } })();\nconst __s = (() => { try { return $('DU LB sc').first().json; } catch (e) { return {}; } })();\nconst cb = (__c.body && typeof __c.body === 'object') ? __c.body : __c;\nconst sb = (__s.body && typeof __s.body === 'object') ? __s.body : __s;\nconst cdata = (cb && typeof cb.data === 'string') ? cb.data : (typeof __c.data === 'string' ? __c.data : null);\nconst sdata = (sb && typeof sb.data === 'string') ? sb.data : (typeof __s.data === 'string' ? __s.data : null);\nlet cr = null;\ntry {\n  if (cb.remaining_credits != null) cr = Number(cb.remaining_credits);\n  else if (__c.remaining_credits != null) cr = Number(__c.remaining_credits);\n  else if (cdata) cr = Number(JSON.parse(cdata).remaining_credits);\n} catch (e) {}\nlet sc = null;\ntry {\n  if (sb.creditCount != null) sc = Number(sb.creditCount);\n  else if (__s.creditCount != null) sc = Number(__s.creditCount);\n  else if (sdata) sc = Number(JSON.parse(sdata).creditCount);\n} catch (e) {}\nreturn [{ json: { creatify: cr, sc: sc } }];\n"
@@ -12457,6 +12666,10 @@
        {
         "name": "X-API-KEY",
         "value": "={{ $env.CREATIFY_API_KEY }}"
+       },
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
        }
       ]
      }
@@ -12568,6 +12781,10 @@
        {
         "name": "X-API-KEY",
         "value": "={{ $env.CREATIFY_API_KEY }}"
+       },
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
        }
       ]
      }
@@ -12844,6 +13061,39 @@
     "typeVersion": 4.5,
     "position": [
      1060,
+     3840
+    ]
+   },
+   {
+    "parameters": {
+     "method": "GET",
+     "url": "https://api.scrapecreators.com/v1/account/credit-balance",
+     "authentication": "none",
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
+     },
+     "options": {
+      "timeout": 15000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     }
+    },
+    "id": "bb584e16-2b70-4986-afa1-ea5cc3e7b058",
+    "name": "SH LB sc",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     1080,
      3840
     ]
    },
@@ -14240,6 +14490,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     }
    },
@@ -15101,6 +15360,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     }
    },
@@ -15377,6 +15645,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     }
    },
@@ -15735,6 +16012,15 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     }
    },
@@ -31929,7 +32215,7 @@
     "main": [
      [
       {
-       "node": "UV LB parse",
+       "node": "UV LB sc",
        "type": "main",
        "index": 0
       }
@@ -32068,7 +32354,7 @@
     "main": [
      [
       {
-       "node": "DU LB parse",
+       "node": "DU LB sc",
        "type": "main",
        "index": 0
       }
@@ -32398,7 +32684,7 @@
     "main": [
      [
       {
-       "node": "SH LB parse",
+       "node": "SH LB sc",
        "type": "main",
        "index": 0
       }
@@ -38393,6 +38679,39 @@
      [
       {
        "node": "Switch SC OK",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "DU LB sc": {
+    "main": [
+     [
+      {
+       "node": "DU LB parse",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "SH LB sc": {
+    "main": [
+     [
+      {
+       "node": "SH LB parse",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "UV LB sc": {
+    "main": [
+     [
+      {
+       "node": "UV LB parse",
        "type": "main",
        "index": 0
       }

@@ -13,6 +13,7 @@
      "httpMethod": "POST",
      "path": "factory/tg-alert",
      "responseMode": "onReceived",
+     "authentication": "headerAuth",
      "options": {}
     },
     "id": "aaaaaaaa-1111-2222-3333-444444444441",
@@ -23,7 +24,13 @@
      -140,
      0
     ],
-    "webhookId": "bbbbbbbb-1111-2222-3333-444444444441"
+    "webhookId": "bbbbbbbb-1111-2222-3333-444444444441",
+    "credentials": {
+     "httpHeaderAuth": {
+      "id": "f0000000-0000-4000-8000-00000000000a",
+      "name": "Factory Webhook Auth"
+     }
+    }
    },
    {
     "parameters": {

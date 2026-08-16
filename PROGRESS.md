@@ -170,3 +170,5 @@
 | 39 | Release-readiness волна 2: полный цикл аналитика→submit (02) | ✅ done (16.08: контракт тем, строгий JSON, гейты 10/50, link/submit sim зелёные) |
 | 40 | Release-readiness волна 2: премиум-Creatify (03) | ✅ done (16.08: avatar/banner/product/asset впаяны до точки списания; adclone/inspiration/text — deferred с причинами) |
 | 41 | Release-readiness волна 2: публикация 7 платформ (06) | ✅ done (16.08: Switch upload_needed исправлен, text-only маршрут, caption-адаптация, 30/30 sim) |
+| 42 | Release-readiness волна 3: E2E smoke (09) | ✅ done (16.08: цепочка /start→publish прослежена, 23 webhook-пути, smoke-checklist.md) |
+| 43 | Ревью-фиксы безопасности (10) | ✅ done (16.08: header-auth 21 webhook + 30 вызывающих, fail-closed колбэк creatify, хардкод=0, DEPLOYMENT обновлён) |

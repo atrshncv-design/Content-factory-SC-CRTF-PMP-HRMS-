@@ -13,6 +13,7 @@
      "httpMethod": "POST",
      "path": "factory/creators-search",
      "responseMode": "responseNode",
+     "authentication": "headerAuth",
      "options": {}
     },
     "id": "b2e3dc87-499d-41c1-a1db-8440b2b38c4b",
@@ -23,7 +24,13 @@
      -1560,
      0
     ],
-    "webhookId": "35eba910-c20c-4bce-84fa-f023bf206227"
+    "webhookId": "35eba910-c20c-4bce-84fa-f023bf206227",
+    "credentials": {
+     "httpHeaderAuth": {
+      "id": "f0000000-0000-4000-8000-00000000000a",
+      "name": "Factory Webhook Auth"
+     }
+    }
    },
    {
     "parameters": {

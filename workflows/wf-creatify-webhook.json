@@ -36,7 +36,7 @@
       },
       "conditions": [
        {
-        "leftValue": "={{ $env.FACTORY_WEBHOOK_SECRET ? (($json.headers || {})['x-factory-secret'] === $env.FACTORY_WEBHOOK_SECRET) : true }}",
+        "leftValue": "={{ $env.FACTORY_WEBHOOK_SECRET ? (($json.headers || {})['x-factory-secret'] === $env.FACTORY_WEBHOOK_SECRET) : false }}",
         "rightValue": true,
         "operator": {
          "type": "boolean",
@@ -296,15 +296,54 @@
      "sendBody": true,
      "contentType": "json",
      "specifyBody": "json",
-     "jsonBody": "={{ {chat_id: (($('HTTP SELECT').first().json.rows || [{}])[0] || {}).tg_user_id || 941296693, text: $('Build update failed').first().json.alert_text} }}",
+     "jsonBody": "={{ {chat_id: (($('HTTP SELECT').first().json.rows || [{}])[0] || {}).tg_user_id, text: $('Build update failed').first().json.alert_text} }}",
      "options": {
       "timeout": 15000
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     },
     "id": "e0000000-000c-4000-8000-000000000001",
     "name": "HTTP tg-alert failed",
     "type": "n8n-nodes-base.httpRequest",
     "typeVersion": 4.5,
+    "position": [
+     600,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "conditions": {
+      "combinator": "and",
+      "options": {
+       "caseSensitive": true,
+       "leftValue": "",
+       "typeValidation": "strict"
+      },
+      "conditions": [
+       {
+        "leftValue": "={{ (($('HTTP SELECT').first().json.rows || [{}])[0] || {}).tg_user_id ?? '' }}",
+        "rightValue": "",
+        "operator": {
+         "type": "string",
+         "operation": "notEquals"
+        }
+       }
+      ]
+     }
+    },
+    "id": "e0000000-0023-4000-8000-000000000001",
+    "name": "IF alert failed",
+    "type": "n8n-nodes-base.if",
+    "typeVersion": 2.3,
     "position": [
      400,
      300
@@ -358,7 +397,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const d = $('Code done build').first().json;\nconst r = ($('HTTP SELECT').first().json.rows && $('HTTP SELECT').first().json.rows[0]) || {};\nconst uid = r.tg_user_id || 941296693; // TODO D2: fallback (пути без session-link: DU quick/легаси)\nconst payload = JSON.stringify({ generation_id: String(d.id), script: String(d.script || ''), topic_id: (d.topic_id != null ? Number(d.topic_id) : null), flow: String(d.flow || 'sh') });\nreturn [{ json: {\n  sql: \"UPDATE sessions SET state='VIDEO_AWAIT', generation_id=?, script_id=COALESCE(script_id, ?), quick_payload=?, updated_at=datetime('now') WHERE tg_user_id=?\",\n  params: [String(d.id), d.script_id, payload, uid]\n} }];"
+     "jsCode": "const d = $('Code done build').first().json;\nconst r = ($('HTTP SELECT').first().json.rows && $('HTTP SELECT').first().json.rows[0]) || {};\nconst uid = r.tg_user_id || null; // FIX-10: сессии нет — UPDATE не затронет строк (fallback-хардкод убран)\nconst payload = JSON.stringify({ generation_id: String(d.id), script: String(d.script || ''), topic_id: (d.topic_id != null ? Number(d.topic_id) : null), flow: String(d.flow || 'sh') });\nreturn [{ json: {\n  sql: \"UPDATE sessions SET state='VIDEO_AWAIT', generation_id=?, script_id=COALESCE(script_id, ?), quick_payload=?, updated_at=datetime('now') WHERE tg_user_id=?\",\n  params: [String(d.id), d.script_id, payload, uid]\n} }];"
     },
     "id": "e0000000-0010-4000-8000-000000000001",
     "name": "Build session update",
@@ -403,7 +442,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const d = $('Code done build').first().json;\nconst uid = (($('HTTP SELECT').first().json.rows || [{}])[0] || {}).tg_user_id || 941296693; // TODO D2: fallback (DU quick/легаси)\nconst genId = String(d.id);\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst excerpt = (d.script_excerpt || '…').slice(0, 200);\nconst wb = $('Webhook').first().json.body || {};\nconst video = String(d.video_output_url || wb.video_output_url || wb.video_output || '');\nconst text = '🎬 Этап 3/4 — Видео готово. Что делаем?\\n\\n' + esc(excerpt);\nconst text_legacy = '🎬 Этап 3/4 — Видео готово\\n\\n'\n  + 'Сценарий: ' + esc(excerpt) + '\\n\\n'\n  + (video ? 'Видео: ' + esc(video) + '\\n\\n' : '')\n  + 'Что делаем с видео?';\nreturn [{ json: { chat_id: uid, text: text, text_legacy: text_legacy, gen_id: genId, video: video, auto_approve: (d.auto_approve === true) } }];"
+     "jsCode": "const d = $('Code done build').first().json;\nconst uid = (($('HTTP SELECT').first().json.rows || [{}])[0] || {}).tg_user_id || null; // FIX-10: fail-closed — без session-link видео не отправляем\nif (!uid) throw new Error('Сессия не привязана к генерации #' + String(d.id) + ' (нет session-link) — видео не отправлено');\nconst genId = String(d.id);\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst excerpt = (d.script_excerpt || '…').slice(0, 200);\nconst wb = $('Webhook').first().json.body || {};\nconst video = String(d.video_output_url || wb.video_output_url || wb.video_output || '');\nconst text = '🎬 Этап 3/4 — Видео готово. Что делаем?\\n\\n' + esc(excerpt);\nconst text_legacy = '🎬 Этап 3/4 — Видео готово\\n\\n'\n  + 'Сценарий: ' + esc(excerpt) + '\\n\\n'\n  + (video ? 'Видео: ' + esc(video) + '\\n\\n' : '')\n  + 'Что делаем с видео?';\nreturn [{ json: { chat_id: uid, text: text, text_legacy: text_legacy, gen_id: genId, video: video, auto_approve: (d.auto_approve === true) } }];"
     },
     "id": "e0000000-0012-4000-8000-000000000001",
     "name": "Build stage3",
@@ -591,7 +630,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const r = ($('HTTP SELECT').first().json.rows && $('HTTP SELECT').first().json.rows[0]) || {};\nconst uid = r.tg_user_id || 941296693; // TODO D2: fallback (пути без session-link: DU quick/легаси)\nreturn [{ json: {\n  sql: \"UPDATE sessions SET state='IDLE', generation_id=NULL, updated_at=datetime('now') WHERE tg_user_id=?\",\n  params: [uid]\n} }];"
+     "jsCode": "const r = ($('HTTP SELECT').first().json.rows && $('HTTP SELECT').first().json.rows[0]) || {};\nconst uid = r.tg_user_id || null; // FIX-10: сессии нет — сброс не требуется (fallback-хардкод убран)\nreturn [{ json: {\n  sql: \"UPDATE sessions SET state='IDLE', generation_id=NULL, updated_at=datetime('now') WHERE tg_user_id=?\",\n  params: [uid]\n} }];"
     },
     "id": "e0000000-0015-4000-8000-000000000001",
     "name": "Build session reset",
@@ -635,7 +674,8 @@
    {
     "parameters": {
      "respondWith": "json",
-     "responseBody": "{\"ok\":false,\"error\":\"unauthorized\"}"
+     "responseBody": "{\"ok\":false,\"error\":\"unauthorized\"}",
+     "responseCode": 403
     },
     "id": "e0000000-0018-4000-8000-000000000001",
     "name": "Respond unauthorized",
@@ -767,15 +807,54 @@
      "sendBody": true,
      "contentType": "json",
      "specifyBody": "json",
-     "jsonBody": "={{ {chat_id: (($('HTTP SELECT').first().json.rows || [{}])[0] || {}).tg_user_id || 941296693, text: $('Build update unknown').first().json.alert_text} }}",
+     "jsonBody": "={{ {chat_id: (($('HTTP SELECT').first().json.rows || [{}])[0] || {}).tg_user_id, text: $('Build update unknown').first().json.alert_text} }}",
      "options": {
       "timeout": 15000
+     },
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
      }
     },
     "id": "2e9adef3-c385-4b38-8f9d-98c5507e412e",
     "name": "HTTP tg-alert unknown",
     "type": "n8n-nodes-base.httpRequest",
     "typeVersion": 4.5,
+    "position": [
+     600,
+     380
+    ]
+   },
+   {
+    "parameters": {
+     "conditions": {
+      "combinator": "and",
+      "options": {
+       "caseSensitive": true,
+       "leftValue": "",
+       "typeValidation": "strict"
+      },
+      "conditions": [
+       {
+        "leftValue": "={{ (($('HTTP SELECT').first().json.rows || [{}])[0] || {}).tg_user_id ?? '' }}",
+        "rightValue": "",
+        "operator": {
+         "type": "string",
+         "operation": "notEquals"
+        }
+       }
+      ]
+     }
+    },
+    "id": "e0000000-0024-4000-8000-000000000001",
+    "name": "IF alert unknown",
+    "type": "n8n-nodes-base.if",
+    "typeVersion": 2.3,
     "position": [
      400,
      380
@@ -951,7 +1030,7 @@
     "main": [
      [
       {
-       "node": "HTTP tg-alert failed",
+       "node": "IF alert failed",
        "type": "main",
        "index": 0
       }
@@ -1141,7 +1220,43 @@
     "main": [
      [
       {
+       "node": "IF alert unknown",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "IF alert failed": {
+    "main": [
+     [
+      {
+       "node": "HTTP tg-alert failed",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "Build session reset",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "IF alert unknown": {
+    "main": [
+     [
+      {
        "node": "HTTP tg-alert unknown",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "Respond unknown",
        "type": "main",
        "index": 0
       }

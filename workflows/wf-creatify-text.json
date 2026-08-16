@@ -13,6 +13,7 @@
      "httpMethod": "POST",
      "path": "factory/script",
      "responseMode": "responseNode",
+     "authentication": "headerAuth",
      "options": {}
     },
     "id": "d2000000-0000-4000-8000-000000000001",
@@ -23,7 +24,13 @@
      -980,
      0
     ],
-    "webhookId": "d2000000-0000-4000-8000-000000000001w"
+    "webhookId": "d2000000-0000-4000-8000-000000000001w",
+    "credentials": {
+     "httpHeaderAuth": {
+      "id": "f0000000-0000-4000-8000-00000000000a",
+      "name": "Factory Webhook Auth"
+     }
+    }
    },
    {
     "parameters": {

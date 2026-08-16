@@ -13,6 +13,7 @@
      "httpMethod": "POST",
      "path": "factory/creatify-submit",
      "responseMode": "responseNode",
+     "authentication": "headerAuth",
      "options": {}
     },
     "id": "d1000000-0000-4000-8000-000000000001",
@@ -23,7 +24,13 @@
      -600,
      0
     ],
-    "webhookId": "d1000000-0000-4000-8000-0000000000w1"
+    "webhookId": "d1000000-0000-4000-8000-0000000000w1",
+    "credentials": {
+     "httpHeaderAuth": {
+      "id": "f0000000-0000-4000-8000-00000000000a",
+      "name": "Factory Webhook Auth"
+     }
+    }
    },
    {
     "parameters": {

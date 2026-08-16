@@ -13,6 +13,7 @@
      "httpMethod": "POST",
      "path": "factory/creator-content",
      "responseMode": "responseNode",
+     "authentication": "headerAuth",
      "options": {}
     },
     "id": "c3a00000-0000-4000-8000-000000000001",
@@ -23,7 +24,13 @@
      -400,
      0
     ],
-    "webhookId": "6f986189-3c10-45e2-993f-ae0e7ad999f4"
+    "webhookId": "6f986189-3c10-45e2-993f-ae0e7ad999f4",
+    "credentials": {
+     "httpHeaderAuth": {
+      "id": "f0000000-0000-4000-8000-00000000000a",
+      "name": "Factory Webhook Auth"
+     }
+    }
    },
    {
     "parameters": {

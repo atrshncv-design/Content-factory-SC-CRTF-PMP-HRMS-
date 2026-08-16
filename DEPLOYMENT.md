@@ -42,13 +42,14 @@
 | wf-creator-content | POST `/webhook/factory/creator-content` {platform, handle, limit?} | ✅ посты автора с метриками + ER (SC-3, 13.08, exec 1741–1748) |
 | zz-test-sqlite | POST `/webhook/factory/_test` | служебный |
 
-**Тестовые curl (с сервера):**
+**Тестовые curl (с сервера)** — все внутренние webhook `factory/*` защищены header-auth: заголовок `X-FACTORY-TOKEN` со значением `$FACTORY_WEBHOOK_SECRET` (env):
 ```bash
-curl -X POST http://localhost:5678/webhook/factory/onboard -H 'Content-Type: application/json' -d '{"url":"https://robotec.ru"}'
-curl -X POST http://localhost:5678/webhook/factory/analytics -H 'Content-Type: application/json' -d '{"client_id":1,"find_competitors":false}'
-curl -X POST http://localhost:5678/webhook/factory/creatify-link -H 'Content-Type: application/json' -d '{"url":"https://example.com"}'
-curl -X POST http://localhost:5678/webhook/factory/tg-alert -H 'Content-Type: application/json' -d '{"chat_id":941296693,"text":"test"}'
+curl -X POST http://localhost:5678/webhook/factory/onboard -H 'X-FACTORY-TOKEN: $FACTORY_WEBHOOK_SECRET' -H 'Content-Type: application/json' -d '{"url":"https://robotec.ru"}'
+curl -X POST http://localhost:5678/webhook/factory/analytics -H 'X-FACTORY-TOKEN: $FACTORY_WEBHOOK_SECRET' -H 'Content-Type: application/json' -d '{"client_id":1,"find_competitors":false}'
+curl -X POST http://localhost:5678/webhook/factory/creatify-link -H 'X-FACTORY-TOKEN: $FACTORY_WEBHOOK_SECRET' -H 'Content-Type: application/json' -d '{"url":"https://example.com"}'
+curl -X POST http://localhost:5678/webhook/factory/tg-alert -H 'X-FACTORY-TOKEN: $FACTORY_WEBHOOK_SECRET' -H 'Content-Type: application/json' -d '{"chat_id":<CHAT_ID>,"text":"test"}'
 ```
+**Deploy-гейт (тикет 10):** для header-auth webhook-нод нужен credential n8n типа *httpHeaderAuth* («Factory Webhook Auth»): имя заголовка `X-FACTORY-TOKEN`, значение = значение `FACTORY_WEBHOOK_SECRET` из `.env` (секрет в vault, не в репо). Без credential webhook отвечает 500 (fail-closed) — привязать credential ко всем 21 ноде `factory/*` при импорте.
 
 ## 3. Архитектура и ключевые точки
 
@@ -62,7 +63,7 @@ curl -X POST http://localhost:5678/webhook/factory/tg-alert -H 'Content-Type: ap
 ```
 
 - Приём TG — только Hermes (gateway). n8n — только Send (wf-tg-alerts).
-- Hermes → n8n: `curl -X POST http://localhost:5678/webhook/factory/<wf> -d '{...}'` (инструкция в orchestrator SKILL.md).
+- Hermes → n8n: `curl -X POST http://localhost:5678/webhook/factory/<wf> -H 'X-FACTORY-TOKEN: $FACTORY_WEBHOOK_SECRET' -d '{...}'` (инструкция в orchestrator SKILL.md).
 - DB-операции n8n: HTTP Request → `http://db-bridge:8787/query` с `X-BRIDGE-TOKEN: {{ $env.FACTORY_DB_BRIDGE_TOKEN }}`.
 - Две БД: `~/factory/data/factory.db` (бизнес), `~/.hermes/state.db` (agent-state).
 
@@ -259,7 +260,7 @@ client-facing TG-бот (служебные сообщения, встроенн
 
 ### Воркфлоу
 - **wf-tg-bot** (id ...013, АКТИВЕН, 180 нод): Telegram Trigger (webhook, allowed_updates
-  message+callback_query) → whitelist (941296693) → парсер текстовых триггеров (en+ru)
+  message+callback_query) → whitelist (<CHAT_ID>) → парсер текстовых триггеров (en+ru)
   → команды start/help/status/cancel/ping/start_cycle/onboard + callback-обработчики
   (approve/edit/reject/alt:topic, approve/edit/reject:script, publish/regen/reject:gen,
   toggle:platform, schedule:*, confirm:publish) → db-bridge (sessions/topics/scripts) +
@@ -272,7 +273,7 @@ client-facing TG-бот (служебные сообщения, встроенн
 - getWebhookInfo: URL = cloudflared/webhook/...013/tg%20trigger/webhook, allowed_updates
   message+callback_query, pending=0.
 - hermes-bridge: systemctl is-active hermes-bridge = active; curl localhost:8642/health → {ok:true}.
-- sessions: 941296693|IDLE.
+- sessions: <CHAT_ID>|IDLE.
 - Live TG-тест (за оператором): start / help / status / cancel / start_cycle → кнопки.
 
 ### ПИТФОЛЛ: webhook-путь telegramTrigger (важно!)
@@ -390,7 +391,7 @@ esc = s => String(s ?? '').replace(/([_*[\]`])/g, '\\$1') (применено в
 **Тест (13.08, live):**
 - exec 1782/1783 — `{"platform":"tiktok","handle":"khaby.lame"}`: Webhook → Switch out[0] (tiktok) → HTTP TikTok Audience с верными URL/qs/creds (подтверждено error-контекстом: `uri=https://api.scrapecreators.com/v1/tiktok/user/audience`, `qs.handle=khaby.lame`, кред ...001 приложен) → **HTTP 402 out of credits** (баланс -1). Ошибка НЕ в воркфлоу: запрос ушёл правильно, API отказал из-за нулевого баланса; кредиты не списаны (осталось -1).
 - exec 1786 (`platform=vk`) / 1787 (без `platform`) — success: `{"ok":false,"error":"unsupported platform: audience data available only for tiktok"}` — fallback-ветка работает.
-- **Статус: BLOCKED только на финальном демо-тесте демографии** — нужен положительный баланс (≥1 кредит; один запрос стоит 26). После топ-апа: `curl -X POST http://localhost:5678/webhook/factory/audience -H 'Content-Type: application/json' -d '{"platform":"tiktok","handle":"khaby.lame"}'` → `{ok:true, audience{top_countries[...]}}` (108 стран), повтор тем же handle → ещё -26.
+- **Статус: BLOCKED только на финальном демо-тесте демографии** — нужен положительный баланс (≥1 кредит; один запрос стоит 26). После топ-апа: `curl -X POST http://localhost:5678/webhook/factory/audience -H 'X-FACTORY-TOKEN: $FACTORY_WEBHOOK_SECRET' -H 'Content-Type: application/json' -d '{"platform":"tiktok","handle":"khaby.lame"}'` → `{ok:true, audience{top_countries[...]}}` (108 стран), повтор тем же handle → ещё -26.
 
 ## 17. SC-4: wf-audience (13.08) — BLOCKED (кредиты SC = -1)
 - webhook POST `/webhook/factory/audience` {platform, handle}; id `...017`, 6 нод, active=1
@@ -579,7 +580,7 @@ esc = s => String(s ?? '').replace(/([_*[\]`])/g, '\\$1') (применено в
 - **Активный профиль per-чат**: `users.active_client_id` (fallback `settings.active_client_id` + валидация существования; чинит битый live id 999). Все чтения активного клиента переведены на резолв-шаблон.
 - **Контекст в промптах**: 4 цепочки CTX (SC/CT/ET/AU) подставляют блок контекста активного профиля (описание, ЦА, тон, ссылки ≤5, дайджесты документов ≤2000 симв.) в промпты analyst/scriptwriter вместо хардкода «Клиент: Robotec (…)».
 - **Гейт**: генерация (цикл, URL→видео, шортсы, текстовый пост, ассеты, продукт, баннер) без активного профиля → «Нет активного профиля» + кнопка Профиль (общий GPF-гейт + роутер, 7 входов).
-- **Доступ**: Whitelist → роли `users` (admin/operator); владелец назначает операторов командой «добавить оператора <tg_id>» (роль admin), список — «операторы». Хардкод TG=941296693 убран из access-логики.
+- **Доступ**: Whitelist → роли `users` (admin/operator); владелец назначает операторов командой «добавить оператора <tg_id>» (роль admin), список — «операторы». Хардкод TG=<CHAT_ID> убран из access-логики.
 - **Схема** (миграция `.scratch/client-profiles/fixes/migrate-client-profiles.py`): `clients += description, context_links, context_docs, context_refs`; `users += active_client_id`; `sessions += profile_draft`; сид владельца.
 - **Команды**: tg-commands-35.json (35: + profile, profiles, add_operator, operators) — register-tg-commands-35.sh.
 - **wf-tg-bot: 533 → 719 нод** (аккумулировано волной 03–11; снапшоты в `.scratch/client-profiles/fixes/wf-tg-bot.NN.json`). КРЕДИТЫ: 0 потрачено (статика + симуляции + live-сверка read-only).

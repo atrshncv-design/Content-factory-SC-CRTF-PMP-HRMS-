@@ -13,6 +13,7 @@
      "httpMethod": "POST",
      "path": "factory/avatar-upload",
      "responseMode": "responseNode",
+     "authentication": "headerAuth",
      "options": {}
     },
     "id": "f22b89b96bec5422ba1b019fba99c28b",
@@ -23,7 +24,13 @@
      0,
      0
     ],
-    "webhookId": "cr1-avatar-upload"
+    "webhookId": "cr1-avatar-upload",
+    "credentials": {
+     "httpHeaderAuth": {
+      "id": "f0000000-0000-4000-8000-00000000000a",
+      "name": "Factory Webhook Auth"
+     }
+    }
    },
    {
     "parameters": {
@@ -235,6 +242,7 @@
      "httpMethod": "POST",
      "path": "factory/my-avatars",
      "responseMode": "responseNode",
+     "authentication": "headerAuth",
      "options": {}
     },
     "id": "1da577d049d550f3b93d2956210f934e",
@@ -245,7 +253,13 @@
      0,
      520
     ],
-    "webhookId": "cr1-my-avatars"
+    "webhookId": "cr1-my-avatars",
+    "credentials": {
+     "httpHeaderAuth": {
+      "id": "f0000000-0000-4000-8000-00000000000a",
+      "name": "Factory Webhook Auth"
+     }
+    }
    },
    {
     "parameters": {
@@ -626,6 +640,10 @@
        {
         "name": "Content-Type",
         "value": "application/json"
+       },
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
        }
       ]
      },
@@ -729,6 +747,10 @@
        {
         "name": "Content-Type",
         "value": "application/json"
+       },
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
        }
       ]
      },

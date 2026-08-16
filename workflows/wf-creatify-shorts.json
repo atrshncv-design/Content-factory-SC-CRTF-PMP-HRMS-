@@ -13,6 +13,7 @@
      "httpMethod": "POST",
      "path": "factory/shorts",
      "responseMode": "responseNode",
+     "authentication": "headerAuth",
      "options": {}
     },
     "id": "e88c8ab6-59c7-4581-8cbc-7f3757f68869",
@@ -23,7 +24,13 @@
      0,
      0
     ],
-    "webhookId": "cr5-shorts"
+    "webhookId": "cr5-shorts",
+    "credentials": {
+     "httpHeaderAuth": {
+      "id": "f0000000-0000-4000-8000-00000000000a",
+      "name": "Factory Webhook Auth"
+     }
+    }
    },
    {
     "parameters": {
