@@ -71,3 +71,15 @@ const STOCKS = [
 ## Вне скоупа
 - Пагинация/фильтры/поиск по 514 стоковым; динамическая подгрузка из API;
 - BYOA-персоны в общем списке; модерация; правки wf-creatify-lipsync.json.
+
+## UX-фикс (16.08, post-deploy): убраны массовые фото (8+7 sendMediaGroup)
+Жалоба пользователя: «бот просто отправляет 8 фоток разных женщин — отвратительно».
+Новое (выбор пользователя): кнопки имён -> нажатие -> ОДНО фото выбранного
+(сток) или текст (свой) + «✅ Этот / 🔁 Другой».
+- Удалены TG avv preview1/preview2; AVV Build preview без photos.
+- Новые: AVV Preview sel (Code), TG avv preview photo (sendPhoto),
+  TG avv preview text (sendMessage), Switch avv preview.
+- Parser: +avv_ok/avv_again; Switch cb: avv_sel -> AVV Preview sel,
+  avv_ok -> AVV Save avatar (out41), avv_again -> AVV Ask avatar (out42),
+  fallback out43. Проверки: валидаторы 0 issues, pytest 25/25, sim (сток->photo,
+  свой->text, парсер avv_ok/avv_again).

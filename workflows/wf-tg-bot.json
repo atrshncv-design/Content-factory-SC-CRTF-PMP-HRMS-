@@ -35,7 +35,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const item = $input.first().json;\nfunction parseCommand(text) {\n  const t = String(text || '').toLowerCase().trim();\n  const C = {\n    'start': 'start', 'старт': 'start', '/start': 'start',\n    'help': 'help', 'помощь': 'help', '/help': 'help',\n    'status': 'status', 'статус': 'status', '/status': 'status',\n    'cancel': 'cancel', 'стоп': 'cancel', 'отмена': 'cancel', '/cancel': 'cancel',\n    'ping': 'ping', 'пинг': 'ping', '/ping': 'ping',\n    'start_cycle': 'start_cycle', 'запуск цикла': 'start_cycle', 'старт цикла': 'start_cycle', '/start_cycle': 'start_cycle',\n    'mode': 'mode', 'режим': 'mode', '/mode': 'mode',\n    'topics': 'topics', 'темы': 'topics', '/topics': 'topics',\n    'competitors': 'competitors', 'конкуренты': 'competitors', '/competitors': 'competitors',\n    'accounts': 'accounts', 'аккаунты': 'accounts', '/accounts': 'accounts',\n    'budget': 'budget', 'бюджет': 'budget', '/budget': 'budget',\n    'clients': 'clients', 'клиенты': 'clients', '/clients': 'clients',\n    'client': 'client', 'клиент': 'client', '/client': 'client',\n    'reload_skills': 'reload_skills', '/reload_skills': 'reload_skills',\n    'creators': 'creators', 'авторы': 'creators', 'поиск авторов': 'creators', '/creators': 'creators',\n    'creator': 'creator', 'автор': 'creator', '/creator': 'creator',\n    'creator_content': 'creator_content', 'creator-content': 'creator_content', 'контент автора': 'creator_content', '/creator_content': 'creator_content', '/creator-content': 'creator_content',\n    'audience': 'audience', 'аудитория': 'audience', '/audience': 'audience',\n    'transcript': 'transcript', 'транскрипт': 'transcript', '/transcript': 'transcript',\n    'comments': 'comments', 'комментарии': 'comments', '/comments': 'comments',\n    'upload_avatar': 'upload_avatar', 'upload-avatar': 'upload_avatar', 'загрузить аватар': 'upload_avatar', '/upload_avatar': 'upload_avatar', '/upload-avatar': 'upload_avatar',\n    'my_avatars': 'my_avatars', 'my-avatars': 'my_avatars', 'мои аватары': 'my_avatars', '/my_avatars': 'my_avatars', '/my-avatars': 'my_avatars',\n    'asset': 'asset', 'ассет': 'asset', '/asset': 'asset',\n    'shorts': 'shorts', 'шортсы': 'shorts', '/shorts': 'shorts',\n    'product': 'product', 'продукт': 'product', '/product': 'product',\n    'banner': 'banner', 'баннер': 'banner', '/banner': 'banner',\n    'publish_type': 'publish_type', 'publish-type': 'publish_type', 'тип публикации': 'publish_type', '/publish_type': 'publish_type', '/publish-type': 'publish_type',\n    'menu': 'menu', 'меню': 'menu', '/menu': 'menu', '/меню': 'menu',\n    'instruction': 'instruction', 'инструкция': 'instruction', 'инструкции': 'instruction', '/instruction': 'instruction', '/инструкция': 'instruction',\n    'url2video': 'url2video', 'видео из ссылки': 'url2video', '/url2video': 'url2video',\n    'gen_url2video': 'url2video', 'gen_shorts': 'shorts',\n    'avatar_video': 'avatar_video', 'видео с аватаром': 'avatar_video', 'аватар видео': 'avatar_video', 'avv': 'avatar_video', 'gen_avatar_video': 'avatar_video',\n    'text_post': 'text_post', 'текстовый пост': 'text_post', '/text_post': 'text_post', '/текстовый пост': 'text_post',\n    'durc': 'durc',\n    'add_operator': 'add_operator', 'добавить оператора': 'add_operator', '/add_operator': 'add_operator',\n    'remove_operator': 'remove_operator', 'удалить оператора': 'remove_operator', '/remove_operator': 'remove_operator', '/удалить оператора': 'remove_operator',\n    'operators': 'operators', 'операторы': 'operators', '/operators': 'operators',\n    'profile': 'profile', 'профиль': 'profile', '/profile': 'profile', '/профиль': 'profile',\n    'profiles': 'profiles', 'профили': 'profiles', '/profiles': 'profiles', '/профили': 'profiles',\n    'questions': 'questions', 'вопросы': 'questions', '/questions': 'questions', '/вопросы': 'questions',\n  };\n  const words = t.split(/\\s+/);\n  let command = 'unknown';\n  const args = { url: null, id: null, value: null, platform: null, handle: null, section: null, action: null };\n  if (t.startsWith('onboard ') || t === 'onboard' || t.startsWith('/onboard')) { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('онбординг ') || t === 'онбординг') { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('client ') || t.startsWith('клиент ') || t.startsWith('/client ')) { command = 'client'; args.id = words[1] || null; }\n  else if (t.startsWith('добавить оператора ') || t.startsWith('/add_operator ') || t.startsWith('add_operator ')) { command = 'add_operator'; const off = t.startsWith('добавить оператора ') ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('удалить оператора ') || t.startsWith('/remove_operator ') || t.startsWith('/удалить оператора ')) { command = 'remove_operator'; const off = (t.startsWith('удалить оператора ') || t.startsWith('/удалить оператора ')) ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('creator ') || t.startsWith('автор ') || t.startsWith('/creator ')) { command = 'creator'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('creator_content ') || t.startsWith('creator-content ') || t.startsWith('контент автора ') || t.startsWith('/creator_content ') || t.startsWith('/creator-content ')) { command = 'creator_content'; const off = t.startsWith('контент автора ') ? 2 : 1; args.platform = words[off] || null; args.handle = words[off + 1] || null; }\n  else if (t.startsWith('audience ') || t.startsWith('аудитория ') || t.startsWith('/audience ')) { command = 'audience'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('поиск авторов ')) { command = 'creators'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('загрузить аватар ')) { command = 'upload_avatar'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('тип публикации ')) { command = 'publish_type'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('menu_')) { command = 'menu'; args.section = t.slice(5) || null; }\n  else if (t.startsWith('dur_')) { command = 'dur'; args.value = t.slice(4) || null; }\n  else if (t.startsWith('durc_')) { command = 'durc'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('hint_')) { command = 'hint'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('видео из ссылки ')) { command = 'url2video'; args.url = words.slice(3).join(' ') || null; }\n  else if (t === 'вопросы' || t === '/вопросы' || t === 'questions' || t === '/questions') { command = 'questions'; args.action = 'list'; }\n  else if (t.startsWith('вопросы сброс') || t.startsWith('/вопросы сброс')) { command = 'questions'; args.action = 'reset'; }\n  else if (t.startsWith('вопрос ') || t.startsWith('/вопросы ')) { command = 'questions'; args.action = 'set'; const N = /^\\d+$/.test(words[1] || '') ? parseInt(words[1], 10) : null; args.n = N; args.value = words.slice(2).join(' ') || null; }\n  else if (t === 'авто' || t === '/авто' || t === 'auto' || t === '/auto') { command = 'auto'; args.action = 'toggle'; }\n  else if (t.startsWith('авто вкл') || t.startsWith('/авто вкл') || t.startsWith('auto on') || t.startsWith('/auto on')) { command = 'auto'; args.action = 'on'; }\n  else if (t.startsWith('авто выкл') || t.startsWith('/авто выкл') || t.startsWith('auto off') || t.startsWith('/auto off')) { command = 'auto'; args.action = 'off'; }\n  else if (C[t]) { command = C[t]; }\n  else if (C[words[0]]) { command = C[words[0]]; args.value = words.slice(1).join(' ') || null; }\n  if (command === 'shorts' && args.value && /^https?:\\/\\//i.test(args.value)) args.url = args.value;\n  return { command: command, args: args };\n}\n\nlet out = null;\nif (item.callback_query) {\n  const q = item.callback_query;\n  const fromId = (q.from && q.from.id) || null;\n  const chatId = (q.message && q.message.chat && q.message.chat.id) || null;\n  const msgId = (q.message && q.message.message_id) || null;\n  const data = String(q.data || '');\n  if (data.startsWith('cmd:')) {\n    const parsed = parseCommand(data.slice(4));\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: parsed.command, args: parsed.args, raw: data, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parts = data.split(':');\n    const action = parts[0] || '';\n    const entityType = parts[1] || null;\n    const entityId = parts.slice(2).join(':') || null;\n    const map = {\n      approve: { topic: 'approve_topic', script: 'approve_script', gen: 'publish_gen' },\n      edit: { topic: 'edit_topic', script: 'edit_script' },\n      reject: { topic: 'reject_topic', script: 'reject_script', gen: 'reject_gen' },\n      alt: { topic: 'alt_topic' },\n      regen: { gen: 'regen_gen' },\n      toggle: { platform: 'toggle_platform', ppm: 'toggle_ppm' },\n      publish: { gen: 'publish_gen' },\n      confirm: { publish: 'confirm_publish' },\n    };\n    let cb = 'unknown';\n    if (action === 'schedule') cb = 'schedule';\n    else if (action === 'confirm') cb = 'confirm_publish';\n    else if (action === 'publish') cb = 'publish_gen';\n    else if (action === 'tx_toggle') cb = 'tx_toggle';\n    else if (action === 'tx_publish') cb = 'tx_publish';\n    else if (action === 'ro_yes' || action === 'ro_no') cb = action;\n    else if (action === 'ppm_done') cb = 'ppm_done';\n    else if (action.startsWith('pf_')) cb = action;\n    else if (action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit') cb = action;\n    else if (action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject') cb = action;\n    else if (action === 'avv_sel') cb = 'avv_sel';\n    else if (map[action] && map[action][entityType]) cb = map[action][entityType];\n    const isRoCb = action === 'ro_yes' || action === 'ro_no';\n    const isScCb = action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit';\n    const isVdCb = action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject';\n    out = { kind: 'callback', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: null, args: {}, raw: data, callback_action: cb,\n            entity_type: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? null : entityType,\n            entity_id: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? (parts[1] || null) : entityId };\n  }\n} else if (item.message) {\n  const m = item.message;\n  const fromId = (m.from && m.from.id) || null;\n  const chatId = (m.chat && m.chat.id) || null;\n  const text = String(m.text || '').trim();\n  if (m.document) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_doc', args: { file_id: m.document.file_id || null, file_name: m.document.file_name || null, mime: m.document.mime_type || null },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.photo && m.photo.length) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_photo', args: { file_id: m.photo[m.photo.length - 1].file_id || null, file_name: 'photo_' + (m.message_id || 'x') + '.jpg' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.video) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_video', args: { file_id: m.video.file_id || null, file_name: m.video.file_name || 'video.mp4' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parsed = parseCommand(text);\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: parsed.command, args: parsed.args, raw: text, callback_action: null, entity_type: null, entity_id: null };\n  }\n} else {\n  out = { kind: 'unknown', tg_user_id: null, chat_id: null, message_id: null, query_id: null, command: 'unknown', args: {}, raw: '', callback_action: null, entity_type: null, entity_id: null };\n}\nreturn [{ json: out }];\n"
+     "jsCode": "const item = $input.first().json;\nfunction parseCommand(text) {\n  const t = String(text || '').toLowerCase().trim();\n  const C = {\n    'start': 'start', 'старт': 'start', '/start': 'start',\n    'help': 'help', 'помощь': 'help', '/help': 'help',\n    'status': 'status', 'статус': 'status', '/status': 'status',\n    'cancel': 'cancel', 'стоп': 'cancel', 'отмена': 'cancel', '/cancel': 'cancel',\n    'ping': 'ping', 'пинг': 'ping', '/ping': 'ping',\n    'start_cycle': 'start_cycle', 'запуск цикла': 'start_cycle', 'старт цикла': 'start_cycle', '/start_cycle': 'start_cycle',\n    'mode': 'mode', 'режим': 'mode', '/mode': 'mode',\n    'topics': 'topics', 'темы': 'topics', '/topics': 'topics',\n    'competitors': 'competitors', 'конкуренты': 'competitors', '/competitors': 'competitors',\n    'accounts': 'accounts', 'аккаунты': 'accounts', '/accounts': 'accounts',\n    'budget': 'budget', 'бюджет': 'budget', '/budget': 'budget',\n    'clients': 'clients', 'клиенты': 'clients', '/clients': 'clients',\n    'client': 'client', 'клиент': 'client', '/client': 'client',\n    'reload_skills': 'reload_skills', '/reload_skills': 'reload_skills',\n    'creators': 'creators', 'авторы': 'creators', 'поиск авторов': 'creators', '/creators': 'creators',\n    'creator': 'creator', 'автор': 'creator', '/creator': 'creator',\n    'creator_content': 'creator_content', 'creator-content': 'creator_content', 'контент автора': 'creator_content', '/creator_content': 'creator_content', '/creator-content': 'creator_content',\n    'audience': 'audience', 'аудитория': 'audience', '/audience': 'audience',\n    'transcript': 'transcript', 'транскрипт': 'transcript', '/transcript': 'transcript',\n    'comments': 'comments', 'комментарии': 'comments', '/comments': 'comments',\n    'upload_avatar': 'upload_avatar', 'upload-avatar': 'upload_avatar', 'загрузить аватар': 'upload_avatar', '/upload_avatar': 'upload_avatar', '/upload-avatar': 'upload_avatar',\n    'my_avatars': 'my_avatars', 'my-avatars': 'my_avatars', 'мои аватары': 'my_avatars', '/my_avatars': 'my_avatars', '/my-avatars': 'my_avatars',\n    'asset': 'asset', 'ассет': 'asset', '/asset': 'asset',\n    'shorts': 'shorts', 'шортсы': 'shorts', '/shorts': 'shorts',\n    'product': 'product', 'продукт': 'product', '/product': 'product',\n    'banner': 'banner', 'баннер': 'banner', '/banner': 'banner',\n    'publish_type': 'publish_type', 'publish-type': 'publish_type', 'тип публикации': 'publish_type', '/publish_type': 'publish_type', '/publish-type': 'publish_type',\n    'menu': 'menu', 'меню': 'menu', '/menu': 'menu', '/меню': 'menu',\n    'instruction': 'instruction', 'инструкция': 'instruction', 'инструкции': 'instruction', '/instruction': 'instruction', '/инструкция': 'instruction',\n    'url2video': 'url2video', 'видео из ссылки': 'url2video', '/url2video': 'url2video',\n    'gen_url2video': 'url2video', 'gen_shorts': 'shorts',\n    'avatar_video': 'avatar_video', 'видео с аватаром': 'avatar_video', 'аватар видео': 'avatar_video', 'avv': 'avatar_video', 'gen_avatar_video': 'avatar_video',\n    'text_post': 'text_post', 'текстовый пост': 'text_post', '/text_post': 'text_post', '/текстовый пост': 'text_post',\n    'durc': 'durc',\n    'add_operator': 'add_operator', 'добавить оператора': 'add_operator', '/add_operator': 'add_operator',\n    'remove_operator': 'remove_operator', 'удалить оператора': 'remove_operator', '/remove_operator': 'remove_operator', '/удалить оператора': 'remove_operator',\n    'operators': 'operators', 'операторы': 'operators', '/operators': 'operators',\n    'profile': 'profile', 'профиль': 'profile', '/profile': 'profile', '/профиль': 'profile',\n    'profiles': 'profiles', 'профили': 'profiles', '/profiles': 'profiles', '/профили': 'profiles',\n    'questions': 'questions', 'вопросы': 'questions', '/questions': 'questions', '/вопросы': 'questions',\n  };\n  const words = t.split(/\\s+/);\n  let command = 'unknown';\n  const args = { url: null, id: null, value: null, platform: null, handle: null, section: null, action: null };\n  if (t.startsWith('onboard ') || t === 'onboard' || t.startsWith('/onboard')) { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('онбординг ') || t === 'онбординг') { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('client ') || t.startsWith('клиент ') || t.startsWith('/client ')) { command = 'client'; args.id = words[1] || null; }\n  else if (t.startsWith('добавить оператора ') || t.startsWith('/add_operator ') || t.startsWith('add_operator ')) { command = 'add_operator'; const off = t.startsWith('добавить оператора ') ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('удалить оператора ') || t.startsWith('/remove_operator ') || t.startsWith('/удалить оператора ')) { command = 'remove_operator'; const off = (t.startsWith('удалить оператора ') || t.startsWith('/удалить оператора ')) ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('creator ') || t.startsWith('автор ') || t.startsWith('/creator ')) { command = 'creator'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('creator_content ') || t.startsWith('creator-content ') || t.startsWith('контент автора ') || t.startsWith('/creator_content ') || t.startsWith('/creator-content ')) { command = 'creator_content'; const off = t.startsWith('контент автора ') ? 2 : 1; args.platform = words[off] || null; args.handle = words[off + 1] || null; }\n  else if (t.startsWith('audience ') || t.startsWith('аудитория ') || t.startsWith('/audience ')) { command = 'audience'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('поиск авторов ')) { command = 'creators'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('загрузить аватар ')) { command = 'upload_avatar'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('тип публикации ')) { command = 'publish_type'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('menu_')) { command = 'menu'; args.section = t.slice(5) || null; }\n  else if (t.startsWith('dur_')) { command = 'dur'; args.value = t.slice(4) || null; }\n  else if (t.startsWith('durc_')) { command = 'durc'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('hint_')) { command = 'hint'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('видео из ссылки ')) { command = 'url2video'; args.url = words.slice(3).join(' ') || null; }\n  else if (t === 'вопросы' || t === '/вопросы' || t === 'questions' || t === '/questions') { command = 'questions'; args.action = 'list'; }\n  else if (t.startsWith('вопросы сброс') || t.startsWith('/вопросы сброс')) { command = 'questions'; args.action = 'reset'; }\n  else if (t.startsWith('вопрос ') || t.startsWith('/вопросы ')) { command = 'questions'; args.action = 'set'; const N = /^\\d+$/.test(words[1] || '') ? parseInt(words[1], 10) : null; args.n = N; args.value = words.slice(2).join(' ') || null; }\n  else if (t === 'авто' || t === '/авто' || t === 'auto' || t === '/auto') { command = 'auto'; args.action = 'toggle'; }\n  else if (t.startsWith('авто вкл') || t.startsWith('/авто вкл') || t.startsWith('auto on') || t.startsWith('/auto on')) { command = 'auto'; args.action = 'on'; }\n  else if (t.startsWith('авто выкл') || t.startsWith('/авто выкл') || t.startsWith('auto off') || t.startsWith('/auto off')) { command = 'auto'; args.action = 'off'; }\n  else if (C[t]) { command = C[t]; }\n  else if (C[words[0]]) { command = C[words[0]]; args.value = words.slice(1).join(' ') || null; }\n  if (command === 'shorts' && args.value && /^https?:\\/\\//i.test(args.value)) args.url = args.value;\n  return { command: command, args: args };\n}\n\nlet out = null;\nif (item.callback_query) {\n  const q = item.callback_query;\n  const fromId = (q.from && q.from.id) || null;\n  const chatId = (q.message && q.message.chat && q.message.chat.id) || null;\n  const msgId = (q.message && q.message.message_id) || null;\n  const data = String(q.data || '');\n  if (data.startsWith('cmd:')) {\n    const parsed = parseCommand(data.slice(4));\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: parsed.command, args: parsed.args, raw: data, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parts = data.split(':');\n    const action = parts[0] || '';\n    const entityType = parts[1] || null;\n    const entityId = parts.slice(2).join(':') || null;\n    const map = {\n      approve: { topic: 'approve_topic', script: 'approve_script', gen: 'publish_gen' },\n      edit: { topic: 'edit_topic', script: 'edit_script' },\n      reject: { topic: 'reject_topic', script: 'reject_script', gen: 'reject_gen' },\n      alt: { topic: 'alt_topic' },\n      regen: { gen: 'regen_gen' },\n      toggle: { platform: 'toggle_platform', ppm: 'toggle_ppm' },\n      publish: { gen: 'publish_gen' },\n      confirm: { publish: 'confirm_publish' },\n    };\n    let cb = 'unknown';\n    if (action === 'schedule') cb = 'schedule';\n    else if (action === 'confirm') cb = 'confirm_publish';\n    else if (action === 'publish') cb = 'publish_gen';\n    else if (action === 'tx_toggle') cb = 'tx_toggle';\n    else if (action === 'tx_publish') cb = 'tx_publish';\n    else if (action === 'ro_yes' || action === 'ro_no') cb = action;\n    else if (action === 'ppm_done') cb = 'ppm_done';\n    else if (action.startsWith('pf_')) cb = action;\n    else if (action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit') cb = action;\n    else if (action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject') cb = action;\n    else if (action === 'avv_sel') cb = 'avv_sel';\n    else if (action === 'avv_ok') cb = 'avv_ok';\n    else if (action === 'avv_again') cb = 'avv_again';\n    else if (map[action] && map[action][entityType]) cb = map[action][entityType];\n    const isRoCb = action === 'ro_yes' || action === 'ro_no';\n    const isScCb = action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit';\n    const isVdCb = action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject';\n    out = { kind: 'callback', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: null, args: {}, raw: data, callback_action: cb,\n            entity_type: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? null : entityType,\n            entity_id: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? (parts[1] || null) : entityId };\n  }\n} else if (item.message) {\n  const m = item.message;\n  const fromId = (m.from && m.from.id) || null;\n  const chatId = (m.chat && m.chat.id) || null;\n  const text = String(m.text || '').trim();\n  if (m.document) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_doc', args: { file_id: m.document.file_id || null, file_name: m.document.file_name || null, mime: m.document.mime_type || null },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.photo && m.photo.length) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_photo', args: { file_id: m.photo[m.photo.length - 1].file_id || null, file_name: 'photo_' + (m.message_id || 'x') + '.jpg' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.video) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_video', args: { file_id: m.video.file_id || null, file_name: m.video.file_name || 'video.mp4' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parsed = parseCommand(text);\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: parsed.command, args: parsed.args, raw: text, callback_action: null, entity_type: null, entity_id: null };\n  }\n} else {\n  out = { kind: 'unknown', tg_user_id: null, chat_id: null, message_id: null, query_id: null, command: 'unknown', args: {}, raw: '', callback_action: null, entity_type: null, entity_id: null };\n}\nreturn [{ json: out }];\n"
     },
     "id": "8a103f8b-937b-4265-989e-b51bcad58551",
     "name": "Parser",
@@ -3985,6 +3985,46 @@
           {
            "leftValue": "={{ $json.callback_action }}",
            "rightValue": "vd_reject",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.callback_action }}",
+           "rightValue": "avv_ok",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.callback_action }}",
+           "rightValue": "avv_again",
            "operator": {
             "type": "string",
             "operation": "equals"
@@ -29144,7 +29184,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('AVV HTTP avatars').first().json.rows || [];\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\$1');\nconst STOCKS = [\n  { id: '009f502d-3649-4624-a438-80b126f1fa30', name: 'Camila', img: 'https://cdn.creatify.ai/creator/009f502d-3649-4624-a438-80b126f1fa30/p_rs__0917.png' },\n  { id: '018a97ef-4fba-4a34-8097-5e60e6e36ffe', name: 'Chloé', img: 'https://cdn.creatify.ai/creator/018a97ef-4fba-4a34-8097-5e60e6e36ffe/p.png' },\n  { id: '285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d', name: 'Bianca', img: 'https://cdn.creatify.ai/creator/285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d/p.png' },\n  { id: '745fef08-8eee-4e3b-873d-c39b9791c4cd', name: 'Sylvia', img: 'https://cdn.creatify.ai/creator/745fef08-8eee-4e3b-873d-c39b9791c4cd/p_rs__0917.png' },\n  { id: '74686a1c-040c-4783-a2e2-a54367fbf998', name: 'Olivia', img: 'https://cdn.creatify.ai/creator/74686a1c-040c-4783-a2e2-a54367fbf998/p.png' },\n  { id: 'e40f0f2f-c280-4a35-af40-54ffaee3c67b', name: 'Priya', img: 'https://cdn.creatify.ai/creator/e40f0f2f-c280-4a35-af40-54ffaee3c67b/p_rs__0917.png' },\n  { id: 'fb40e95f-c907-45f9-a0ef-2d2ab981aa00', name: 'Carmen', img: 'https://cdn.creatify.ai/creator/fb40e95f-c907-45f9-a0ef-2d2ab981aa00/p_rs__0917.png' },\n  { id: '6fdf53cb-ac28-4487-96d2-3eae073ece26', name: 'Lily', img: 'https://cdn.creatify.ai/creator/6fdf53cb-ac28-4487-96d2-3eae073ece26/p.png' },\n  { id: '0251876f-0da4-4c61-8320-8955d8be1f98', name: 'Diego', img: 'https://cdn.creatify.ai/creator/0251876f-0da4-4c61-8320-8955d8be1f98/p.png' },\n  { id: '0587591d-54cc-4d8d-867d-cc82de168f61', name: 'Sam', img: 'https://cdn.creatify.ai/creator/0587591d-54cc-4d8d-867d-cc82de168f61/p.png' },\n  { id: '5a711072-4cef-49de-b82c-282e4f1e5a7d', name: 'Leo', img: 'https://cdn.creatify.ai/media_file/2161659/8f0b29818f35c355a5f0bb39129d84d0.png' },\n  { id: '85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9', name: 'Quentin', img: 'https://cdn.creatify.ai/creator/85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9/p_rs__0917.png' },\n  { id: 'bf384605-a98d-4bad-828a-f3fd8825f5f6', name: 'Santiago', img: 'https://cdn.creatify.ai/creator/bf384605-a98d-4bad-828a-f3fd8825f5f6/p.png' },\n  { id: 'f8b1e966-f8df-4441-b426-66c0e61fb6cf', name: 'Kaito', img: 'https://cdn.creatify.ai/creator/f8b1e966-f8df-4441-b426-66c0e61fb6cf/p_rs__0917.png' },\n  { id: '7b9482cd-7717-4202-9fc0-69b9c635b785', name: 'Aryan', img: 'https://cdn.creatify.ai/creator/7b9482cd-7717-4202-9fc0-69b9c635b785/p.png' }\n];\nconst btnsOwn = rows.map(r => ({ text: String(r.creator_name || r.persona_id || 'Аватар').slice(0, 30), additionalFields: { callback_data: '={{ \\'avv_sel:' + String(r.persona_id) + '\\' }}' } }));\nconst btnsStock = STOCKS.map(s => ({ text: s.name, additionalFields: { callback_data: '={{ \\'avv_sel:' + s.id + '\\' }}' } }));\nconst all = btnsOwn.concat(btnsStock);\nconst photos = STOCKS.map(s => s.img);\nconst header = btnsOwn.length ? 'Свои — первыми кнопками, стоковые creatify — ниже (фото выше).' : 'Стоковые аватары creatify (фото выше).';\nconst text = '🎭 Выбери аватара для видео: ' + esc(header);\nreturn [{ json: { mode: 'list', chat_id: p.chat_id, text: text, rows: [{ row: { buttons: all } }], photos_1: photos.slice(0, 8), photos_2: photos.slice(8) } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('AVV HTTP avatars').first().json.rows || [];\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\$1');\nconst STOCKS = [\n  { id: '009f502d-3649-4624-a438-80b126f1fa30', name: 'Camila', img: 'https://cdn.creatify.ai/creator/009f502d-3649-4624-a438-80b126f1fa30/p_rs__0917.png' },\n  { id: '018a97ef-4fba-4a34-8097-5e60e6e36ffe', name: 'Chloé', img: 'https://cdn.creatify.ai/creator/018a97ef-4fba-4a34-8097-5e60e6e36ffe/p.png' },\n  { id: '285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d', name: 'Bianca', img: 'https://cdn.creatify.ai/creator/285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d/p.png' },\n  { id: '745fef08-8eee-4e3b-873d-c39b9791c4cd', name: 'Sylvia', img: 'https://cdn.creatify.ai/creator/745fef08-8eee-4e3b-873d-c39b9791c4cd/p_rs__0917.png' },\n  { id: '74686a1c-040c-4783-a2e2-a54367fbf998', name: 'Olivia', img: 'https://cdn.creatify.ai/creator/74686a1c-040c-4783-a2e2-a54367fbf998/p.png' },\n  { id: 'e40f0f2f-c280-4a35-af40-54ffaee3c67b', name: 'Priya', img: 'https://cdn.creatify.ai/creator/e40f0f2f-c280-4a35-af40-54ffaee3c67b/p_rs__0917.png' },\n  { id: 'fb40e95f-c907-45f9-a0ef-2d2ab981aa00', name: 'Carmen', img: 'https://cdn.creatify.ai/creator/fb40e95f-c907-45f9-a0ef-2d2ab981aa00/p_rs__0917.png' },\n  { id: '6fdf53cb-ac28-4487-96d2-3eae073ece26', name: 'Lily', img: 'https://cdn.creatify.ai/creator/6fdf53cb-ac28-4487-96d2-3eae073ece26/p.png' },\n  { id: '0251876f-0da4-4c61-8320-8955d8be1f98', name: 'Diego', img: 'https://cdn.creatify.ai/creator/0251876f-0da4-4c61-8320-8955d8be1f98/p.png' },\n  { id: '0587591d-54cc-4d8d-867d-cc82de168f61', name: 'Sam', img: 'https://cdn.creatify.ai/creator/0587591d-54cc-4d8d-867d-cc82de168f61/p.png' },\n  { id: '5a711072-4cef-49de-b82c-282e4f1e5a7d', name: 'Leo', img: 'https://cdn.creatify.ai/media_file/2161659/8f0b29818f35c355a5f0bb39129d84d0.png' },\n  { id: '85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9', name: 'Quentin', img: 'https://cdn.creatify.ai/creator/85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9/p_rs__0917.png' },\n  { id: 'bf384605-a98d-4bad-828a-f3fd8825f5f6', name: 'Santiago', img: 'https://cdn.creatify.ai/creator/bf384605-a98d-4bad-828a-f3fd8825f5f6/p.png' },\n  { id: 'f8b1e966-f8df-4441-b426-66c0e61fb6cf', name: 'Kaito', img: 'https://cdn.creatify.ai/creator/f8b1e966-f8df-4441-b426-66c0e61fb6cf/p_rs__0917.png' },\n  { id: '7b9482cd-7717-4202-9fc0-69b9c635b785', name: 'Aryan', img: 'https://cdn.creatify.ai/creator/7b9482cd-7717-4202-9fc0-69b9c635b785/p.png' }\n];\nconst btnsOwn = rows.map(r => ({ text: String(r.creator_name || r.persona_id || 'Аватар').slice(0, 30), additionalFields: { callback_data: '={{ \\'avv_sel:' + String(r.persona_id) + '\\' }}' } }));\nconst btnsStock = STOCKS.map(s => ({ text: s.name, additionalFields: { callback_data: '={{ \\'avv_sel:' + s.id + '\\' }}' } }));\nconst all = btnsOwn.concat(btnsStock);\nconst photos = STOCKS.map(s => s.img);\nconst header = btnsOwn.length ? 'Свои — первыми кнопками, стоковые creatify — ниже (фото выше).' : 'Стоковые аватары creatify (фото выше).';\nconst text = '🎭 Выбери аватара для видео: ' + esc(header);\nreturn [{ json: { mode: 'list', chat_id: p.chat_id, text: text, rows: [{ row: { buttons: all } }], photos_1: [], photos_2: [] } }];\n"
     },
     "id": "b1a2c3d4-0000-4000-8000-000000000001",
     "name": "AVV Build preview",
@@ -29157,63 +29197,40 @@
    },
    {
     "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst avatarId = String(p.entity_type || '').trim();\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\$1');\nconst STOCKS = [\n  { id: '009f502d-3649-4624-a438-80b126f1fa30', name: 'Camila', img: 'https://cdn.creatify.ai/creator/009f502d-3649-4624-a438-80b126f1fa30/p_rs__0917.png' },\n  { id: '018a97ef-4fba-4a34-8097-5e60e6e36ffe', name: 'Chloé', img: 'https://cdn.creatify.ai/creator/018a97ef-4fba-4a34-8097-5e60e6e36ffe/p.png' },\n  { id: '285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d', name: 'Bianca', img: 'https://cdn.creatify.ai/creator/285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d/p.png' },\n  { id: '745fef08-8eee-4e3b-873d-c39b9791c4cd', name: 'Sylvia', img: 'https://cdn.creatify.ai/creator/745fef08-8eee-4e3b-873d-c39b9791c4cd/p_rs__0917.png' },\n  { id: '74686a1c-040c-4783-a2e2-a54367fbf998', name: 'Olivia', img: 'https://cdn.creatify.ai/creator/74686a1c-040c-4783-a2e2-a54367fbf998/p.png' },\n  { id: 'e40f0f2f-c280-4a35-af40-54ffaee3c67b', name: 'Priya', img: 'https://cdn.creatify.ai/creator/e40f0f2f-c280-4a35-af40-54ffaee3c67b/p_rs__0917.png' },\n  { id: 'fb40e95f-c907-45f9-a0ef-2d2ab981aa00', name: 'Carmen', img: 'https://cdn.creatify.ai/creator/fb40e95f-c907-45f9-a0ef-2d2ab981aa00/p_rs__0917.png' },\n  { id: '6fdf53cb-ac28-4487-96d2-3eae073ece26', name: 'Lily', img: 'https://cdn.creatify.ai/creator/6fdf53cb-ac28-4487-96d2-3eae073ece26/p.png' },\n  { id: '0251876f-0da4-4c61-8320-8955d8be1f98', name: 'Diego', img: 'https://cdn.creatify.ai/creator/0251876f-0da4-4c61-8320-8955d8be1f98/p.png' },\n  { id: '0587591d-54cc-4d8d-867d-cc82de168f61', name: 'Sam', img: 'https://cdn.creatify.ai/creator/0587591d-54cc-4d8d-867d-cc82de168f61/p.png' },\n  { id: '5a711072-4cef-49de-b82c-282e4f1e5a7d', name: 'Leo', img: 'https://cdn.creatify.ai/media_file/2161659/8f0b29818f35c355a5f0bb39129d84d0.png' },\n  { id: '85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9', name: 'Quentin', img: 'https://cdn.creatify.ai/creator/85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9/p_rs__0917.png' },\n  { id: 'bf384605-a98d-4bad-828a-f3fd8825f5f6', name: 'Santiago', img: 'https://cdn.creatify.ai/creator/bf384605-a98d-4bad-828a-f3fd8825f5f6/p.png' },\n  { id: 'f8b1e966-f8df-4441-b426-66c0e61fb6cf', name: 'Kaito', img: 'https://cdn.creatify.ai/creator/f8b1e966-f8df-4441-b426-66c0e61fb6cf/p_rs__0917.png' },\n  { id: '7b9482cd-7717-4202-9fc0-69b9c635b785', name: 'Aryan', img: 'https://cdn.creatify.ai/creator/7b9482cd-7717-4202-9fc0-69b9c635b785/p.png' }\n];\nconst stock = STOCKS.find(s => s.id === avatarId);\nconst ownRows = $('AVV HTTP avatars').first().json.rows || [];\nconst own = ownRows.find(r => String(r.persona_id) === avatarId);\nconst name = stock ? stock.name : (own ? String(own.creator_name || 'Аватар') : '');\nconst okCb = '={{ \\'avv_ok:' + avatarId + '\\' }}';\nconst againCb = '={{ \\'avv_again\\' }}';\nconst rows = [\n  { row: { buttons: [\n    { text: '✅ Этот', additionalFields: { callback_data: okCb } },\n    { text: '🔁 Другой', additionalFields: { callback_data: againCb } }\n  ] } },\n  { row: { buttons: [\n    { text: '🧹 Отмена', additionalFields: { callback_data: '={{ \\'cmd:cancel\\' }}' } },\n    { text: '📋 Меню', additionalFields: { callback_data: '={{ \\'cmd:menu\\' }}' } }\n  ] } }\n];\nif (stock) {\n  return [{ json: { mode: 'photo', chat_id: p.chat_id, photo: stock.img, text: esc('🎭 Аватар: ' + name + '. Этот подходит?'), rows: rows } }];\n}\nreturn [{ json: { mode: 'text', chat_id: p.chat_id, text: esc('🎭 Свой аватар: ' + (name || avatarId) + '. Продолжить с этим аватаром?'), rows: rows } }];\n"
+    },
+    "id": "c1a2b3c4-0000-4000-8000-000000000001",
+    "name": "AVV Preview sel",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     4620,
+     380
+    ]
+   },
+   {
+    "parameters": {
      "resource": "message",
-     "operation": "sendMediaGroup",
+     "operation": "sendPhoto",
      "chatId": "={{ $('Parser').first().json.chat_id }}",
-     "media": {
-      "media": [
-       {
-        "type": "photo",
-        "media": "={{ $json.photos_1[0] }}",
-        "additionalFields": {}
-       },
-       {
-        "type": "photo",
-        "media": "={{ $json.photos_1[1] }}",
-        "additionalFields": {}
-       },
-       {
-        "type": "photo",
-        "media": "={{ $json.photos_1[2] }}",
-        "additionalFields": {}
-       },
-       {
-        "type": "photo",
-        "media": "={{ $json.photos_1[3] }}",
-        "additionalFields": {}
-       },
-       {
-        "type": "photo",
-        "media": "={{ $json.photos_1[4] }}",
-        "additionalFields": {}
-       },
-       {
-        "type": "photo",
-        "media": "={{ $json.photos_1[5] }}",
-        "additionalFields": {}
-       },
-       {
-        "type": "photo",
-        "media": "={{ $json.photos_1[6] }}",
-        "additionalFields": {}
-       },
-       {
-        "type": "photo",
-        "media": "={{ $json.photos_1[7] }}",
-        "additionalFields": {}
-       }
-      ]
-     },
+     "file": "={{ $json.photo }}",
      "additionalFields": {
-      "disable_notification": false
+      "caption": "={{ $json.text }}",
+      "appendAttribution": false
+     },
+     "replyMarkup": "inlineKeyboard",
+     "inlineKeyboard": {
+      "rows": "={{ $json.rows }}"
      }
     },
-    "id": "b1a2c3d4-0000-4000-8000-000000000002",
-    "name": "TG avv preview1",
+    "id": "c1a2b3c4-0000-4000-8000-000000000002",
+    "name": "TG avv preview photo",
     "type": "n8n-nodes-base.telegram",
     "typeVersion": 1.2,
     "position": [
-     4540,
+     4680,
      380
     ],
     "credentials": {
@@ -29226,58 +29243,24 @@
    {
     "parameters": {
      "resource": "message",
-     "operation": "sendMediaGroup",
+     "operation": "sendMessage",
      "chatId": "={{ $('Parser').first().json.chat_id }}",
-     "media": {
-      "media": [
-       {
-        "type": "photo",
-        "media": "={{ $json.photos_2[0] }}",
-        "additionalFields": {}
-       },
-       {
-        "type": "photo",
-        "media": "={{ $json.photos_2[1] }}",
-        "additionalFields": {}
-       },
-       {
-        "type": "photo",
-        "media": "={{ $json.photos_2[2] }}",
-        "additionalFields": {}
-       },
-       {
-        "type": "photo",
-        "media": "={{ $json.photos_2[3] }}",
-        "additionalFields": {}
-       },
-       {
-        "type": "photo",
-        "media": "={{ $json.photos_2[4] }}",
-        "additionalFields": {}
-       },
-       {
-        "type": "photo",
-        "media": "={{ $json.photos_2[5] }}",
-        "additionalFields": {}
-       },
-       {
-        "type": "photo",
-        "media": "={{ $json.photos_2[6] }}",
-        "additionalFields": {}
-       }
-      ]
-     },
+     "text": "={{ $json.text }}",
      "additionalFields": {
-      "disable_notification": false
+      "appendAttribution": false
+     },
+     "replyMarkup": "inlineKeyboard",
+     "inlineKeyboard": {
+      "rows": "={{ $json.rows }}"
      }
     },
-    "id": "b1a2c3d4-0000-4000-8000-000000000003",
-    "name": "TG avv preview2",
+    "id": "c1a2b3c4-0000-4000-8000-000000000003",
+    "name": "TG avv preview text",
     "type": "n8n-nodes-base.telegram",
     "typeVersion": 1.2,
     "position": [
-     4540,
-     460
+     4740,
+     380
     ],
     "credentials": {
      "telegramApi": {
@@ -29285,6 +29268,66 @@
       "name": "telegram"
      }
     }
+   },
+   {
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.mode }}",
+           "rightValue": "photo",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.mode }}",
+           "rightValue": "text",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ],
+      "options": {
+       "fallbackOutput": "extra"
+      }
+     }
+    },
+    "id": "c1a2b3c4-0000-4000-8000-000000000004",
+    "name": "Switch avv preview",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     4620,
+     460
+    ]
    }
   ],
   "connections": {
@@ -30648,7 +30691,7 @@
      ],
      [
       {
-       "node": "AVV Save avatar",
+       "node": "AVV Preview sel",
        "type": "main",
        "index": 0
       }
@@ -30670,6 +30713,20 @@
      [
       {
        "node": "VD RJ answer",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "AVV Save avatar",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "AVV Ask avatar",
        "type": "main",
        "index": 0
       }
@@ -39963,26 +40020,40 @@
     "main": [
      [
       {
-       "node": "TG avv preview1",
+       "node": "AVV Ask avatar",
        "type": "main",
        "index": 0
       }
      ]
     ]
    },
-   "TG avv preview1": {
+   "AVV Preview sel": {
     "main": [
      [
       {
-       "node": "TG avv preview2",
+       "node": "Switch avv preview",
        "type": "main",
        "index": 0
       }
      ]
     ]
    },
-   "TG avv preview2": {
+   "Switch avv preview": {
     "main": [
+     [
+      {
+       "node": "TG avv preview photo",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "TG avv preview text",
+       "type": "main",
+       "index": 0
+      }
+     ],
      [
       {
        "node": "AVV Ask avatar",
@@ -39991,6 +40062,12 @@
       }
      ]
     ]
+   },
+   "TG avv preview photo": {
+    "main": []
+   },
+   "TG avv preview text": {
+    "main": []
    }
   },
   "settings": {
