@@ -1,1 +1,662 @@
-[{"updatedAt": "2026-08-14T06:13:17.590Z", "createdAt": "2026-08-13T12:50:07.084Z", "id": "20000000-0000-4000-8000-000000000023", "name": "wf-creatify-shorts", "description": null, "active": true, "isArchived": false, "nodes": [{"parameters": {"httpMethod": "POST", "path": "factory/shorts", "responseMode": "responseNode", "options": {}}, "id": "e88c8ab6-59c7-4581-8cbc-7f3757f68869", "name": "Webhook", "type": "n8n-nodes-base.webhook", "typeVersion": 2.1, "position": [0, 0], "webhookId": "cr5-shorts"}, {"parameters": {"mode": "runOnceForAllItems", "language": "javaScript", "jsCode": "const body = ($json.body && $json.body) || $json;\nconst src = (body.source_video_url !== undefined && body.source_video_url !== null && String(body.source_video_url).trim() !== '')\n  ? String(body.source_video_url).trim() : null;\nif (src) {\n  return [{ json: { ok: false, error: 'source_video_url не поддерживается — используй URL→видео сценарий' } }];\n}\nconst script = (body.script !== undefined && body.script !== null && String(body.script).trim() !== '')\n  ? String(body.script).trim() : '';\nconst topic = (body.topic !== undefined && body.topic !== null && String(body.topic).trim() !== '')\n  ? String(body.topic).trim() : '';\nlet maxCount = (body.max_count !== undefined && body.max_count !== null && body.max_count !== '') ? Number(body.max_count) : 5;\nif (!Number.isFinite(maxCount) || maxCount < 1) maxCount = 1;\nmaxCount = Math.min(10, Math.floor(maxCount));\nconst language = (body.language !== undefined && body.language !== null && String(body.language).trim() !== '')\n  ? String(body.language).trim() : 'ru';\nconst aspectRatio = (body.aspect_ratio !== undefined && body.aspect_ratio !== null && String(body.aspect_ratio).trim() !== '')\n  ? String(body.aspect_ratio).trim() : '9x16';\nconst style = (body.style !== undefined && body.style !== null && String(body.style).trim() !== '')\n  ? String(body.style).trim() : 'Cinematic';\nconst webhookUrl = (body.webhook_url !== undefined && body.webhook_url !== null && String(body.webhook_url).trim() !== '')\n  ? String(body.webhook_url).trim() : null;\nif (script === '' && topic === '') {\n  return [{ json: { ok: false, error: 'script или topic обязателен' } }];\n}\nreturn [{\n  json: { ok: true, script: script, topic: topic, max_count: maxCount,\n          language: language, aspect_ratio: aspectRatio, style: style, webhook_url: webhookUrl }\n}];"}, "id": "b0c18f75-14bb-429f-a3ab-2b867b0b33e9", "name": "Code validate", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [200, 0]}, {"parameters": {"mode": "rules", "rules": {"values": [{"conditions": {"options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict"}, "conditions": [{"leftValue": "={{ $json.ok }}", "rightValue": true, "operator": {"type": "boolean", "operation": "equals"}}], "combinator": "and"}}]}, "options": {"fallbackOutput": "extra"}}, "id": "5f4fe66e-c3a3-4d44-95a0-df6cadd0446f", "name": "Switch valid", "type": "n8n-nodes-base.switch", "typeVersion": 3.4, "position": [420, 0]}, {"parameters": {"method": "GET", "url": "https://api.creatify.ai/api/remaining_credits/", "authentication": "none", "sendHeaders": true, "specifyHeaders": "keypair", "headerParameters": {"parameters": [{"name": "X-API-ID", "value": "={{ $env.CREATIFY_API_ID }}"}, {"name": "X-API-KEY", "value": "={{ $env.CREATIFY_API_KEY }}"}]}, "options": {"timeout": 15000}}, "id": "028d5241-ee8a-48e6-a80f-09b78ac41e4d", "name": "HTTP credits", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.5, "position": [640, -120]}, {"parameters": {"mode": "runOnceForAllItems", "language": "javaScript", "jsCode": "const r = $json;\nconst balance = (r.remaining_credits !== undefined && r.remaining_credits !== null)\n  ? Number(r.remaining_credits) : 0;\nreturn [{ json: { ok: balance >= 30, balance: balance } }];"}, "id": "646aea28-52b1-400a-8579-094a25e52900", "name": "Code balance", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [860, -120]}, {"parameters": {"mode": "rules", "rules": {"values": [{"conditions": {"options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict"}, "conditions": [{"leftValue": "={{ $json.ok }}", "rightValue": true, "operator": {"type": "boolean", "operation": "equals"}}], "combinator": "and"}}]}, "options": {"fallbackOutput": "extra"}}, "id": "e5cf37c8-af79-4819-95c4-42935e288cb1", "name": "Switch balance", "type": "n8n-nodes-base.switch", "typeVersion": 3.4, "position": [1080, -120]}, {"parameters": {"mode": "runOnceForAllItems", "language": "javaScript", "jsCode": "const v = $('Code validate').first().json;\nlet script = (v.script !== undefined && v.script !== null && String(v.script).trim() !== '')\n  ? String(v.script).trim() : '';\ntry {\n  const e = $('Exp Parse').first().json;\n  if (e && e.ok === true && typeof e.script === 'string' && e.script.trim() !== '') {\n    script = e.script.trim();\n  }\n} catch (err) { /* прямая ветка — Exp Parse не выполнялась */ }\nconst p = { script: script, aspect_ratio: v.aspect_ratio, style: v.style };\nif (v.webhook_url) { p.webhook_url = v.webhook_url; }\nreturn [{ json: { payload: p } }];"}, "id": "ff73b0db-5079-49b9-9303-d6b63d6b6b54", "name": "Code Build payload", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [1300, -240]}, {"parameters": {"method": "POST", "url": "https://api.creatify.ai/api/ai_shorts/", "authentication": "none", "sendHeaders": true, "specifyHeaders": "keypair", "headerParameters": {"parameters": [{"name": "X-API-ID", "value": "={{ $env.CREATIFY_API_ID }}"}, {"name": "X-API-KEY", "value": "={{ $env.CREATIFY_API_KEY }}"}]}, "options": {"timeout": 120000, "retryOnFail": true, "maxTries": 3, "waitBetweenTries": 5000}, "sendBody": true, "specifyBody": "json", "contentType": "json", "jsonBody": "={{ $json.payload }}"}, "id": "28621532-6e8b-4089-99c2-0191afd12cac", "name": "HTTP ai_shorts", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.5, "position": [1520, -240]}, {"parameters": {"mode": "runOnceForAllItems", "language": "javaScript", "jsCode": "const r = $json;\nconst item = {\n  id: r.id || null,\n  status: r.status || null,\n  video_output: r.video_output || null,\n  preview: r.preview || null,\n  editor_url: r.editor_url || null,\n  progress: (r.progress !== undefined && r.progress !== null) ? r.progress : null,\n  credits_used: r.credits_used || 0,\n  duration: r.duration || null,\n  failed_reason: r.failed_reason || null,\n  created_at: r.created_at || null,\n  updated_at: r.updated_at || null\n};\nreturn [{\n  json: { ok: true, shorts_id: r.id || null, status: r.status || null,\n          video_output: r.video_output || null, items: [item], raw: r }\n}];"}, "id": "d34acada-172e-4eac-9814-772203274a87", "name": "Code Normalize", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [1740, -240]}, {"parameters": {"respondWith": "json", "responseBody": "={{ $('Code Normalize').first().json }}", "options": {}}, "id": "dc8979f6-a984-47b1-865f-29a19507774a", "name": "Respond ok", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.5, "position": [1960, -240]}, {"parameters": {"respondWith": "json", "responseBody": "={{ {ok: false, error: $json.error} }}", "options": {}}, "id": "38b67695-dab0-45ac-8ee3-ff594a934ce1", "name": "Respond error", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.5, "position": [640, 220]}, {"parameters": {"respondWith": "json", "responseBody": "={{ {ok: false, error: 'low_credits', balance: $('Code balance').first().json.balance} }}", "options": {}}, "id": "f3c3355e-2fa3-437f-9346-dad8f0ed5642", "name": "Respond low credits", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.5, "position": [1300, 60]}, {"parameters": {"mode": "rules", "rules": {"values": [{"conditions": {"options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict"}, "conditions": [{"leftValue": "={{ String($('Code validate').first().json.script || '') }}", "rightValue": "", "operator": {"type": "string", "operation": "equals"}}, {"leftValue": "={{ String($('Code validate').first().json.topic || '') }}", "rightValue": "", "operator": {"type": "string", "operation": "notEquals"}}], "combinator": "and"}}]}, "options": {"fallbackOutput": "extra"}}, "id": "cd39e3dc-5f61-4277-8481-3415bd3fd960", "name": "Switch Exp Need", "type": "n8n-nodes-base.switch", "typeVersion": 3.4, "position": [1300, -40]}, {"parameters": {"mode": "runOnceForAllItems", "language": "javaScript", "jsCode": "const v = $('Code validate').first().json;\nconst topic = (v.topic !== undefined && v.topic !== null) ? String(v.topic).trim() : '';\nconst prompt = 'Разверни тему «' + topic + '» в полный сценарий вертикального шортса (9:16) на 30–60 секунд чтения (200–400 слов), экспертный тон. Структура: хук (2 строки), основная часть, вывод с призывом к действию. Верни ТОЛЬКО текст сценария без пояснений, обернув его в теги <SCRIPT> и </SCRIPT>.';\nreturn [{ json: { prompt: prompt } }];"}, "id": "d17aa6d2-0d22-453a-98de-1f08a4d15cf2", "name": "Exp Build prompt", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [1300, 140]}, {"parameters": {"method": "POST", "url": "http://host.docker.internal:8642/ask", "authentication": "none", "sendHeaders": true, "specifyHeaders": "keypair", "headerParameters": {"parameters": [{"name": "X-BRIDGE-TOKEN", "value": "={{ $env.HERMES_BRIDGE_TOKEN }}"}]}, "options": {"timeout": 300000, "response": {"response": {"neverError": true}}}, "sendBody": true, "specifyBody": "json", "contentType": "json", "jsonBody": "={{ {skill: 'scriptwriter', prompt: $('Exp Build prompt').first().json.prompt} }}"}, "id": "8e66d658-cd27-48cb-be75-182196888820", "name": "Exp HTTP bridge", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.5, "position": [1520, 140]}, {"parameters": {"mode": "runOnceForAllItems", "language": "javaScript", "jsCode": "const r = $json;\nconst answer = (r && r.answer !== undefined && r.answer !== null) ? String(r.answer) : '';\nlet script = '';\nconst marker = answer.match(/<SCRIPT>([\\s\\S]*?)<\\/SCRIPT>/i);\nif (marker && marker[1].trim() !== '') {\n  script = marker[1].trim();\n}\nif (script === '') {\n  const open = answer.indexOf('{');\n  if (open !== -1) {\n    let depth = 0;\n    let end = -1;\n    for (let i = open; i < answer.length; i++) {\n      if (answer[i] === '{') { depth++; }\n      else if (answer[i] === '}') { depth--; if (depth === 0) { end = i; break; } }\n    }\n    if (end !== -1) {\n      try {\n        const parsed = JSON.parse(answer.slice(open, end + 1));\n        const cand = (parsed && typeof parsed === 'object')\n          ? (parsed.script || parsed.text || parsed.content || parsed.answer) : null;\n        if (cand !== null && cand !== undefined && String(cand).trim() !== '') {\n          script = String(cand).trim();\n        }\n      } catch (e) { /* не JSON — пропускаем */ }\n    }\n  }\n}\nif (script === '') { script = answer.trim(); }\nif (script === '') {\n  return [{ json: { ok: false, error: 'не удалось сгенерировать сценарий' } }];\n}\nreturn [{ json: { ok: true, script: script } }];"}, "id": "2e836e41-0164-4b30-afde-ff9380eb87ac", "name": "Exp Parse", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [1740, 140]}, {"parameters": {"mode": "rules", "rules": {"values": [{"conditions": {"options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict"}, "conditions": [{"leftValue": "={{ $json.ok }}", "rightValue": true, "operator": {"type": "boolean", "operation": "equals"}}], "combinator": "and"}}]}, "options": {"fallbackOutput": "extra"}}, "id": "8da60224-5722-40fb-8ea6-cf319a026994", "name": "Switch Exp ok", "type": "n8n-nodes-base.switch", "typeVersion": 3.4, "position": [1960, 140]}], "connections": {"Webhook": {"main": [[{"node": "Code validate", "type": "main", "index": 0}]]}, "Code validate": {"main": [[{"node": "Switch valid", "type": "main", "index": 0}]]}, "Switch valid": {"main": [[{"node": "HTTP credits", "type": "main", "index": 0}], [{"node": "Respond error", "type": "main", "index": 0}]]}, "HTTP credits": {"main": [[{"node": "Code balance", "type": "main", "index": 0}]]}, "Code balance": {"main": [[{"node": "Switch balance", "type": "main", "index": 0}]]}, "Switch balance": {"main": [[{"node": "Switch Exp Need", "type": "main", "index": 0}], [{"node": "Respond low credits", "type": "main", "index": 0}]]}, "Code Build payload": {"main": [[{"node": "HTTP ai_shorts", "type": "main", "index": 0}]]}, "HTTP ai_shorts": {"main": [[{"node": "Code Normalize", "type": "main", "index": 0}]]}, "Code Normalize": {"main": [[{"node": "Respond ok", "type": "main", "index": 0}]]}, "Switch Exp Need": {"main": [[{"node": "Exp Build prompt", "type": "main", "index": 0}], [{"node": "Code Build payload", "type": "main", "index": 0}]]}, "Exp Build prompt": {"main": [[{"node": "Exp HTTP bridge", "type": "main", "index": 0}]]}, "Exp HTTP bridge": {"main": [[{"node": "Exp Parse", "type": "main", "index": 0}]]}, "Exp Parse": {"main": [[{"node": "Switch Exp ok", "type": "main", "index": 0}]]}, "Switch Exp ok": {"main": [[{"node": "Code Build payload", "type": "main", "index": 0}], [{"node": "Respond error", "type": "main", "index": 0}]]}}, "settings": {"executionOrder": "v1"}, "staticData": null, "meta": {}, "nodeGroups": [], "pinData": {}, "versionId": "7d3e183d-45ae-4a52-9531-a3554d80f690", "activeVersionId": "7d3e183d-45ae-4a52-9531-a3554d80f690", "versionCounter": 3, "triggerCount": 1, "sourceWorkflowId": null, "tags": [], "shared": [{"updatedAt": "2026-08-13T12:50:07.089Z", "createdAt": "2026-08-13T12:50:07.089Z", "role": "workflow:owner", "workflowId": "20000000-0000-4000-8000-000000000023", "projectId": "M9eH49D0HafLr8AX", "project": {"updatedAt": "2026-08-11T13:27:47.312Z", "createdAt": "2026-08-11T12:45:09.939Z", "id": "M9eH49D0HafLr8AX", "name": "Factory Owner <owner@factory.local>", "type": "personal", "icon": null, "description": null, "customTelemetryTags": [], "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"}}], "versionMetadata": {"name": null, "description": null}}]
+[
+ {
+  "updatedAt": "2026-08-14T06:13:17.590Z",
+  "createdAt": "2026-08-13T12:50:07.084Z",
+  "id": "20000000-0000-4000-8000-000000000023",
+  "name": "wf-creatify-shorts",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+   {
+    "parameters": {
+     "httpMethod": "POST",
+     "path": "factory/shorts",
+     "responseMode": "responseNode",
+     "options": {}
+    },
+    "id": "e88c8ab6-59c7-4581-8cbc-7f3757f68869",
+    "name": "Webhook",
+    "type": "n8n-nodes-base.webhook",
+    "typeVersion": 2.1,
+    "position": [
+     0,
+     0
+    ],
+    "webhookId": "cr5-shorts"
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const body = ($json.body && $json.body) || $json;\nconst src = (body.source_video_url !== undefined && body.source_video_url !== null && String(body.source_video_url).trim() !== '')\n  ? String(body.source_video_url).trim() : null;\nif (src) {\n  return [{ json: { ok: false, error: 'source_video_url не поддерживается — используй URL→видео сценарий' } }];\n}\nconst script = (body.script !== undefined && body.script !== null && String(body.script).trim() !== '')\n  ? String(body.script).trim() : '';\nconst topic = (body.topic !== undefined && body.topic !== null && String(body.topic).trim() !== '')\n  ? String(body.topic).trim() : '';\nlet maxCount = (body.max_count !== undefined && body.max_count !== null && body.max_count !== '') ? Number(body.max_count) : 5;\nif (!Number.isFinite(maxCount) || maxCount < 1) maxCount = 1;\nmaxCount = Math.min(10, Math.floor(maxCount));\nconst language = (body.language !== undefined && body.language !== null && String(body.language).trim() !== '')\n  ? String(body.language).trim() : 'ru';\nconst aspectRatio = (body.aspect_ratio !== undefined && body.aspect_ratio !== null && String(body.aspect_ratio).trim() !== '')\n  ? String(body.aspect_ratio).trim() : '9x16';\nconst style = (body.style !== undefined && body.style !== null && String(body.style).trim() !== '')\n  ? String(body.style).trim() : 'Cinematic';\nconst webhookUrl = (body.webhook_url !== undefined && body.webhook_url !== null && String(body.webhook_url).trim() !== '')\n  ? String(body.webhook_url).trim() : null;\nif (script === '' && topic === '') {\n  return [{ json: { ok: false, error: 'script или topic обязателен' } }];\n}\nreturn [{\n  json: { ok: true, script: script, topic: topic, max_count: maxCount,\n          language: language, aspect_ratio: aspectRatio, style: style, webhook_url: webhookUrl }\n}];"
+    },
+    "id": "b0c18f75-14bb-429f-a3ab-2b867b0b33e9",
+    "name": "Code validate",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     200,
+     0
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.ok }}",
+           "rightValue": true,
+           "operator": {
+            "type": "boolean",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ]
+     },
+     "options": {
+      "fallbackOutput": "extra"
+     }
+    },
+    "id": "5f4fe66e-c3a3-4d44-95a0-df6cadd0446f",
+    "name": "Switch valid",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     420,
+     0
+    ]
+   },
+   {
+    "parameters": {
+     "method": "GET",
+     "url": "https://api.creatify.ai/api/remaining_credits/",
+     "authentication": "none",
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-API-ID",
+        "value": "={{ $env.CREATIFY_API_ID }}"
+       },
+       {
+        "name": "X-API-KEY",
+        "value": "={{ $env.CREATIFY_API_KEY }}"
+       }
+      ]
+     },
+     "options": {
+      "timeout": 15000
+     }
+    },
+    "id": "028d5241-ee8a-48e6-a80f-09b78ac41e4d",
+    "name": "HTTP credits",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     640,
+     -120
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const r = $json;\nconst balance = (r.remaining_credits !== undefined && r.remaining_credits !== null)\n  ? Number(r.remaining_credits) : 0;\nreturn [{ json: { ok: balance >= 30, balance: balance } }];"
+    },
+    "id": "646aea28-52b1-400a-8579-094a25e52900",
+    "name": "Code balance",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     860,
+     -120
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.ok }}",
+           "rightValue": true,
+           "operator": {
+            "type": "boolean",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ]
+     },
+     "options": {
+      "fallbackOutput": "extra"
+     }
+    },
+    "id": "e5cf37c8-af79-4819-95c4-42935e288cb1",
+    "name": "Switch balance",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     1080,
+     -120
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const v = $('Code validate').first().json;\nlet script = (v.script !== undefined && v.script !== null && String(v.script).trim() !== '')\n  ? String(v.script).trim() : '';\ntry {\n  const e = $('Exp Parse').first().json;\n  if (e && e.ok === true && typeof e.script === 'string' && e.script.trim() !== '') {\n    script = e.script.trim();\n  }\n} catch (err) { /* прямая ветка — Exp Parse не выполнялась */ }\n/* Creatify enum: aspect_ratio 9x16|16x9|1x1; style из фикс-списка */\nconst arMap = { '9:16': '9x16', '16:9': '16x9', '1:1': '1x1', '9x16': '9x16', '16x9': '16x9', '1x1': '1x1' };\nconst stMap = { 'auto': 'Cinematic', 'default': 'Cinematic', '4k': '4K realistic', '4K': '4K realistic' };\nconst ar = arMap[v.aspect_ratio] || v.aspect_ratio || '9x16';\nconst st = stMap[v.style] || v.style || 'Cinematic';\nconst p = { script: script, aspect_ratio: ar, style: st };\nif (v.webhook_url) { p.webhook_url = v.webhook_url; }\nreturn [{ json: { payload: p } }];"
+    },
+    "id": "ff73b0db-5079-49b9-9303-d6b63d6b6b54",
+    "name": "Code Build payload",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     1300,
+     -240
+    ]
+   },
+   {
+    "parameters": {
+     "method": "POST",
+     "url": "https://api.creatify.ai/api/ai_shorts/",
+     "authentication": "none",
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-API-ID",
+        "value": "={{ $env.CREATIFY_API_ID }}"
+       },
+       {
+        "name": "X-API-KEY",
+        "value": "={{ $env.CREATIFY_API_KEY }}"
+       }
+      ]
+     },
+     "options": {
+      "timeout": 120000,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+     },
+     "sendBody": true,
+     "specifyBody": "json",
+     "contentType": "json",
+     "jsonBody": "={{ $json.payload }}"
+    },
+    "id": "28621532-6e8b-4089-99c2-0191afd12cac",
+    "name": "HTTP ai_shorts",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     1520,
+     -240
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const r = $json;\nconst item = {\n  id: r.id || null,\n  status: r.status || null,\n  video_output: r.video_output || null,\n  preview: r.preview || null,\n  editor_url: r.editor_url || null,\n  progress: (r.progress !== undefined && r.progress !== null) ? r.progress : null,\n  credits_used: r.credits_used || 0,\n  duration: r.duration || null,\n  failed_reason: r.failed_reason || null,\n  created_at: r.created_at || null,\n  updated_at: r.updated_at || null\n};\nreturn [{\n  json: { ok: true, shorts_id: r.id || null, status: r.status || null,\n          video_output: r.video_output || null, items: [item], raw: r }\n}];"
+    },
+    "id": "d34acada-172e-4eac-9814-772203274a87",
+    "name": "Code Normalize",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     1740,
+     -240
+    ]
+   },
+   {
+    "parameters": {
+     "respondWith": "json",
+     "responseBody": "={{ $('Code Normalize').first().json }}",
+     "options": {}
+    },
+    "id": "dc8979f6-a984-47b1-865f-29a19507774a",
+    "name": "Respond ok",
+    "type": "n8n-nodes-base.respondToWebhook",
+    "typeVersion": 1.5,
+    "position": [
+     1960,
+     -240
+    ]
+   },
+   {
+    "parameters": {
+     "respondWith": "json",
+     "responseBody": "={{ {ok: false, error: $json.error} }}",
+     "options": {}
+    },
+    "id": "38b67695-dab0-45ac-8ee3-ff594a934ce1",
+    "name": "Respond error",
+    "type": "n8n-nodes-base.respondToWebhook",
+    "typeVersion": 1.5,
+    "position": [
+     640,
+     220
+    ]
+   },
+   {
+    "parameters": {
+     "respondWith": "json",
+     "responseBody": "={{ {ok: false, error: 'low_credits', balance: $('Code balance').first().json.balance} }}",
+     "options": {}
+    },
+    "id": "f3c3355e-2fa3-437f-9346-dad8f0ed5642",
+    "name": "Respond low credits",
+    "type": "n8n-nodes-base.respondToWebhook",
+    "typeVersion": 1.5,
+    "position": [
+     1300,
+     60
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ String($('Code validate').first().json.script || '') }}",
+           "rightValue": "",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          },
+          {
+           "leftValue": "={{ String($('Code validate').first().json.topic || '') }}",
+           "rightValue": "",
+           "operator": {
+            "type": "string",
+            "operation": "notEquals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ]
+     },
+     "options": {
+      "fallbackOutput": "extra"
+     }
+    },
+    "id": "cd39e3dc-5f61-4277-8481-3415bd3fd960",
+    "name": "Switch Exp Need",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     1300,
+     -40
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const v = $('Code validate').first().json;\nconst topic = (v.topic !== undefined && v.topic !== null) ? String(v.topic).trim() : '';\nconst prompt = 'Разверни тему «' + topic + '» в полный сценарий вертикального шортса (9:16) на 30–60 секунд чтения (200–400 слов), экспертный тон. Структура: хук (2 строки), основная часть, вывод с призывом к действию. Верни ТОЛЬКО текст сценария без пояснений, обернув его в теги <SCRIPT> и </SCRIPT>.';\nreturn [{ json: { prompt: prompt } }];"
+    },
+    "id": "d17aa6d2-0d22-453a-98de-1f08a4d15cf2",
+    "name": "Exp Build prompt",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     1300,
+     140
+    ]
+   },
+   {
+    "parameters": {
+     "method": "POST",
+     "url": "http://host.docker.internal:8642/ask",
+     "authentication": "none",
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-BRIDGE-TOKEN",
+        "value": "={{ $env.HERMES_BRIDGE_TOKEN }}"
+       }
+      ]
+     },
+     "options": {
+      "timeout": 300000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     },
+     "sendBody": true,
+     "specifyBody": "json",
+     "contentType": "json",
+     "jsonBody": "={{ {skill: 'scriptwriter', prompt: $('Exp Build prompt').first().json.prompt} }}"
+    },
+    "id": "8e66d658-cd27-48cb-be75-182196888820",
+    "name": "Exp HTTP bridge",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     1520,
+     140
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const r = $json;\nconst answer = (r && r.answer !== undefined && r.answer !== null) ? String(r.answer) : '';\nlet script = '';\nconst marker = answer.match(/<SCRIPT>([\\s\\S]*?)<\\/SCRIPT>/i);\nif (marker && marker[1].trim() !== '') {\n  script = marker[1].trim();\n}\nif (script === '') {\n  const open = answer.indexOf('{');\n  if (open !== -1) {\n    let depth = 0;\n    let end = -1;\n    for (let i = open; i < answer.length; i++) {\n      if (answer[i] === '{') { depth++; }\n      else if (answer[i] === '}') { depth--; if (depth === 0) { end = i; break; } }\n    }\n    if (end !== -1) {\n      try {\n        const parsed = JSON.parse(answer.slice(open, end + 1));\n        const cand = (parsed && typeof parsed === 'object')\n          ? (parsed.script || parsed.text || parsed.content || parsed.answer) : null;\n        if (cand !== null && cand !== undefined && String(cand).trim() !== '') {\n          script = String(cand).trim();\n        }\n      } catch (e) { /* не JSON — пропускаем */ }\n    }\n  }\n}\nif (script === '') { script = answer.trim(); }\nif (script === '') {\n  return [{ json: { ok: false, error: 'не удалось сгенерировать сценарий' } }];\n}\nreturn [{ json: { ok: true, script: script } }];"
+    },
+    "id": "2e836e41-0164-4b30-afde-ff9380eb87ac",
+    "name": "Exp Parse",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     1740,
+     140
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.ok }}",
+           "rightValue": true,
+           "operator": {
+            "type": "boolean",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ]
+     },
+     "options": {
+      "fallbackOutput": "extra"
+     }
+    },
+    "id": "8da60224-5722-40fb-8ea6-cf319a026994",
+    "name": "Switch Exp ok",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     1960,
+     140
+    ]
+   }
+  ],
+  "connections": {
+   "Webhook": {
+    "main": [
+     [
+      {
+       "node": "Code validate",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Code validate": {
+    "main": [
+     [
+      {
+       "node": "Switch valid",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Switch valid": {
+    "main": [
+     [
+      {
+       "node": "HTTP credits",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "Respond error",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "HTTP credits": {
+    "main": [
+     [
+      {
+       "node": "Code balance",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Code balance": {
+    "main": [
+     [
+      {
+       "node": "Switch balance",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Switch balance": {
+    "main": [
+     [
+      {
+       "node": "Switch Exp Need",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "Respond low credits",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Code Build payload": {
+    "main": [
+     [
+      {
+       "node": "HTTP ai_shorts",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "HTTP ai_shorts": {
+    "main": [
+     [
+      {
+       "node": "Code Normalize",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Code Normalize": {
+    "main": [
+     [
+      {
+       "node": "Respond ok",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Switch Exp Need": {
+    "main": [
+     [
+      {
+       "node": "Exp Build prompt",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "Code Build payload",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Exp Build prompt": {
+    "main": [
+     [
+      {
+       "node": "Exp HTTP bridge",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Exp HTTP bridge": {
+    "main": [
+     [
+      {
+       "node": "Exp Parse",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Exp Parse": {
+    "main": [
+     [
+      {
+       "node": "Switch Exp ok",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Switch Exp ok": {
+    "main": [
+     [
+      {
+       "node": "Code Build payload",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "Respond error",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   }
+  },
+  "settings": {
+   "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {},
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "7d3e183d-45ae-4a52-9531-a3554d80f690",
+  "activeVersionId": "7d3e183d-45ae-4a52-9531-a3554d80f690",
+  "versionCounter": 3,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+   {
+    "updatedAt": "2026-08-13T12:50:07.089Z",
+    "createdAt": "2026-08-13T12:50:07.089Z",
+    "role": "workflow:owner",
+    "workflowId": "20000000-0000-4000-8000-000000000023",
+    "projectId": "M9eH49D0HafLr8AX",
+    "project": {
+     "updatedAt": "2026-08-11T13:27:47.312Z",
+     "createdAt": "2026-08-11T12:45:09.939Z",
+     "id": "M9eH49D0HafLr8AX",
+     "name": "Factory Owner <owner@factory.local>",
+     "type": "personal",
+     "icon": null,
+     "description": null,
+     "customTelemetryTags": [],
+     "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"
+    }
+   }
+  ],
+  "versionMetadata": {
+   "name": null,
+   "description": null
+  }
+ }
+]

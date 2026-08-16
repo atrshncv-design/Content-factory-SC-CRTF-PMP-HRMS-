@@ -71,7 +71,7 @@
      "sendBody": true,
      "contentType": "json",
      "specifyBody": "json",
-     "jsonBody": "={{ {sql: 'SELECT g.id, g.status, substr(s.full_text, 1, 120) AS script_excerpt, (SELECT tg_user_id FROM sessions WHERE script_id = g.script_id) AS tg_user_id FROM generations g LEFT JOIN scripts s ON s.id=g.script_id WHERE g.creatify_id = ?', params: [String($json.body.id)]} }}",
+     "jsonBody": "={{ {sql: 'SELECT g.id, g.script_id, g.status, s.full_text, substr(s.full_text, 1, 120) AS script_excerpt, (SELECT tg_user_id FROM sessions WHERE script_id = g.script_id) AS tg_user_id, (SELECT topic_id FROM sessions WHERE script_id = g.script_id) AS topic_id, (SELECT quick_payload FROM sessions WHERE script_id = g.script_id) AS session_qp FROM generations g LEFT JOIN scripts s ON s.id=g.script_id WHERE g.creatify_id = ?', params: [String($json.body.id)]} }}",
      "options": {
       "timeout": 15000
      }
@@ -204,7 +204,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const r = ($json.rows && $json.rows[0]) || {};\nconst id = String(r.id);\nconst cb = $('Webhook').first().json.body || {};\nconst video = String(cb.video_output_url || cb.video_output || '');\nreturn [{ json: { id: id, video_output_url: video, script_excerpt: (r.script_excerpt || '').trim() } }];"
+     "jsCode": "const r = ($json.rows && $json.rows[0]) || {};\nconst id = String(r.id);\nconst cb = $('Webhook').first().json.body || {};\nconst video = String(cb.video_output_url || cb.video_output || '');\nlet qp = {};\ntry { qp = JSON.parse(r.session_qp || '{}'); } catch (e) { qp = {}; }\nconst flow = String(qp.flow || 'sh');\nconst autoApprove = (qp.auto_approve === 1 || qp.auto_approve === '1') ? true : false;\nreturn [{ json: { id: id, script_id: (r.script_id != null ? Number(r.script_id) : null), video_output_url: video, script: String(r.full_text || '').trim(), script_excerpt: (r.script_excerpt || '').trim(), topic_id: (r.topic_id != null ? Number(r.topic_id) : null), flow: flow, auto_approve: autoApprove } }];"
     },
     "id": "e0000000-0007-4000-8000-000000000001",
     "name": "Code done build",
@@ -358,7 +358,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const d = $('Code done build').first().json;\nconst r = ($('HTTP SELECT').first().json.rows && $('HTTP SELECT').first().json.rows[0]) || {};\nconst uid = r.tg_user_id || 941296693; // TODO D2: fallback (пути без session-link: DU quick/легаси)\nreturn [{ json: {\n  sql: \"UPDATE sessions SET state='CYCLE_VIDEO_PENDING', generation_id=?, updated_at=datetime('now') WHERE tg_user_id=?\",\n  params: [String(d.id), uid]\n} }];"
+     "jsCode": "const d = $('Code done build').first().json;\nconst r = ($('HTTP SELECT').first().json.rows && $('HTTP SELECT').first().json.rows[0]) || {};\nconst uid = r.tg_user_id || 941296693; // TODO D2: fallback (пути без session-link: DU quick/легаси)\nconst payload = JSON.stringify({ generation_id: String(d.id), script: String(d.script || ''), topic_id: (d.topic_id != null ? Number(d.topic_id) : null), flow: String(d.flow || 'sh') });\nreturn [{ json: {\n  sql: \"UPDATE sessions SET state='VIDEO_AWAIT', generation_id=?, script_id=COALESCE(script_id, ?), quick_payload=?, updated_at=datetime('now') WHERE tg_user_id=?\",\n  params: [String(d.id), d.script_id, payload, uid]\n} }];"
     },
     "id": "e0000000-0010-4000-8000-000000000001",
     "name": "Build session update",
@@ -403,7 +403,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const d = $('Code done build').first().json;\nconst uid = (($('HTTP SELECT').first().json.rows || [{}])[0] || {}).tg_user_id || 941296693; // TODO D2: fallback (DU quick/легаси)\nconst genId = String(d.id);\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst excerpt = (d.script_excerpt || '…').slice(0, 200);\nconst wb = $('Webhook').first().json.body || {};\nconst video = String(d.video_output_url || wb.video_output_url || wb.video_output || '');\nconst text = '🎬 Этап 3/4 — Видео готово. Что делаем?\\n\\n' + esc(excerpt);\nconst text_legacy = '🎬 Этап 3/4 — Видео готово\\n\\n'\n  + 'Сценарий: ' + esc(excerpt) + '\\n\\n'\n  + (video ? 'Видео: ' + esc(video) + '\\n\\n' : '')\n  + 'Что делаем с видео?';\nreturn [{ json: { chat_id: uid, text: text, text_legacy: text_legacy, gen_id: genId, video: video } }];"
+     "jsCode": "const d = $('Code done build').first().json;\nconst uid = (($('HTTP SELECT').first().json.rows || [{}])[0] || {}).tg_user_id || 941296693; // TODO D2: fallback (DU quick/легаси)\nconst genId = String(d.id);\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst excerpt = (d.script_excerpt || '…').slice(0, 200);\nconst wb = $('Webhook').first().json.body || {};\nconst video = String(d.video_output_url || wb.video_output_url || wb.video_output || '');\nconst text = '🎬 Этап 3/4 — Видео готово. Что делаем?\\n\\n' + esc(excerpt);\nconst text_legacy = '🎬 Этап 3/4 — Видео готово\\n\\n'\n  + 'Сценарий: ' + esc(excerpt) + '\\n\\n'\n  + (video ? 'Видео: ' + esc(video) + '\\n\\n' : '')\n  + 'Что делаем с видео?';\nreturn [{ json: { chat_id: uid, text: text, text_legacy: text_legacy, gen_id: genId, video: video, auto_approve: (d.auto_approve === true) } }];"
     },
     "id": "e0000000-0012-4000-8000-000000000001",
     "name": "Build stage3",
@@ -458,13 +458,13 @@
           {
            "text": "✅ Опубликовать",
            "additionalFields": {
-            "callback_data": "={{ 'publish:gen:' + $json.gen_id }}"
+            "callback_data": "={{ 'vd_ok' }}"
            }
           },
           {
-           "text": "✏️ Перегенерировать",
+           "text": "🔁 Перегенерировать",
            "additionalFields": {
-            "callback_data": "={{ 'regen:gen:' + $json.gen_id }}"
+            "callback_data": "={{ 'vd_regenerate' }}"
            }
           }
          ]
@@ -476,7 +476,7 @@
           {
            "text": "❌ Отклонить",
            "additionalFields": {
-            "callback_data": "={{ 'reject:gen:' + $json.gen_id }}"
+            "callback_data": "={{ 'vd_reject' }}"
            }
           }
          ]
@@ -530,13 +530,13 @@
           {
            "text": "✅ Опубликовать",
            "additionalFields": {
-            "callback_data": "={{ 'publish:gen:' + $json.gen_id }}"
+            "callback_data": "={{ 'vd_ok' }}"
            }
           },
           {
-           "text": "✏️ Перегенерировать",
+           "text": "🔁 Перегенерировать",
            "additionalFields": {
-            "callback_data": "={{ 'regen:gen:' + $json.gen_id }}"
+            "callback_data": "={{ 'vd_regenerate' }}"
            }
           }
          ]
@@ -548,7 +548,7 @@
           {
            "text": "❌ Отклонить",
            "additionalFields": {
-            "callback_data": "={{ 'reject:gen:' + $json.gen_id }}"
+            "callback_data": "={{ 'vd_reject' }}"
            }
           }
          ]
@@ -689,6 +689,61 @@
      -200,
      600
     ]
+   },
+   {
+    "parameters": {
+     "conditions": {
+      "combinator": "and",
+      "options": {
+       "caseSensitive": true,
+       "leftValue": "",
+       "typeValidation": "strict"
+      },
+      "conditions": [
+       {
+        "leftValue": "={{ $json.auto_approve }}",
+        "rightValue": true,
+        "operator": {
+         "type": "boolean",
+         "operation": "equals"
+        }
+       }
+      ]
+     }
+    },
+    "id": "e0000000-0021-4000-8000-000000000001",
+    "name": "IF auto approve",
+    "type": "n8n-nodes-base.if",
+    "typeVersion": 2.3,
+    "position": [
+     1650,
+     -300
+    ]
+   },
+   {
+    "parameters": {
+     "resource": "message",
+     "operation": "sendVideo",
+     "chatId": "={{ $json.chat_id }}",
+     "file": "={{ $json.video }}",
+     "additionalFields": {
+      "caption": "={{ $json.text }}"
+     }
+    },
+    "id": "e0000000-0022-4000-8000-000000000001",
+    "name": "Telegram stage3 auto",
+    "type": "n8n-nodes-base.telegram",
+    "typeVersion": 1.2,
+    "position": [
+     1850,
+     -500
+    ],
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
    }
   ],
   "connections": {
@@ -940,7 +995,7 @@
     "main": [
      [
       {
-       "node": "Telegram stage3",
+       "node": "IF auto approve",
        "type": "main",
        "index": 0
       }
@@ -955,6 +1010,35 @@
     ]
    },
    "Telegram stage3 fallback": {
+    "main": [
+     [
+      {
+       "node": "Respond done",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "IF auto approve": {
+    "main": [
+     [
+      {
+       "node": "Telegram stage3 auto",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "Telegram stage3",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Telegram stage3 auto": {
     "main": [
      [
       {

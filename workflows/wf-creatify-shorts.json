@@ -29,7 +29,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const body = ($json.body && $json.body) || $json;\nconst src = (body.source_video_url !== undefined && body.source_video_url !== null && String(body.source_video_url).trim() !== '')\n  ? String(body.source_video_url).trim() : null;\nif (src) {\n  return [{ json: { ok: false, error: 'source_video_url не поддерживается — используй URL→видео сценарий' } }];\n}\nconst script = (body.script !== undefined && body.script !== null && String(body.script).trim() !== '')\n  ? String(body.script).trim() : '';\nconst topic = (body.topic !== undefined && body.topic !== null && String(body.topic).trim() !== '')\n  ? String(body.topic).trim() : '';\nlet maxCount = (body.max_count !== undefined && body.max_count !== null && body.max_count !== '') ? Number(body.max_count) : 5;\nif (!Number.isFinite(maxCount) || maxCount < 1) maxCount = 1;\nmaxCount = Math.min(10, Math.floor(maxCount));\nconst language = (body.language !== undefined && body.language !== null && String(body.language).trim() !== '')\n  ? String(body.language).trim() : 'ru';\nconst aspectRatio = (body.aspect_ratio !== undefined && body.aspect_ratio !== null && String(body.aspect_ratio).trim() !== '')\n  ? String(body.aspect_ratio).trim() : '9x16';\nconst style = (body.style !== undefined && body.style !== null && String(body.style).trim() !== '')\n  ? String(body.style).trim() : 'Cinematic';\nconst webhookUrl = (body.webhook_url !== undefined && body.webhook_url !== null && String(body.webhook_url).trim() !== '')\n  ? String(body.webhook_url).trim() : null;\nif (script === '' && topic === '') {\n  return [{ json: { ok: false, error: 'script или topic обязателен' } }];\n}\nreturn [{\n  json: { ok: true, script: script, topic: topic, max_count: maxCount,\n          language: language, aspect_ratio: aspectRatio, style: style, webhook_url: webhookUrl }\n}];"
+     "jsCode": "const body = ($json.body && $json.body) || $json;\nconst src = (body.source_video_url !== undefined && body.source_video_url !== null && String(body.source_video_url).trim() !== '')\n  ? String(body.source_video_url).trim() : null;\nif (src) {\n  return [{ json: { ok: false, error: 'source_video_url не поддерживается — используй URL→видео сценарий' } }];\n}\nconst script = (body.script !== undefined && body.script !== null && String(body.script).trim() !== '')\n  ? String(body.script).trim() : '';\nconst topic = (body.topic !== undefined && body.topic !== null && String(body.topic).trim() !== '')\n  ? String(body.topic).trim() : '';\nlet maxCount = (body.max_count !== undefined && body.max_count !== null && body.max_count !== '') ? Number(body.max_count) : 5;\nif (!Number.isFinite(maxCount) || maxCount < 1) maxCount = 1;\nmaxCount = Math.min(10, Math.floor(maxCount));\nconst language = (body.language !== undefined && body.language !== null && String(body.language).trim() !== '')\n  ? String(body.language).trim() : 'ru';\nconst aspectRatio = (body.aspect_ratio !== undefined && body.aspect_ratio !== null && String(body.aspect_ratio).trim() !== '')\n  ? String(body.aspect_ratio).trim() : '9x16';\nconst style = (body.style !== undefined && body.style !== null && String(body.style).trim() !== '')\n  ? String(body.style).trim() : 'Cinematic';\nconst mode = (body.mode !== undefined && body.mode !== null && String(body.mode).trim() !== '')\n  ? String(body.mode).trim() : '';\nconst webhookUrl = (body.webhook_url !== undefined && body.webhook_url !== null && String(body.webhook_url).trim() !== '')\n  ? String(body.webhook_url).trim() : null;\nif (script === '' && topic === '') {\n  return [{ json: { ok: false, error: 'script или topic обязателен' } }];\n}\nreturn [{\n  json: { ok: true, script: script, topic: topic, mode: mode, max_count: maxCount,\n          language: language, aspect_ratio: aspectRatio, style: style, webhook_url: webhookUrl }\n}];"
     },
     "id": "b0c18f75-14bb-429f-a3ab-2b867b0b33e9",
     "name": "Code validate",
@@ -171,7 +171,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const v = $('Code validate').first().json;\nlet script = (v.script !== undefined && v.script !== null && String(v.script).trim() !== '')\n  ? String(v.script).trim() : '';\ntry {\n  const e = $('Exp Parse').first().json;\n  if (e && e.ok === true && typeof e.script === 'string' && e.script.trim() !== '') {\n    script = e.script.trim();\n  }\n} catch (err) { /* прямая ветка — Exp Parse не выполнялась */ }\nconst p = { script: script, aspect_ratio: v.aspect_ratio, style: v.style };\nif (v.webhook_url) { p.webhook_url = v.webhook_url; }\nreturn [{ json: { payload: p } }];"
+     "jsCode": "const v = $('Code validate').first().json;\nlet script = (v.script !== undefined && v.script !== null && String(v.script).trim() !== '')\n  ? String(v.script).trim() : '';\ntry {\n  const e = $('Exp Parse').first().json;\n  if (e && e.ok === true && typeof e.script === 'string' && e.script.trim() !== '') {\n    script = e.script.trim();\n  }\n} catch (err) { /* прямая ветка — Exp Parse не выполнялась */ }\nfunction cleanText(raw) {\n  let t = String(raw === undefined || raw === null ? '' : raw);\n  t = t.replace(/```[\\s\\S]*?```/g, ' ');\n  t = t.replace(/`([^`]*)`/g, '$1');\n  t = t.replace(/\\*\\*([^*]+)\\*\\*/g, '$1');\n  t = t.replace(/__([^_]+)__/g, '$1');\n  t = t.replace(/\\[([^\\]]+)\\]\\([^)]*\\)/g, '$1');\n  t = t.replace(/^#{1,6}\\s*/gm, '');\n  t = t.replace(/^\\s*>\\s?/gm, '');\n  const lines = t.split('\\n').map(function (l) { return l.trim(); }).filter(function (l) {\n    if (!l) { return false; }\n    if (/^(note:?|tags,|tags:|so i should|just (produce|return|write|output)|the instruction|return only|below is|here is|вот сценарий|верни только|начни ответ|обернув|ok(,|!)?$|хорошо)/i.test(l)) { return false; }\n    return true;\n  });\n  t = lines.join('\\n');\n  t = t.replace(/\\s+/g, ' ').trim();\n  return t;\n}\nconst cleaned = cleanText(script);\nconst words = cleaned === '' ? 0 : cleaned.split(/\\s+/).length;\nconst BAD = /(\\{\\{|\\}\\}|note\\s*:|tags,|script|json)/i;\nif (cleaned === '' || words < 60 || words > 150 || BAD.test(cleaned)) {\n  return [{ json: { ok: false, error: 'Не удалось подготовить сценарий — попробуй ещё раз.' } }];\n}\n/* Creatify enum: aspect_ratio 9x16|16x9|1x1; style из фикс-списка */\nconst arMap = { '9:16': '9x16', '16:9': '16x9', '1:1': '1x1', '9x16': '9x16', '16x9': '16x9', '1x1': '1x1' };\nconst stMap = { 'auto': 'Cinematic', 'default': 'Cinematic', '4k': '4K realistic', '4K': '4K realistic' };\nconst ar = arMap[v.aspect_ratio] || v.aspect_ratio || '9x16';\nconst st = stMap[v.style] || v.style || 'Cinematic';\nconst p = { script: cleaned, aspect_ratio: ar, style: st };\nif (v.webhook_url) { p.webhook_url = v.webhook_url; }\nreturn [{ json: { ok: true, payload: p, mode: (v.mode !== undefined && v.mode !== null) ? String(v.mode) : '' } }];"
     },
     "id": "ff73b0db-5079-49b9-9303-d6b63d6b6b54",
     "name": "Code Build payload",
@@ -333,7 +333,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const v = $('Code validate').first().json;\nconst topic = (v.topic !== undefined && v.topic !== null) ? String(v.topic).trim() : '';\nconst prompt = 'Разверни тему «' + topic + '» в полный сценарий вертикального шортса (9:16) на 30–60 секунд чтения (200–400 слов), экспертный тон. Структура: хук (2 строки), основная часть, вывод с призывом к действию. Верни ТОЛЬКО текст сценария без пояснений, обернув его в теги <SCRIPT> и </SCRIPT>.';\nreturn [{ json: { prompt: prompt } }];"
+     "jsCode": "const v = $('Code validate').first().json;\nconst topic = (v.topic !== undefined && v.topic !== null) ? String(v.topic).trim() : '';\nlet attempts = 1;\ntry {\n  const prev = $('Exp Parse').first().json;\n  if (prev && prev.attempts !== undefined && prev.attempts !== null && Number.isFinite(Number(prev.attempts))) {\n    attempts = Number(prev.attempts) + 1;\n  }\n} catch (err) { /* первый проход — Exp Parse ещё не выполнялась */ }\nconst prompt = 'Ты — сценарист вертикальных шортсов. Разверни тему «' + topic + '» в полный сценарий вертикального шортса (9:16) ровно на 30 секунд озвучки (90–110 слов на русском языке), экспертный тон. Структура: хук (2 строки), основная часть, вывод с призывом к действию. Начни свой ответ СРАЗУ с тега <SCRIPT> и закончи тегом </SCRIPT>. Перед <SCRIPT> и после </SCRIPT> НЕ пиши НИЧЕГО — ни пояснений, ни размышлений, ни примечаний, ни слов «Вот сценарий», ни «Note:». Только <SCRIPT>текст сценария</SCRIPT>.';\nreturn [{ json: { prompt: prompt, attempts: attempts } }];"
     },
     "id": "d17aa6d2-0d22-453a-98de-1f08a4d15cf2",
     "name": "Exp Build prompt",
@@ -385,7 +385,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const r = $json;\nconst answer = (r && r.answer !== undefined && r.answer !== null) ? String(r.answer) : '';\nlet script = '';\nconst marker = answer.match(/<SCRIPT>([\\s\\S]*?)<\\/SCRIPT>/i);\nif (marker && marker[1].trim() !== '') {\n  script = marker[1].trim();\n}\nif (script === '') {\n  const open = answer.indexOf('{');\n  if (open !== -1) {\n    let depth = 0;\n    let end = -1;\n    for (let i = open; i < answer.length; i++) {\n      if (answer[i] === '{') { depth++; }\n      else if (answer[i] === '}') { depth--; if (depth === 0) { end = i; break; } }\n    }\n    if (end !== -1) {\n      try {\n        const parsed = JSON.parse(answer.slice(open, end + 1));\n        const cand = (parsed && typeof parsed === 'object')\n          ? (parsed.script || parsed.text || parsed.content || parsed.answer) : null;\n        if (cand !== null && cand !== undefined && String(cand).trim() !== '') {\n          script = String(cand).trim();\n        }\n      } catch (e) { /* не JSON — пропускаем */ }\n    }\n  }\n}\nif (script === '') { script = answer.trim(); }\nif (script === '') {\n  return [{ json: { ok: false, error: 'не удалось сгенерировать сценарий' } }];\n}\nreturn [{ json: { ok: true, script: script } }];"
+     "jsCode": "const r = $json;\nconst answer = (r && r.answer !== undefined && r.answer !== null) ? String(r.answer) : '';\nlet attempts = 1;\ntry {\n  const p = $('Exp Build prompt').first().json;\n  if (p && p.attempts !== undefined && p.attempts !== null && Number.isFinite(Number(p.attempts))) {\n    attempts = Number(p.attempts);\n  }\n} catch (err) { /* данные о попытке недоступны */ }\nconst BAD = /(\\{\\{|\\}\\}|note\\s*:|tags,|script|json)/i;\nfunction cleanText(raw) {\n  let t = String(raw === undefined || raw === null ? '' : raw);\n  t = t.replace(/```[\\s\\S]*?```/g, ' ');\n  t = t.replace(/`([^`]*)`/g, '$1');\n  t = t.replace(/\\*\\*([^*]+)\\*\\*/g, '$1');\n  t = t.replace(/__([^_]+)__/g, '$1');\n  t = t.replace(/\\[([^\\]]+)\\]\\([^)]*\\)/g, '$1');\n  t = t.replace(/^#{1,6}\\s*/gm, '');\n  t = t.replace(/^\\s*>\\s?/gm, '');\n  const lines = t.split('\\n').map(function (l) { return l.trim(); }).filter(function (l) {\n    if (!l) { return false; }\n    if (/^(note:?|tags,|tags:|so i should|just (produce|return|write|output)|the instruction|return only|below is|here is|вот сценарий|верни только|начни ответ|обернув|ok(,|!)?$|хорошо)/i.test(l)) { return false; }\n    return true;\n  });\n  t = lines.join('\\n');\n  t = t.replace(/\\s+/g, ' ').trim();\n  return t;\n}\nfunction extractScript(answer) {\n  const marker = answer.match(/<SCRIPT>([\\s\\S]*?)<\\/SCRIPT>/i);\n  if (marker && marker[1].trim() !== '') { return cleanText(marker[1]); }\n  const open = answer.indexOf('{');\n  if (open !== -1) {\n    let depth = 0;\n    let end = -1;\n    for (let i = open; i < answer.length; i++) {\n      if (answer[i] === '{') { depth++; }\n      else if (answer[i] === '}') { depth--; if (depth === 0) { end = i; break; } }\n    }\n    if (end !== -1) {\n      try {\n        const parsed = JSON.parse(answer.slice(open, end + 1));\n        if (parsed && typeof parsed === 'object') {\n          const cand = parsed.script || parsed.text || parsed.content || parsed.answer\n            || (typeof parsed.json === 'string' ? parsed.json : '');\n          if (cand !== null && cand !== undefined && String(cand).trim() !== '') {\n            return cleanText(String(cand));\n          }\n        }\n      } catch (e) { /* не JSON — пропускаем */ }\n    }\n  }\n  return cleanText(answer);\n}\nconst script = extractScript(answer);\nconst words = script === '' ? 0 : script.split(/\\s+/).length;\nconst garbage = script === '' || words < 60 || words > 150 || BAD.test(script);\nif (garbage) {\n  const retry = attempts < 2;\n  return [{\n    json: {\n      ok: false,\n      error: retry ? 'сценарий не прошёл проверку чистоты, повторяю генерацию' : 'Не удалось подготовить сценарий — попробуй ещё раз.',\n      retry: retry,\n      attempts: attempts,\n      words: words,\n      reason: script === '' ? 'empty' : 'garbage'\n    }\n  }];\n}\nreturn [{ json: { ok: true, script: script, attempts: attempts, words: words } }];"
     },
     "id": "2e836e41-0164-4b30-afde-ff9380eb87ac",
     "name": "Exp Parse",
@@ -420,6 +420,34 @@
          ],
          "combinator": "and"
         }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.ok }}",
+           "rightValue": false,
+           "operator": {
+            "type": "boolean",
+            "operation": "equals"
+           }
+          },
+          {
+           "leftValue": "={{ $json.retry }}",
+           "rightValue": true,
+           "operator": {
+            "type": "boolean",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
        }
       ]
      },
@@ -434,6 +462,141 @@
     "position": [
      1960,
      140
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.ok }}",
+           "rightValue": true,
+           "operator": {
+            "type": "boolean",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ]
+     },
+     "options": {
+      "fallbackOutput": "extra"
+     }
+    },
+    "id": "31791b14-6921-46e5-bfaf-a281bf345637",
+    "name": "Switch Script ok",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     1410,
+     -240
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ String($('Code validate').first().json.mode || '') }}",
+           "rightValue": "script_only",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ]
+     },
+     "options": {
+      "fallbackOutput": "extra"
+     }
+    },
+    "id": "b991c668-6210-46d4-bbfd-75ad8b0db54f",
+    "name": "Switch mode",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     560,
+     -60
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ String($('Code Build payload').first().json.mode || '') }}",
+           "rightValue": "script_only",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ]
+     },
+     "options": {
+      "fallbackOutput": "extra"
+     }
+    },
+    "id": "e3ec5e1d-8bf6-4907-a69e-a824a27b06e8",
+    "name": "Switch Script Only",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     1465,
+     -240
+    ]
+   },
+   {
+    "parameters": {
+     "respondWith": "json",
+     "responseBody": "={{ {ok: true, script: $('Code Build payload').first().json.payload.script} }}",
+     "options": {}
+    },
+    "id": "deda909a-6343-4767-afcb-98ded2002953",
+    "name": "Respond script only",
+    "type": "n8n-nodes-base.respondToWebhook",
+    "typeVersion": 1.5,
+    "position": [
+     1960,
+     20
     ]
    }
   ],
@@ -464,7 +627,7 @@
     "main": [
      [
       {
-       "node": "HTTP credits",
+       "node": "Switch mode",
        "type": "main",
        "index": 0
       }
@@ -522,7 +685,7 @@
     "main": [
      [
       {
-       "node": "HTTP ai_shorts",
+       "node": "Switch Script ok",
        "type": "main",
        "index": 0
       }
@@ -613,7 +776,68 @@
      ],
      [
       {
+       "node": "Exp Build prompt",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
        "node": "Respond error",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Switch Script ok": {
+    "main": [
+     [
+      {
+       "node": "Switch Script Only",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "Respond error",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Switch mode": {
+    "main": [
+     [
+      {
+       "node": "Switch Exp Need",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "HTTP credits",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Switch Script Only": {
+    "main": [
+     [
+      {
+       "node": "Respond script only",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "HTTP ai_shorts",
        "type": "main",
        "index": 0
       }

@@ -35,7 +35,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const item = $input.first().json;\nconst TG = 941296693;\n\nfunction parseCommand(text) {\n  const t = String(text || '').toLowerCase().trim();\n  const C = {\n    'start': 'start', 'старт': 'start', '/start': 'start',\n    'help': 'help', 'помощь': 'help', '/help': 'help',\n    'status': 'status', 'статус': 'status', '/status': 'status',\n    'cancel': 'cancel', 'стоп': 'cancel', 'отмена': 'cancel', '/cancel': 'cancel',\n    'ping': 'ping', 'пинг': 'ping', '/ping': 'ping',\n    'start_cycle': 'start_cycle', 'запуск цикла': 'start_cycle', 'старт цикла': 'start_cycle', '/start_cycle': 'start_cycle',\n    'mode': 'mode', 'режим': 'mode', '/mode': 'mode',\n    'topics': 'topics', 'темы': 'topics', '/topics': 'topics',\n    'competitors': 'competitors', 'конкуренты': 'competitors', '/competitors': 'competitors',\n    'accounts': 'accounts', 'аккаунты': 'accounts', '/accounts': 'accounts',\n    'budget': 'budget', 'бюджет': 'budget', '/budget': 'budget',\n    'clients': 'clients', 'клиенты': 'clients', '/clients': 'clients',\n    'client': 'client', 'клиент': 'client', '/client': 'client',\n    'reload_skills': 'reload_skills', '/reload_skills': 'reload_skills',\n    'creators': 'creators', 'авторы': 'creators', 'поиск авторов': 'creators', '/creators': 'creators',\n    'creator': 'creator', 'автор': 'creator', '/creator': 'creator',\n    'creator_content': 'creator_content', 'creator-content': 'creator_content', 'контент автора': 'creator_content', '/creator_content': 'creator_content', '/creator-content': 'creator_content',\n    'audience': 'audience', 'аудитория': 'audience', '/audience': 'audience',\n    'transcript': 'transcript', 'транскрипт': 'transcript', '/transcript': 'transcript',\n    'comments': 'comments', 'комментарии': 'comments', '/comments': 'comments',\n    'upload_avatar': 'upload_avatar', 'upload-avatar': 'upload_avatar', 'загрузить аватар': 'upload_avatar', '/upload_avatar': 'upload_avatar', '/upload-avatar': 'upload_avatar',\n    'my_avatars': 'my_avatars', 'my-avatars': 'my_avatars', 'мои аватары': 'my_avatars', '/my_avatars': 'my_avatars', '/my-avatars': 'my_avatars',\n    'asset': 'asset', 'ассет': 'asset', '/asset': 'asset',\n    'shorts': 'shorts', 'шортсы': 'shorts', '/shorts': 'shorts',\n    'product': 'product', 'продукт': 'product', '/product': 'product',\n    'banner': 'banner', 'баннер': 'banner', '/banner': 'banner',\n    'publish_type': 'publish_type', 'publish-type': 'publish_type', 'тип публикации': 'publish_type', '/publish_type': 'publish_type', '/publish-type': 'publish_type',\n    'menu': 'menu', 'меню': 'menu', '/menu': 'menu', '/меню': 'menu',\n    'instruction': 'instruction', 'инструкция': 'instruction', 'инструкции': 'instruction', '/instruction': 'instruction', '/инструкция': 'instruction',\n    'url2video': 'url2video', 'видео из ссылки': 'url2video', '/url2video': 'url2video',\n    'gen_url2video': 'url2video', 'gen_shorts': 'shorts',\n    'text_post': 'text_post', 'текстовый пост': 'text_post', '/text_post': 'text_post', '/текстовый пост': 'text_post',\n    'durc': 'durc',\n    'add_operator': 'add_operator', 'добавить оператора': 'add_operator', '/add_operator': 'add_operator',\n    'remove_operator': 'remove_operator', 'удалить оператора': 'remove_operator', '/remove_operator': 'remove_operator', '/удалить оператора': 'remove_operator',\n    'operators': 'operators', 'операторы': 'operators', '/operators': 'operators',\n    'profile': 'profile', 'профиль': 'profile', '/profile': 'profile', '/профиль': 'profile',\n    'profiles': 'profiles', 'профили': 'profiles', '/profiles': 'profiles', '/профили': 'profiles',\n    'questions': 'questions', 'вопросы': 'questions', '/questions': 'questions', '/вопросы': 'questions',\n  };\n  const words = t.split(/\\s+/);\n  let command = 'unknown';\n  const args = { url: null, id: null, value: null, platform: null, handle: null, section: null, action: null };\n  if (t.startsWith('onboard ') || t === 'onboard' || t.startsWith('/onboard')) { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('онбординг ') || t === 'онбординг') { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('client ') || t.startsWith('клиент ') || t.startsWith('/client ')) { command = 'client'; args.id = words[1] || null; }\n  else if (t.startsWith('добавить оператора ') || t.startsWith('/add_operator ') || t.startsWith('add_operator ')) { command = 'add_operator'; const off = t.startsWith('добавить оператора ') ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('удалить оператора ') || t.startsWith('/remove_operator ') || t.startsWith('/удалить оператора ')) { command = 'remove_operator'; const off = (t.startsWith('удалить оператора ') || t.startsWith('/удалить оператора ')) ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('creator ') || t.startsWith('автор ') || t.startsWith('/creator ')) { command = 'creator'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('creator_content ') || t.startsWith('creator-content ') || t.startsWith('контент автора ') || t.startsWith('/creator_content ') || t.startsWith('/creator-content ')) { command = 'creator_content'; const off = t.startsWith('контент автора ') ? 2 : 1; args.platform = words[off] || null; args.handle = words[off + 1] || null; }\n  else if (t.startsWith('audience ') || t.startsWith('аудитория ') || t.startsWith('/audience ')) { command = 'audience'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('поиск авторов ')) { command = 'creators'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('загрузить аватар ')) { command = 'upload_avatar'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('тип публикации ')) { command = 'publish_type'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('menu_')) { command = 'menu'; args.section = t.slice(5) || null; }\n  else if (t.startsWith('dur_')) { command = 'dur'; args.value = t.slice(4) || null; }\n  else if (t.startsWith('durc_')) { command = 'durc'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('hint_')) { command = 'hint'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('видео из ссылки ')) { command = 'url2video'; args.url = words.slice(3).join(' ') || null; }\n  else if (t === 'вопросы' || t === '/вопросы' || t === 'questions' || t === '/questions') { command = 'questions'; args.action = 'list'; }\n  else if (t.startsWith('вопросы сброс') || t.startsWith('/вопросы сброс')) { command = 'questions'; args.action = 'reset'; }\n  else if (t.startsWith('вопрос ') || t.startsWith('/вопросы ')) { command = 'questions'; args.action = 'set'; const N = /^\\d+$/.test(words[1] || '') ? parseInt(words[1], 10) : null; args.n = N; args.value = words.slice(2).join(' ') || null; }\n  else if (t === 'авто' || t === '/авто' || t === 'auto' || t === '/auto') { command = 'auto'; args.action = 'toggle'; }\n  else if (t.startsWith('авто вкл') || t.startsWith('/авто вкл') || t.startsWith('auto on') || t.startsWith('/auto on')) { command = 'auto'; args.action = 'on'; }\n  else if (t.startsWith('авто выкл') || t.startsWith('/авто выкл') || t.startsWith('auto off') || t.startsWith('/auto off')) { command = 'auto'; args.action = 'off'; }\n  else if (C[t]) { command = C[t]; }\n  else if (C[words[0]]) { command = C[words[0]]; args.value = words.slice(1).join(' ') || null; }\n  if (command === 'shorts' && args.value && /^https?:\\/\\//i.test(args.value)) args.url = args.value;\n  return { command: command, args: args };\n}\n\nlet out = null;\nif (item.callback_query) {\n  const q = item.callback_query;\n  const fromId = (q.from && q.from.id) || null;\n  const chatId = (q.message && q.message.chat && q.message.chat.id) || null;\n  const msgId = (q.message && q.message.message_id) || null;\n  const data = String(q.data || '');\n  if (data.startsWith('cmd:')) {\n    const parsed = parseCommand(data.slice(4));\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: parsed.command, args: parsed.args, raw: data, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parts = data.split(':');\n    const action = parts[0] || '';\n    const entityType = parts[1] || null;\n    const entityId = parts.slice(2).join(':') || null;\n    const map = {\n      approve: { topic: 'approve_topic', script: 'approve_script', gen: 'publish_gen' },\n      edit: { topic: 'edit_topic', script: 'edit_script' },\n      reject: { topic: 'reject_topic', script: 'reject_script', gen: 'reject_gen' },\n      alt: { topic: 'alt_topic' },\n      regen: { gen: 'regen_gen' },\n      toggle: { platform: 'toggle_platform', ppm: 'toggle_ppm' },\n      publish: { gen: 'publish_gen' },\n      confirm: { publish: 'confirm_publish' },\n    };\n    let cb = 'unknown';\n    if (action === 'schedule') cb = 'schedule';\n    else if (action === 'confirm') cb = 'confirm_publish';\n    else if (action === 'publish') cb = 'publish_gen';\n    else if (action === 'tx_toggle') cb = 'tx_toggle';\n    else if (action === 'tx_publish') cb = 'tx_publish';\n    else if (action === 'ro_yes' || action === 'ro_no') cb = action;\n    else if (action === 'ppm_done') cb = 'ppm_done';\n    else if (action.startsWith('pf_')) cb = action;\n    else if (action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit') cb = action;\n    else if (action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject') cb = action;\n    else if (map[action] && map[action][entityType]) cb = map[action][entityType];\n    const isRoCb = action === 'ro_yes' || action === 'ro_no';\n    const isScCb = action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit';\n    const isVdCb = action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject';\n    out = { kind: 'callback', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: null, args: {}, raw: data, callback_action: cb,\n            entity_type: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? null : entityType,\n            entity_id: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? (parts[1] || null) : entityId };\n  }\n} else if (item.message) {\n  const m = item.message;\n  const fromId = (m.from && m.from.id) || null;\n  const chatId = (m.chat && m.chat.id) || null;\n  const text = String(m.text || '').trim();\n  if (m.document) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_doc', args: { file_id: m.document.file_id || null, file_name: m.document.file_name || null, mime: m.document.mime_type || null },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.photo && m.photo.length) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_photo', args: { file_id: m.photo[m.photo.length - 1].file_id || null, file_name: 'photo_' + (m.message_id || 'x') + '.jpg' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.video) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_video', args: { file_id: m.video.file_id || null, file_name: m.video.file_name || 'video.mp4' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parsed = parseCommand(text);\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: parsed.command, args: parsed.args, raw: text, callback_action: null, entity_type: null, entity_id: null };\n  }\n} else {\n  out = { kind: 'unknown', tg_user_id: null, chat_id: null, message_id: null, query_id: null, command: 'unknown', args: {}, raw: '', callback_action: null, entity_type: null, entity_id: null };\n}\nreturn [{ json: out }];\n"
+     "jsCode": "const item = $input.first().json;\nconst TG = 941296693;\n\nfunction parseCommand(text) {\n  const t = String(text || '').toLowerCase().trim();\n  const C = {\n    'start': 'start', 'старт': 'start', '/start': 'start',\n    'help': 'help', 'помощь': 'help', '/help': 'help',\n    'status': 'status', 'статус': 'status', '/status': 'status',\n    'cancel': 'cancel', 'стоп': 'cancel', 'отмена': 'cancel', '/cancel': 'cancel',\n    'ping': 'ping', 'пинг': 'ping', '/ping': 'ping',\n    'start_cycle': 'start_cycle', 'запуск цикла': 'start_cycle', 'старт цикла': 'start_cycle', '/start_cycle': 'start_cycle',\n    'mode': 'mode', 'режим': 'mode', '/mode': 'mode',\n    'topics': 'topics', 'темы': 'topics', '/topics': 'topics',\n    'competitors': 'competitors', 'конкуренты': 'competitors', '/competitors': 'competitors',\n    'accounts': 'accounts', 'аккаунты': 'accounts', '/accounts': 'accounts',\n    'budget': 'budget', 'бюджет': 'budget', '/budget': 'budget',\n    'clients': 'clients', 'клиенты': 'clients', '/clients': 'clients',\n    'client': 'client', 'клиент': 'client', '/client': 'client',\n    'reload_skills': 'reload_skills', '/reload_skills': 'reload_skills',\n    'creators': 'creators', 'авторы': 'creators', 'поиск авторов': 'creators', '/creators': 'creators',\n    'creator': 'creator', 'автор': 'creator', '/creator': 'creator',\n    'creator_content': 'creator_content', 'creator-content': 'creator_content', 'контент автора': 'creator_content', '/creator_content': 'creator_content', '/creator-content': 'creator_content',\n    'audience': 'audience', 'аудитория': 'audience', '/audience': 'audience',\n    'transcript': 'transcript', 'транскрипт': 'transcript', '/transcript': 'transcript',\n    'comments': 'comments', 'комментарии': 'comments', '/comments': 'comments',\n    'upload_avatar': 'upload_avatar', 'upload-avatar': 'upload_avatar', 'загрузить аватар': 'upload_avatar', '/upload_avatar': 'upload_avatar', '/upload-avatar': 'upload_avatar',\n    'my_avatars': 'my_avatars', 'my-avatars': 'my_avatars', 'мои аватары': 'my_avatars', '/my_avatars': 'my_avatars', '/my-avatars': 'my_avatars',\n    'asset': 'asset', 'ассет': 'asset', '/asset': 'asset',\n    'shorts': 'shorts', 'шортсы': 'shorts', '/shorts': 'shorts',\n    'product': 'product', 'продукт': 'product', '/product': 'product',\n    'banner': 'banner', 'баннер': 'banner', '/banner': 'banner',\n    'publish_type': 'publish_type', 'publish-type': 'publish_type', 'тип публикации': 'publish_type', '/publish_type': 'publish_type', '/publish-type': 'publish_type',\n    'menu': 'menu', 'меню': 'menu', '/menu': 'menu', '/меню': 'menu',\n    'instruction': 'instruction', 'инструкция': 'instruction', 'инструкции': 'instruction', '/instruction': 'instruction', '/инструкция': 'instruction',\n    'url2video': 'url2video', 'видео из ссылки': 'url2video', '/url2video': 'url2video',\n    'gen_url2video': 'url2video', 'gen_shorts': 'shorts',\n    'text_post': 'text_post', 'текстовый пост': 'text_post', '/text_post': 'text_post', '/текстовый пост': 'text_post',\n    'durc': 'durc',\n    'add_operator': 'add_operator', 'добавить оператора': 'add_operator', '/add_operator': 'add_operator',\n    'remove_operator': 'remove_operator', 'удалить оператора': 'remove_operator', '/remove_operator': 'remove_operator', '/удалить оператора': 'remove_operator',\n    'operators': 'operators', 'операторы': 'operators', '/operators': 'operators',\n    'profile': 'profile', 'профиль': 'profile', '/profile': 'profile', '/профиль': 'profile',\n    'profiles': 'profiles', 'профили': 'profiles', '/profiles': 'profiles', '/профили': 'profiles',\n    'questions': 'questions', 'вопросы': 'questions', '/questions': 'questions', '/вопросы': 'questions',\n  };\n  const words = t.split(/\\s+/);\n  let command = 'unknown';\n  const args = { url: null, id: null, value: null, platform: null, handle: null, section: null };\n  if (t.startsWith('onboard ') || t === 'onboard' || t.startsWith('/onboard')) { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('онбординг ') || t === 'онбординг') { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('client ') || t.startsWith('клиент ') || t.startsWith('/client ')) { command = 'client'; args.id = words[1] || null; }\n  else if (t.startsWith('добавить оператора ') || t.startsWith('/add_operator ') || t.startsWith('add_operator ')) { command = 'add_operator'; const off = t.startsWith('добавить оператора ') ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('удалить оператора ') || t.startsWith('/remove_operator ') || t.startsWith('/удалить оператора ')) { command = 'remove_operator'; const off = (t.startsWith('удалить оператора ') || t.startsWith('/удалить оператора ')) ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('creator ') || t.startsWith('автор ') || t.startsWith('/creator ')) { command = 'creator'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('creator_content ') || t.startsWith('creator-content ') || t.startsWith('контент автора ') || t.startsWith('/creator_content ') || t.startsWith('/creator-content ')) { command = 'creator_content'; const off = t.startsWith('контент автора ') ? 2 : 1; args.platform = words[off] || null; args.handle = words[off + 1] || null; }\n  else if (t.startsWith('audience ') || t.startsWith('аудитория ') || t.startsWith('/audience ')) { command = 'audience'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('поиск авторов ')) { command = 'creators'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('загрузить аватар ')) { command = 'upload_avatar'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('тип публикации ')) { command = 'publish_type'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('menu_')) { command = 'menu'; args.section = t.slice(5) || null; }\n  else if (t.startsWith('dur_')) { command = 'dur'; args.value = t.slice(4) || null; }\n  else if (t.startsWith('durc_')) { command = 'durc'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('hint_')) { command = 'hint'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('видео из ссылки ')) { command = 'url2video'; args.url = words.slice(3).join(' ') || null; }\n  else if (t === 'вопросы' || t === '/вопросы' || t === 'questions' || t === '/questions') { command = 'questions'; args.action = 'list'; }\n  else if (t.startsWith('вопросы сброс') || t.startsWith('/вопросы сброс')) { command = 'questions'; args.action = 'reset'; }\n  else if (t.startsWith('вопрос ') || t.startsWith('/вопросы ')) { command = 'questions'; args.action = 'set'; const N = /^\\d+$/.test(words[1] || '') ? parseInt(words[1], 10) : null; args.n = N; args.value = words.slice(2).join(' ') || null; }\n  else if (C[t]) { command = C[t]; }\n  else if (C[words[0]]) { command = C[words[0]]; args.value = words.slice(1).join(' ') || null; }\n  if (command === 'shorts' && args.value && /^https?:\\/\\//i.test(args.value)) args.url = args.value;\n  return { command: command, args: args };\n}\n\nlet out = null;\nif (item.callback_query) {\n  const q = item.callback_query;\n  const fromId = (q.from && q.from.id) || null;\n  const chatId = (q.message && q.message.chat && q.message.chat.id) || null;\n  const msgId = (q.message && q.message.message_id) || null;\n  const data = String(q.data || '');\n  if (data.startsWith('cmd:')) {\n    const parsed = parseCommand(data.slice(4));\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: parsed.command, args: parsed.args, raw: data, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parts = data.split(':');\n    const action = parts[0] || '';\n    const entityType = parts[1] || null;\n    const entityId = parts.slice(2).join(':') || null;\n    const map = {\n      approve: { topic: 'approve_topic', script: 'approve_script', gen: 'publish_gen' },\n      edit: { topic: 'edit_topic', script: 'edit_script' },\n      reject: { topic: 'reject_topic', script: 'reject_script', gen: 'reject_gen' },\n      alt: { topic: 'alt_topic' },\n      regen: { gen: 'regen_gen' },\n      toggle: { platform: 'toggle_platform', ppm: 'toggle_ppm' },\n      publish: { gen: 'publish_gen' },\n      confirm: { publish: 'confirm_publish' },\n    };\n    let cb = 'unknown';\n    if (action === 'schedule') cb = 'schedule';\n    else if (action === 'confirm') cb = 'confirm_publish';\n    else if (action === 'publish') cb = 'publish_gen';\n    else if (action === 'tx_toggle') cb = 'tx_toggle';\n    else if (action === 'tx_publish') cb = 'tx_publish';\n    else if (action === 'ro_yes' || action === 'ro_no') cb = action;\n    else if (action === 'ppm_done') cb = 'ppm_done';\n    else if (action.startsWith('pf_')) cb = action;\n    else if (action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit') cb = action;\n    else if (action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject') cb = action;\n    else if (map[action] && map[action][entityType]) cb = map[action][entityType];\n    const isRoCb = action === 'ro_yes' || action === 'ro_no';\n    const isScCb = action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit';\n    const isVdCb = action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject';\n    out = { kind: 'callback', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: null, args: {}, raw: data, callback_action: cb,\n            entity_type: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? null : entityType,\n            entity_id: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? (parts[1] || null) : entityId };\n  }\n} else if (item.message) {\n  const m = item.message;\n  const fromId = (m.from && m.from.id) || null;\n  const chatId = (m.chat && m.chat.id) || null;\n  const text = String(m.text || '').trim();\n  if (m.document) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_doc', args: { file_id: m.document.file_id || null, file_name: m.document.file_name || null, mime: m.document.mime_type || null },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.photo && m.photo.length) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_photo', args: { file_id: m.photo[m.photo.length - 1].file_id || null, file_name: 'photo_' + (m.message_id || 'x') + '.jpg' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.video) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_video', args: { file_id: m.video.file_id || null, file_name: m.video.file_name || 'video.mp4' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parsed = parseCommand(text);\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: parsed.command, args: parsed.args, raw: text, callback_action: null, entity_type: null, entity_id: null };\n  }\n} else {\n  out = { kind: 'unknown', tg_user_id: null, chat_id: null, message_id: null, query_id: null, command: 'unknown', args: {}, raw: '', callback_action: null, entity_type: null, entity_id: null };\n}\nreturn [{ json: out }];\n"
     },
     "id": "8a103f8b-937b-4265-989e-b51bcad58551",
     "name": "Parser",
@@ -993,26 +993,6 @@
           {
            "leftValue": "={{ $json.command }}",
            "rightValue": "questions",
-           "operator": {
-            "type": "string",
-            "operation": "equals"
-           }
-          }
-         ],
-         "combinator": "and"
-        }
-       },
-       {
-        "conditions": {
-         "options": {
-          "caseSensitive": true,
-          "leftValue": "",
-          "typeValidation": "strict"
-         },
-         "conditions": [
-          {
-           "leftValue": "={{ $json.command }}",
-           "rightValue": "auto",
            "operator": {
             "type": "string",
             "operation": "equals"
@@ -12944,7 +12924,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst item = $input.first().json || {};\nlet topic = String(item.topic || '').trim();\nif (!topic) {\n  try { const t = $('SH Topic').first().json; topic = String(t.topic || '').trim(); } catch (e) {}\n}\nconst script = (item.script !== undefined && item.script !== null && String(item.script).trim() !== '')\n  ? String(item.script).trim() : null;\nconst attempts = Number(item.attempts) || 1;\nconst mode = script ? 'video' : 'script_only';\nconst payload = { topic: topic, script: script, mode: mode, attempts: attempts, auto_approve: 0 };\nreturn [{ json: { sql: \"UPDATE sessions SET state='QUICK_SHORTS_GENERATING', quick_payload=json_set(?, '$.auto_approve', COALESCE((SELECT auto_approve FROM users WHERE tg_user_id = ?), 0)), updated_at=datetime('now') WHERE tg_user_id = ?\", params: [JSON.stringify(payload), p.tg_user_id, p.tg_user_id], topic: topic, script: script, mode: mode, attempts: attempts } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst item = $input.first().json || {};\nlet topic = String(item.topic || '').trim();\nif (!topic) {\n  try { const t = $('SH Topic').first().json; topic = String(t.topic || '').trim(); } catch (e) {}\n}\nconst script = (item.script !== undefined && item.script !== null && String(item.script).trim() !== '')\n  ? String(item.script).trim() : null;\nconst attempts = Number(item.attempts) || 1;\nconst mode = script ? 'video' : 'script_only';\nconst payload = { topic: topic, script: script, mode: mode, attempts: attempts, auto_approve: 0 };\nreturn [{ json: { sql: \"UPDATE sessions SET state='QUICK_SHORTS_GENERATING', quick_payload=?, updated_at=datetime('now') WHERE tg_user_id = ?\", params: [JSON.stringify(payload), p.tg_user_id], topic: topic, script: script, mode: mode, attempts: attempts } }];\n"
     },
     "id": "56bf7c8c-adb3-4c31-8070-ea177e451d89",
     "name": "SH Update state",
@@ -25766,7 +25746,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst f = $('SHT Format').first().json;\nlet topic = '';\nlet attempts = 1;\ntry {\n  const u = $('SH Update state').first().json;\n  topic = String(u.topic || '');\n  attempts = Number(u.attempts) || 1;\n} catch (e) {}\nconst script = String(f.script || '').trim();\nconst payload = JSON.stringify({ flow: 'sh', topic: topic, script: script, attempts: attempts, auto_approve: 0 });\nconst text = '📝 Сценарий готов. Проверь и подтверди:\\n\\n' + script + '\\n\\n✅ Принять — запущу генерацию видео. 🔁 Перегенерировать — новый вариант. ✏️ Написать свой — пришлёшь свой текст.';\nreturn [{ json: { sql: \"UPDATE sessions SET state='SCRIPT_AWAIT', quick_payload=json_set(?, '$.auto_approve', COALESCE((SELECT auto_approve FROM users WHERE tg_user_id = ?), 0)), updated_at=datetime('now') WHERE tg_user_id = ?\", params: [payload, p.tg_user_id, p.tg_user_id], chat_id: p.chat_id, text: text } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst f = $('SHT Format').first().json;\nlet topic = '';\nlet attempts = 1;\ntry {\n  const u = $('SH Update state').first().json;\n  topic = String(u.topic || '');\n  attempts = Number(u.attempts) || 1;\n} catch (e) {}\nconst script = String(f.script || '').trim();\nconst payload = JSON.stringify({ flow: 'sh', topic: topic, script: script, attempts: attempts, auto_approve: 0 });\nconst text = '📝 Сценарий готов. Проверь и подтверди:\\n\\n' + script + '\\n\\n✅ Принять — запущу генерацию видео. 🔁 Перегенерировать — новый вариант. ✏️ Написать свой — пришлёшь свой текст.';\nreturn [{ json: { sql: \"UPDATE sessions SET state='SCRIPT_AWAIT', quick_payload=?, updated_at=datetime('now') WHERE tg_user_id = ?\", params: [payload, p.tg_user_id], chat_id: p.chat_id, text: text } }];\n"
     },
     "id": "3453e341-abeb-479b-b10f-6f18a3a0d594",
     "name": "SH Verify build",
@@ -25880,7 +25860,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst s = $('AU Parse script').first().json;\nlet topicId = null;\nlet sourceUrl = '';\nlet topicTitle = '';\nlet topicRationale = '';\nlet videoLength = 30;\nlet attempts = 1;\nlet fromPayload = null;\ntry {\n  const q = $('SC RG read').first().json;\n  const qp = JSON.parse((q && q.quick_payload) || '{}');\n  if (qp && qp.flow === 'au') fromPayload = qp;\n} catch (e) {}\n/* при регене (SC RG route выполнен в этом же прогоне) attempts берём из его выхода,\n   а не из SC RG read — там payload ещё ДО апдейта AU RG build */\ntry {\n  const rr = $('SC RG route').first().json;\n  if (rr && rr.attempts !== undefined && rr.attempts !== null && Number.isFinite(Number(rr.attempts))) attempts = Number(rr.attempts);\n} catch (e) {}\nif (fromPayload) {\n  topicId = Number(fromPayload.topic_id) || null;\n  sourceUrl = String(fromPayload.source_url || '');\n  topicTitle = String(fromPayload.topic_title || '');\n  topicRationale = String(fromPayload.topic_rationale || '');\n  videoLength = Number(fromPayload.video_length) || 30;\n  if (attempts < 1) attempts = Number(fromPayload.attempts) || 1;\n} else {\n  try { topicId = Number($('SC HTTP insert topic').first().json.lastInsertRowid); } catch (e) {}\n  try { const t = $('SC Parse topic').first().json; sourceUrl = String(t.source_url || ''); topicTitle = String(t.title || ''); topicRationale = String(t.rationale || ''); } catch (e) {}\n  try { const c = $('AU Check').first().json; videoLength = Number(c.video_length) || 30; } catch (e) {}\n}\nconst script = String((s && s.full_text) || '').trim();\nconst scriptFull = { hook: String((s && s.hook) || ''), body: String((s && s.body) || ''), cta: String((s && s.cta) || ''), target_length: Number((s && s.target_length) || 30), format_tag: String((s && s.format_tag) || 'auto'), full_text: script };\nconst payload = JSON.stringify({\n  flow: 'au', topic_id: topicId, script: script,\n  script_full: scriptFull,\n  source_url: sourceUrl, video_length: videoLength, attempts: attempts,\n  topic_title: topicTitle, topic_rationale: topicRationale, auto_approve: 0\n});\nconst text = '📝 Сценарий готов. Проверь и подтверди:\\n\\n' + script + '\\n\\n✅ Принять — запущу генерацию видео. 🔁 Перегенерировать — новый вариант. ✏️ Написать свой — пришлёшь свой текст.';\nreturn [{ json: { sql: \"UPDATE sessions SET state='SCRIPT_AWAIT', quick_payload=json_set(?, '$.auto_approve', COALESCE((SELECT auto_approve FROM users WHERE tg_user_id = ?), 0)), updated_at=datetime('now') WHERE tg_user_id = ?\", params: [payload, p.tg_user_id, p.tg_user_id], chat_id: p.chat_id, text: text, script: script, script_full: scriptFull, topic_id: topicId, source_url: sourceUrl, video_length: videoLength } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst s = $('AU Parse script').first().json;\nlet topicId = null;\nlet sourceUrl = '';\nlet topicTitle = '';\nlet topicRationale = '';\nlet videoLength = 30;\nlet attempts = 1;\nlet fromPayload = null;\ntry {\n  const q = $('SC RG read').first().json;\n  const qp = JSON.parse((q && q.quick_payload) || '{}');\n  if (qp && qp.flow === 'au') fromPayload = qp;\n} catch (e) {}\n/* при регене (SC RG route выполнен в этом же прогоне) attempts берём из его выхода,\n   а не из SC RG read — там payload ещё ДО апдейта AU RG build */\ntry {\n  const rr = $('SC RG route').first().json;\n  if (rr && rr.attempts !== undefined && rr.attempts !== null && Number.isFinite(Number(rr.attempts))) attempts = Number(rr.attempts);\n} catch (e) {}\nif (fromPayload) {\n  topicId = Number(fromPayload.topic_id) || null;\n  sourceUrl = String(fromPayload.source_url || '');\n  topicTitle = String(fromPayload.topic_title || '');\n  topicRationale = String(fromPayload.topic_rationale || '');\n  videoLength = Number(fromPayload.video_length) || 30;\n  if (attempts < 1) attempts = Number(fromPayload.attempts) || 1;\n} else {\n  try { topicId = Number($('SC HTTP insert topic').first().json.lastInsertRowid); } catch (e) {}\n  try { const t = $('SC Parse topic').first().json; sourceUrl = String(t.source_url || ''); topicTitle = String(t.title || ''); topicRationale = String(t.rationale || ''); } catch (e) {}\n  try { const c = $('AU Check').first().json; videoLength = Number(c.video_length) || 30; } catch (e) {}\n}\nconst script = String((s && s.full_text) || '').trim();\nconst payload = JSON.stringify({\n  flow: 'au', topic_id: topicId, script: script,\n  script_full: { hook: String((s && s.hook) || ''), body: String((s && s.body) || ''), cta: String((s && s.cta) || ''), target_length: Number((s && s.target_length) || 30), format_tag: String((s && s.format_tag) || 'auto'), full_text: script },\n  source_url: sourceUrl, video_length: videoLength, attempts: attempts,\n  topic_title: topicTitle, topic_rationale: topicRationale, auto_approve: 0\n});\nconst text = '📝 Сценарий готов. Проверь и подтверди:\\n\\n' + script + '\\n\\n✅ Принять — запущу генерацию видео. 🔁 Перегенерировать — новый вариант. ✏️ Написать свой — пришлёшь свой текст.';\nreturn [{ json: { sql: \"UPDATE sessions SET state='SCRIPT_AWAIT', quick_payload=?, updated_at=datetime('now') WHERE tg_user_id = ?\", params: [payload, p.tg_user_id], chat_id: p.chat_id, text: text } }];\n"
     },
     "id": "f407c4d2-8180-4376-8467-eb8f9359d1b1",
     "name": "AU Verify build",
@@ -26177,7 +26157,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT state, quick_payload, (SELECT COALESCE(auto_approve, 0) FROM users WHERE tg_user_id = ?) AS auto_approve FROM sessions WHERE tg_user_id = ?\", params: [p.tg_user_id, p.tg_user_id] } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT state, quick_payload FROM sessions WHERE tg_user_id = ?\", params: [p.tg_user_id] } }];\n"
     },
     "id": "f1b16307-b30d-467e-a7c7-4212b3998422",
     "name": "SC RG read",
@@ -26222,7 +26202,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('SC RG HTTP').first().json.rows || [];\nconst qp = (() => { try { return JSON.parse((rows[0] && rows[0].quick_payload) || '{}'); } catch (e) { return {}; } })();\nconst state = (rows[0] && rows[0].state) || '';\nconst aa = Number(rows[0] && rows[0].auto_approve) || 0;\nif (aa === 1 && state === 'SCRIPT_AWAIT' && qp.flow) {\n  const script = String(qp.script || '').trim();\n  if (!script) return [{ json: { mode: 'err', chat_id: p.chat_id, text: '⚠️ Сценарий не найден или устарел. Запусти генерацию заново.' } }];\n  if (qp.flow === 'au') {\n    return [{ json: { mode: 'au_video', chat_id: p.chat_id, script: script, topic_id: Number(qp.topic_id) || null, script_full: (qp.script_full && typeof qp.script_full === 'object') ? qp.script_full : { full_text: script }, source_url: String(qp.source_url || ''), video_length: Number(qp.video_length) || 30 } }];\n  }\n  return [{ json: { mode: 'sh_video', chat_id: p.chat_id, script: script, topic: String(qp.topic || '') } }];\n}\nif (state !== 'SCRIPT_AWAIT' || !qp.flow) {\n  return [{ json: { mode: 'err', chat_id: p.chat_id, text: '⚠️ Сценарий не найден или устарел. Запусти генерацию заново.' } }];\n}\nconst attempts = (Number(qp.attempts) || 1) + 1;\nif (attempts > 2) {\n  return [{ json: { mode: 'err', chat_id: p.chat_id, text: '⚠️ Лимит генераций сценария (2) исчерпан. Напиши свой текст — кнопка ✏️ или просто пришли его.' } }];\n}\nif (qp.flow === 'au') {\n  return [{ json: { mode: 'au_regen', chat_id: p.chat_id, topic_id: Number(qp.topic_id) || null,\n    source_url: String(qp.source_url || ''), video_length: Number(qp.video_length) || 30, attempts: attempts,\n    topic_title: String(qp.topic_title || ''), topic_rationale: String(qp.topic_rationale || '') } }];\n}\nreturn [{ json: { mode: 'sh_regen', chat_id: p.chat_id, topic: String(qp.topic || ''), attempts: attempts } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('SC RG HTTP').first().json.rows || [];\nconst qp = (() => { try { return JSON.parse((rows[0] && rows[0].quick_payload) || '{}'); } catch (e) { return {}; } })();\nconst state = (rows[0] && rows[0].state) || '';\nif (state !== 'SCRIPT_AWAIT' || !qp.flow) {\n  return [{ json: { mode: 'err', chat_id: p.chat_id, text: '⚠️ Сценарий не найден или устарел. Запусти генерацию заново.' } }];\n}\nconst attempts = (Number(qp.attempts) || 1) + 1;\nif (attempts > 2) {\n  return [{ json: { mode: 'err', chat_id: p.chat_id, text: '⚠️ Лимит генераций сценария (2) исчерпан. Напиши свой текст — кнопка ✏️ или просто пришли его.' } }];\n}\nif (qp.flow === 'au') {\n  return [{ json: { mode: 'au_regen', chat_id: p.chat_id, topic_id: Number(qp.topic_id) || null,\n    source_url: String(qp.source_url || ''), video_length: Number(qp.video_length) || 30, attempts: attempts,\n    topic_title: String(qp.topic_title || ''), topic_rationale: String(qp.topic_rationale || '') } }];\n}\nreturn [{ json: { mode: 'sh_regen', chat_id: p.chat_id, topic: String(qp.topic || ''), attempts: attempts } }];\n"
     },
     "id": "ebc630b1-21b0-4893-b20d-ef4635759ca0",
     "name": "SC RG route",
@@ -26277,46 +26257,6 @@
          ],
          "combinator": "and"
         }
-       },
-       {
-        "conditions": {
-         "options": {
-          "caseSensitive": true,
-          "leftValue": "",
-          "typeValidation": "strict"
-         },
-         "conditions": [
-          {
-           "leftValue": "={{ $json.mode }}",
-           "rightValue": "sh_video",
-           "operator": {
-            "type": "string",
-            "operation": "equals"
-           }
-          }
-         ],
-         "combinator": "and"
-        }
-       },
-       {
-        "conditions": {
-         "options": {
-          "caseSensitive": true,
-          "leftValue": "",
-          "typeValidation": "strict"
-         },
-         "conditions": [
-          {
-           "leftValue": "={{ $json.mode }}",
-           "rightValue": "au_video",
-           "operator": {
-            "type": "string",
-            "operation": "equals"
-           }
-          }
-         ],
-         "combinator": "and"
-        }
        }
       ]
      },
@@ -26337,7 +26277,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst item = $input.first().json || {};\nconst payload = JSON.stringify({\n  flow: 'au', topic_id: Number(item.topic_id) || null, script: null, script_full: null,\n  source_url: String(item.source_url || ''), video_length: Number(item.video_length) || 30,\n  attempts: Number(item.attempts) || 1,\n  topic_title: String(item.topic_title || ''), topic_rationale: String(item.topic_rationale || ''),\n  auto_approve: 0\n});\nconst dur = Number(item.video_length) || 30;\nconst words = Math.round(dur * 65 / 30);\nconst prompt = 'Напиши сценарий короткого вертикального видео (' + dur + ' сек, ~' + words + ' слов, русский).\\nТема: ' + (item.topic_title || '') + '\\nИсточник: ' + (item.source_url || '') + '\\nРационале: ' + (item.topic_rationale || '') + '\\n\\nВерни строго JSON: {\"hook\", \"body\", \"cta\", \"full_text\", \"target_length_sec\", \"estimated_words\", \"format_tag\", \"notes\"}. Без markdown.';\nconst sql = \"UPDATE sessions SET state = 'CYCLE_GENERATION_PENDING', quick_payload = json_set(?, '$.auto_approve', COALESCE((SELECT auto_approve FROM users WHERE tg_user_id = ?), 0)), updated_at = datetime('now') WHERE tg_user_id = ?\";\nreturn [{ json: { sql: sql, params: [payload, p.tg_user_id, p.tg_user_id], skill: 'scriptwriter', prompt: prompt } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst item = $input.first().json || {};\nconst payload = JSON.stringify({\n  flow: 'au', topic_id: Number(item.topic_id) || null, script: null, script_full: null,\n  source_url: String(item.source_url || ''), video_length: Number(item.video_length) || 30,\n  attempts: Number(item.attempts) || 1,\n  topic_title: String(item.topic_title || ''), topic_rationale: String(item.topic_rationale || ''),\n  auto_approve: 0\n});\nconst dur = Number(item.video_length) || 30;\nconst words = Math.round(dur * 65 / 30);\nconst prompt = 'Напиши сценарий короткого вертикального видео (' + dur + ' сек, ~' + words + ' слов, русский).\\nТема: ' + (item.topic_title || '') + '\\nИсточник: ' + (item.source_url || '') + '\\nРационале: ' + (item.topic_rationale || '') + '\\n\\nВерни строго JSON: {\"hook\", \"body\", \"cta\", \"full_text\", \"target_length_sec\", \"estimated_words\", \"format_tag\", \"notes\"}. Без markdown.';\nconst sql = \"UPDATE sessions SET state = 'CYCLE_GENERATION_PENDING', quick_payload = ?, updated_at = datetime('now') WHERE tg_user_id = ?\";\nreturn [{ json: { sql: sql, params: [payload, p.tg_user_id], skill: 'scriptwriter', prompt: prompt } }];\n"
     },
     "id": "d90a5e7d-6cd2-4f8d-87ac-28b7dff4c7d6",
     "name": "AU RG build",
@@ -26707,7 +26647,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst r = $input.first().json || {};\nreturn [{ json: { sql: \"UPDATE sessions SET state='CYCLE_PUBLISH_PENDING', generation_id=?, selected_platforms=COALESCE(NULLIF(selected_platforms,''), (SELECT c.publish_platforms FROM clients c WHERE c.id = (SELECT COALESCE((SELECT c.id FROM clients c WHERE c.status='active' AND c.id = COALESCE((SELECT u.active_client_id FROM users u WHERE u.tg_user_id = ?), (SELECT CAST(value AS INTEGER) FROM settings WHERE key='active_client_id'))), (SELECT c2.id FROM clients c2 WHERE c2.status='active' ORDER BY c2.id LIMIT 1), 0)))), updated_at=datetime('now') WHERE tg_user_id=?\", params: [r.generation_id, p.tg_user_id, p.tg_user_id] } }];"
+     "jsCode": "const p = $('Parser').first().json;\nconst r = $('VD OK route').first().json;\nreturn [{ json: { sql: \"UPDATE sessions SET state='CYCLE_PUBLISH_PENDING', generation_id=?, selected_platforms=COALESCE(NULLIF(selected_platforms,''), (SELECT c.publish_platforms FROM clients c WHERE c.id = (SELECT COALESCE((SELECT c.id FROM clients c WHERE c.status='active' AND c.id = COALESCE((SELECT u.active_client_id FROM users u WHERE u.tg_user_id = ?), (SELECT CAST(value AS INTEGER) FROM settings WHERE key='active_client_id'))), (SELECT c2.id FROM clients c2 WHERE c2.status='active' ORDER BY c2.id LIMIT 1), 0)))), updated_at=datetime('now') WHERE tg_user_id=?\", params: [r.generation_id, p.tg_user_id, p.tg_user_id] } }];"
     },
     "id": "42b3a243-cb12-48f2-880b-61d4d0c26eee",
     "name": "VD OK Build session",
@@ -26833,7 +26773,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT state, quick_payload, (SELECT COALESCE(auto_approve, 0) FROM users WHERE tg_user_id = ?) AS auto_approve FROM sessions WHERE tg_user_id = ?\", params: [p.tg_user_id, p.tg_user_id] } }];"
+     "jsCode": "const p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT state, quick_payload FROM sessions WHERE tg_user_id = ?\", params: [p.tg_user_id] } }];"
     },
     "id": "2b393e72-61db-47e2-a5e7-2d2eb181f6b9",
     "name": "VD RG read",
@@ -26878,7 +26818,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst rows = $('VD RG HTTP').first().json.rows || [];\nconst qp = (() => { try { return JSON.parse((rows[0] && rows[0].quick_payload) || '{}'); } catch (e) { return {}; } })();\nconst state = (rows[0] && rows[0].state) || '';\nconst aa = Number(rows[0] && rows[0].auto_approve) || 0;\nif (aa === 1 && state === 'VIDEO_AWAIT' && String(qp.generation_id || '')) {\n  return [{ json: { mode: 'publish', chat_id: p.chat_id, generation_id: String(qp.generation_id) } }];\n}\nconst script = String(qp.script || '').trim();\nif (state !== 'VIDEO_AWAIT' || !script) {\n  return [{ json: { mode: 'err', chat_id: p.chat_id, text: '⚠️ Видео не найдено или устарело. Запусти генерацию заново.' } }];\n}\nreturn [{ json: { mode: 'regen', chat_id: p.chat_id, script: script, topic_id: Number(qp.topic_id) || null, flow: String(qp.flow || 'sh') } }];"
+     "jsCode": "const p = $('Parser').first().json;\nconst rows = $('VD RG HTTP').first().json.rows || [];\nconst qp = (() => { try { return JSON.parse((rows[0] && rows[0].quick_payload) || '{}'); } catch (e) { return {}; } })();\nconst state = (rows[0] && rows[0].state) || '';\nconst script = String(qp.script || '').trim();\nif (state !== 'VIDEO_AWAIT' || !script) {\n  return [{ json: { mode: 'err', chat_id: p.chat_id, text: '⚠️ Видео не найдено или устарело. Запусти генерацию заново.' } }];\n}\nreturn [{ json: { mode: 'regen', chat_id: p.chat_id, script: script, topic_id: Number(qp.topic_id) || null, flow: String(qp.flow || 'sh') } }];"
     },
     "id": "3b641b79-ea22-494f-867a-56ea296c03ba",
     "name": "VD RG route",
@@ -26905,26 +26845,6 @@
           {
            "leftValue": "={{ $json.mode }}",
            "rightValue": "regen",
-           "operator": {
-            "type": "string",
-            "operation": "equals"
-           }
-          }
-         ],
-         "combinator": "and"
-        }
-       },
-       {
-        "conditions": {
-         "options": {
-          "caseSensitive": true,
-          "leftValue": "",
-          "typeValidation": "strict"
-         },
-         "conditions": [
-          {
-           "leftValue": "={{ $json.mode }}",
-           "rightValue": "publish",
            "operator": {
             "type": "string",
             "operation": "equals"
@@ -27151,7 +27071,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT state, quick_payload, (SELECT COALESCE(auto_approve, 0) FROM users WHERE tg_user_id = ?) AS auto_approve FROM sessions WHERE tg_user_id = ?\", params: [p.tg_user_id, p.tg_user_id] } }];"
+     "jsCode": "const p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT state, quick_payload FROM sessions WHERE tg_user_id = ?\", params: [p.tg_user_id] } }];"
     },
     "id": "48ceed3d-7e11-4ce3-83e7-14d365b8bece",
     "name": "VD RJ read",
@@ -27196,7 +27116,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst rows = $('VD RJ HTTP').first().json.rows || [];\nconst qp = (() => { try { return JSON.parse((rows[0] && rows[0].quick_payload) || '{}'); } catch (e) { return {}; } })();\nconst state = (rows[0] && rows[0].state) || '';\nconst aa = Number(rows[0] && rows[0].auto_approve) || 0;\nif (aa === 1 && state === 'VIDEO_AWAIT' && String(qp.generation_id || '')) {\n  return [{ json: { mode: 'publish', chat_id: p.chat_id, generation_id: String(qp.generation_id) } }];\n}\nconst genId = String(qp.generation_id || '');\nif (state !== 'VIDEO_AWAIT' || !genId) {\n  return [{ json: { mode: 'err', chat_id: p.chat_id, text: '⚠️ Видео не найдено или устарело. Запусти генерацию заново.' } }];\n}\nreturn [{ json: { mode: 'reject', chat_id: p.chat_id, generation_id: genId } }];"
+     "jsCode": "const p = $('Parser').first().json;\nconst rows = $('VD RJ HTTP').first().json.rows || [];\nconst qp = (() => { try { return JSON.parse((rows[0] && rows[0].quick_payload) || '{}'); } catch (e) { return {}; } })();\nconst state = (rows[0] && rows[0].state) || '';\nconst genId = String(qp.generation_id || '');\nif (state !== 'VIDEO_AWAIT' || !genId) {\n  return [{ json: { mode: 'err', chat_id: p.chat_id, text: '⚠️ Видео не найдено или устарело. Запусти генерацию заново.' } }];\n}\nreturn [{ json: { mode: 'reject', chat_id: p.chat_id, generation_id: genId } }];"
     },
     "id": "fee4e8bb-a84e-46c4-8038-c37b6ebece95",
     "name": "VD RJ route",
@@ -27223,26 +27143,6 @@
           {
            "leftValue": "={{ $json.mode }}",
            "rightValue": "reject",
-           "operator": {
-            "type": "string",
-            "operation": "equals"
-           }
-          }
-         ],
-         "combinator": "and"
-        }
-       },
-       {
-        "conditions": {
-         "options": {
-          "caseSensitive": true,
-          "leftValue": "",
-          "typeValidation": "strict"
-         },
-         "conditions": [
-          {
-           "leftValue": "={{ $json.mode }}",
-           "rightValue": "publish",
            "operator": {
             "type": "string",
             "operation": "equals"
@@ -27425,565 +27325,6 @@
       "name": "telegram"
      }
     }
-   },
-   {
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT role, COALESCE(auto_approve, 0) AS auto_approve FROM users WHERE tg_user_id = ?\", params: [p.tg_user_id] } }];"
-    },
-    "name": "AUT Build role",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     600,
-     4400
-    ],
-    "id": "a0320911-0000-4000-8000-000000000911"
-   },
-   {
-    "parameters": {
-     "method": "POST",
-     "url": "http://db-bridge:8787/query",
-     "sendHeaders": true,
-     "headerParameters": {
-      "parameters": [
-       {
-        "name": "X-BRIDGE-TOKEN",
-        "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
-       }
-      ]
-     },
-     "sendBody": true,
-     "contentType": "json",
-     "specifyBody": "json",
-     "jsonBody": "={{ $json }}",
-     "options": {
-      "timeout": 15000
-     }
-    },
-    "name": "AUT HTTP role",
-    "type": "n8n-nodes-base.httpRequest",
-    "typeVersion": 4.5,
-    "position": [
-     880,
-     4400
-    ],
-    "id": "a0320912-0000-4000-8000-000000000912"
-   },
-   {
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "const rows = $('AUT HTTP role').first().json.rows || [];\nconst role = rows.length ? rows[0].role : null;\nconst cur = rows.length ? Number(rows[0].auto_approve) || 0 : 0;\nif (role !== 'admin') return [{ json: { ok: false, text: '⛔ Только владелец может управлять авто-режимом' } }];\nreturn [{ json: { ok: true, cur: cur } }];"
-    },
-    "name": "AUT Check role",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     1160,
-     4400
-    ],
-    "id": "a0320913-0000-4000-8000-000000000913"
-   },
-   {
-    "parameters": {
-     "mode": "rules",
-     "rules": {
-      "values": [
-       {
-        "conditions": {
-         "options": {
-          "caseSensitive": true,
-          "leftValue": "",
-          "typeValidation": "strict"
-         },
-         "conditions": [
-          {
-           "leftValue": "={{ $json.ok }}",
-           "rightValue": true,
-           "operator": {
-            "type": "boolean",
-            "operation": "equals"
-           }
-          }
-         ],
-         "combinator": "and"
-        }
-       }
-      ]
-     },
-     "options": {
-      "fallbackOutput": "extra"
-     }
-    },
-    "name": "Switch AUT role",
-    "type": "n8n-nodes-base.switch",
-    "typeVersion": 3.4,
-    "position": [
-     1440,
-     4400
-    ],
-    "id": "a0320914-0000-4000-8000-000000000914"
-   },
-   {
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst cur = Number($('AUT Check role').first().json.cur) || 0;\nconst action = String((p.args && p.args.action) || 'toggle');\nlet next = 0;\nif (action === 'on') next = 1;\nelse if (action === 'off') next = 0;\nelse next = cur ? 0 : 1;\nreturn [{ json: { sql: \"UPDATE users SET auto_approve = ? WHERE tg_user_id = ?\", params: [next, p.tg_user_id], next: next } }];"
-    },
-    "name": "AUT Build update",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     1760,
-     4240
-    ],
-    "id": "a0320915-0000-4000-8000-000000000915"
-   },
-   {
-    "parameters": {
-     "method": "POST",
-     "url": "http://db-bridge:8787/query",
-     "sendHeaders": true,
-     "headerParameters": {
-      "parameters": [
-       {
-        "name": "X-BRIDGE-TOKEN",
-        "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
-       }
-      ]
-     },
-     "sendBody": true,
-     "contentType": "json",
-     "specifyBody": "json",
-     "jsonBody": "={{ $json }}",
-     "options": {
-      "timeout": 15000
-     }
-    },
-    "name": "AUT HTTP update",
-    "type": "n8n-nodes-base.httpRequest",
-    "typeVersion": 4.5,
-    "position": [
-     2040,
-     4240
-    ],
-    "id": "a0320916-0000-4000-8000-000000000916"
-   },
-   {
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*\\[\\]`])/g, '\\\\$1');\nconst next = Number($('AUT Build update').first().json.next) || 0;\nconst text = '⚙️ Авто-режим: ' + (next ? 'вкл' : 'выкл');\nreturn [{ json: { chat_id: p.chat_id, text: esc(text) } }];"
-    },
-    "name": "AUT Format",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     2320,
-     4240
-    ],
-    "id": "a0320917-0000-4000-8000-000000000917"
-   },
-   {
-    "parameters": {
-     "resource": "message",
-     "operation": "sendMessage",
-     "chatId": "={{ $('Parser').first().json.chat_id }}",
-     "text": "={{ $json.text }}",
-     "additionalFields": {
-      "appendAttribution": false
-     },
-     "inlineKeyboard": {
-      "rows": [
-       {
-        "row": {
-         "buttons": [
-          {
-           "text": "📋 Меню",
-           "additionalFields": {
-            "callback_data": "cmd:menu"
-           }
-          }
-         ]
-        }
-       }
-      ]
-     },
-     "replyMarkup": "inlineKeyboard"
-    },
-    "name": "TG AUT",
-    "type": "n8n-nodes-base.telegram",
-    "typeVersion": 1.2,
-    "position": [
-     2600,
-     4240
-    ],
-    "id": "a0320000-0000-4000-8000-000000000001",
-    "credentials": {
-     "telegramApi": {
-      "id": "10000000-0000-4000-8000-000000000004",
-      "name": "telegram"
-     }
-    }
-   },
-   {
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*\\[\\]`])/g, '\\\\$1');\nreturn [{ json: { chat_id: p.chat_id, text: esc('⛔ Только владелец может управлять авто-режимом') } }];"
-    },
-    "name": "AUT Format denied",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     1760,
-     4560
-    ],
-    "id": "a0320919-0000-4000-8000-000000000919"
-   },
-   {
-    "parameters": {
-     "resource": "message",
-     "operation": "sendMessage",
-     "chatId": "={{ $('Parser').first().json.chat_id }}",
-     "text": "={{ $json.text }}",
-     "additionalFields": {
-      "appendAttribution": false
-     },
-     "inlineKeyboard": {
-      "rows": [
-       {
-        "row": {
-         "buttons": [
-          {
-           "text": "📋 Меню",
-           "additionalFields": {
-            "callback_data": "cmd:menu"
-           }
-          }
-         ]
-        }
-       }
-      ]
-     },
-     "replyMarkup": "inlineKeyboard"
-    },
-    "name": "TG AUT denied",
-    "type": "n8n-nodes-base.telegram",
-    "typeVersion": 1.2,
-    "position": [
-     2040,
-     4560
-    ],
-    "id": "a0320000-0000-4000-8000-000000000002",
-    "credentials": {
-     "telegramApi": {
-      "id": "10000000-0000-4000-8000-000000000004",
-      "name": "telegram"
-     }
-    }
-   },
-   {
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT COALESCE(auto_approve, 0) AS auto_approve FROM users WHERE tg_user_id = ?\", params: [p.tg_user_id] } }];"
-    },
-    "name": "SH AA Build",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     600,
-     5600
-    ],
-    "id": "a0320921-0000-4000-8000-000000000921"
-   },
-   {
-    "parameters": {
-     "method": "POST",
-     "url": "http://db-bridge:8787/query",
-     "sendHeaders": true,
-     "headerParameters": {
-      "parameters": [
-       {
-        "name": "X-BRIDGE-TOKEN",
-        "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
-       }
-      ]
-     },
-     "sendBody": true,
-     "contentType": "json",
-     "specifyBody": "json",
-     "jsonBody": "={{ $json }}",
-     "options": {
-      "timeout": 15000
-     }
-    },
-    "name": "SH AA HTTP",
-    "type": "n8n-nodes-base.httpRequest",
-    "typeVersion": 4.5,
-    "position": [
-     880,
-     5600
-    ],
-    "id": "a0320922-0000-4000-8000-000000000922"
-   },
-   {
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst rows = $('SH AA HTTP').first().json.rows || [];\nconst aa = Number(rows[0] && rows[0].auto_approve) || 0;\nconst f = $('SHT Format').first().json;\nconst script = String(f.script || '').trim();\nlet topic = '';\nlet attempts = 1;\ntry { const u = $('SH Update state').first().json; topic = String(u.topic || ''); attempts = Number(u.attempts) || 1; } catch (e) {}\nif (aa === 1 && script) return [{ json: { mode: 'auto', chat_id: p.chat_id, script: script, topic: topic, attempts: attempts } }];\nreturn [{ json: { mode: 'verify', chat_id: p.chat_id } }];"
-    },
-    "name": "SH AA Check",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     1160,
-     5600
-    ],
-    "id": "a0320923-0000-4000-8000-000000000923"
-   },
-   {
-    "parameters": {
-     "mode": "rules",
-     "rules": {
-      "values": [
-       {
-        "conditions": {
-         "options": {
-          "caseSensitive": true,
-          "leftValue": "",
-          "typeValidation": "strict"
-         },
-         "conditions": [
-          {
-           "leftValue": "={{ $json.mode }}",
-           "rightValue": "auto",
-           "operator": {
-            "type": "string",
-            "operation": "equals"
-           }
-          }
-         ],
-         "combinator": "and"
-        }
-       }
-      ]
-     },
-     "options": {
-      "fallbackOutput": "extra"
-     }
-    },
-    "name": "Switch SH AA",
-    "type": "n8n-nodes-base.switch",
-    "typeVersion": 3.4,
-    "position": [
-     1440,
-     5600
-    ],
-    "id": "a0320924-0000-4000-8000-000000000924"
-   },
-   {
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT COALESCE(auto_approve, 0) AS auto_approve FROM users WHERE tg_user_id = ?\", params: [p.tg_user_id] } }];"
-    },
-    "name": "AU AA Build",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     600,
-     6200
-    ],
-    "id": "a0320925-0000-4000-8000-000000000925"
-   },
-   {
-    "parameters": {
-     "method": "POST",
-     "url": "http://db-bridge:8787/query",
-     "sendHeaders": true,
-     "headerParameters": {
-      "parameters": [
-       {
-        "name": "X-BRIDGE-TOKEN",
-        "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
-       }
-      ]
-     },
-     "sendBody": true,
-     "contentType": "json",
-     "specifyBody": "json",
-     "jsonBody": "={{ $json }}",
-     "options": {
-      "timeout": 15000
-     }
-    },
-    "name": "AU AA HTTP",
-    "type": "n8n-nodes-base.httpRequest",
-    "typeVersion": 4.5,
-    "position": [
-     880,
-     6200
-    ],
-    "id": "a0320926-0000-4000-8000-000000000926"
-   },
-   {
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst rows = $('AU AA HTTP').first().json.rows || [];\nconst aa = Number(rows[0] && rows[0].auto_approve) || 0;\nconst b = $('AU Verify build').first().json;\nif (aa === 1 && b.script) {\n  return [{ json: { mode: 'auto', chat_id: p.chat_id, script: String(b.script || ''),\n    script_full: (b.script_full && typeof b.script_full === 'object') ? b.script_full : { full_text: String(b.script || '') },\n    topic_id: Number(b.topic_id) || null, source_url: String(b.source_url || ''), video_length: Number(b.video_length) || 30 } }];\n}\nreturn [{ json: { mode: 'verify', chat_id: p.chat_id } }];"
-    },
-    "name": "AU Verify route",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     1760,
-     6400
-    ],
-    "id": "a0320927-0000-4000-8000-000000000927"
-   },
-   {
-    "parameters": {
-     "mode": "rules",
-     "rules": {
-      "values": [
-       {
-        "conditions": {
-         "options": {
-          "caseSensitive": true,
-          "leftValue": "",
-          "typeValidation": "strict"
-         },
-         "conditions": [
-          {
-           "leftValue": "={{ $json.mode }}",
-           "rightValue": "auto",
-           "operator": {
-            "type": "string",
-            "operation": "equals"
-           }
-          }
-         ],
-         "combinator": "and"
-        }
-       }
-      ]
-     },
-     "options": {
-      "fallbackOutput": "extra"
-     }
-    },
-    "name": "Switch AU verify",
-    "type": "n8n-nodes-base.switch",
-    "typeVersion": 3.4,
-    "position": [
-     2040,
-     6400
-    ],
-    "id": "a0320928-0000-4000-8000-000000000928"
-   },
-   {
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT state, quick_payload, (SELECT COALESCE(auto_approve, 0) FROM users WHERE tg_user_id = ?) AS auto_approve FROM sessions WHERE tg_user_id = ?\", params: [p.tg_user_id, p.tg_user_id] } }];"
-    },
-    "name": "SC ED read",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     600,
-     5200
-    ],
-    "id": "a0320929-0000-4000-8000-000000000929"
-   },
-   {
-    "parameters": {
-     "method": "POST",
-     "url": "http://db-bridge:8787/query",
-     "sendHeaders": true,
-     "headerParameters": {
-      "parameters": [
-       {
-        "name": "X-BRIDGE-TOKEN",
-        "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
-       }
-      ]
-     },
-     "sendBody": true,
-     "contentType": "json",
-     "specifyBody": "json",
-     "jsonBody": "={{ $json }}",
-     "options": {
-      "timeout": 15000
-     }
-    },
-    "name": "SC ED HTTP",
-    "type": "n8n-nodes-base.httpRequest",
-    "typeVersion": 4.5,
-    "position": [
-     880,
-     5200
-    ],
-    "id": "a0320930-0000-4000-8000-000000000930"
-   },
-   {
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst rows = $('SC ED HTTP').first().json.rows || [];\nconst qp = (() => { try { return JSON.parse((rows[0] && rows[0].quick_payload) || '{}'); } catch (e) { return {}; } })();\nconst state = (rows[0] && rows[0].state) || '';\nconst aa = Number(rows[0] && rows[0].auto_approve) || 0;\nif (aa === 1 && state === 'SCRIPT_AWAIT' && qp.flow) {\n  const script = String(qp.script || '').trim();\n  if (!script) return [{ json: { mode: 'err', chat_id: p.chat_id, text: '⚠️ Сценарий не найден или устарел. Запусти генерацию заново.' } }];\n  if (qp.flow === 'au') {\n    return [{ json: { mode: 'au_video', chat_id: p.chat_id, script: script, topic_id: Number(qp.topic_id) || null, script_full: (qp.script_full && typeof qp.script_full === 'object') ? qp.script_full : { full_text: script }, source_url: String(qp.source_url || ''), video_length: Number(qp.video_length) || 30 } }];\n  }\n  return [{ json: { mode: 'sh_video', chat_id: p.chat_id, script: script, topic: String(qp.topic || '') } }];\n}\nreturn [{ json: { mode: 'edit', chat_id: p.chat_id } }];"
-    },
-    "name": "SC ED route",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     1160,
-     5200
-    ],
-    "id": "a0320931-0000-4000-8000-000000000931"
-   },
-   {
-    "parameters": {
-     "mode": "rules",
-     "rules": {
-      "values": [
-       {
-        "conditions": {
-         "options": {
-          "caseSensitive": true,
-          "leftValue": "",
-          "typeValidation": "strict"
-         },
-         "conditions": [
-          {
-           "leftValue": "={{ $json.mode }}",
-           "rightValue": "edit",
-           "operator": {
-            "type": "string",
-            "operation": "equals"
-           }
-          }
-         ],
-         "combinator": "and"
-        }
-       }
-      ]
-     },
-     "options": {
-      "fallbackOutput": "extra"
-     }
-    },
-    "name": "Switch SC ED",
-    "type": "n8n-nodes-base.switch",
-    "typeVersion": 3.4,
-    "position": [
-     1440,
-     5200
-    ],
-    "id": "a0320932-0000-4000-8000-000000000932"
    }
   ],
   "connections": {
@@ -28347,13 +27688,6 @@
      [
       {
        "node": "QS Build role",
-       "type": "main",
-       "index": 0
-      }
-     ],
-     [
-      {
-       "node": "AUT Build role",
        "type": "main",
        "index": 0
       }
@@ -32656,7 +31990,7 @@
      ],
      [
       {
-       "node": "SH AA Build",
+       "node": "SH Verify build",
        "type": "main",
        "index": 0
       }
@@ -33131,7 +32465,7 @@
     "main": [
      [
       {
-       "node": "AU AA Build",
+       "node": "AU Verify build",
        "type": "main",
        "index": 0
       }
@@ -37476,7 +36810,7 @@
     "main": [
      [
       {
-       "node": "AU Verify route",
+       "node": "AU Verify format",
        "type": "main",
        "index": 0
       }
@@ -37636,20 +36970,6 @@
      ],
      [
       {
-       "node": "SH Update state",
-       "type": "main",
-       "index": 0
-      }
-     ],
-     [
-      {
-       "node": "SC Cont build",
-       "type": "main",
-       "index": 0
-      }
-     ],
-     [
-      {
        "node": "AU Build alert",
        "type": "main",
        "index": 0
@@ -37683,7 +37003,7 @@
     "main": [
      [
       {
-       "node": "SC ED read",
+       "node": "SC ED format",
        "type": "main",
        "index": 0
       }
@@ -37909,13 +37229,6 @@
      ],
      [
       {
-       "node": "VD OK Build session",
-       "type": "main",
-       "index": 0
-      }
-     ],
-     [
-      {
        "node": "VD RG Format err",
        "type": "main",
        "index": 0
@@ -38033,13 +37346,6 @@
      ],
      [
       {
-       "node": "VD OK Build session",
-       "type": "main",
-       "index": 0
-      }
-     ],
-     [
-      {
        "node": "VD RJ Format err",
        "type": "main",
        "index": 0
@@ -38085,254 +37391,6 @@
      [
       {
        "node": "TG vd rj err",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "AUT Build role": {
-    "main": [
-     [
-      {
-       "node": "AUT HTTP role",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "AUT HTTP role": {
-    "main": [
-     [
-      {
-       "node": "AUT Check role",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "AUT Check role": {
-    "main": [
-     [
-      {
-       "node": "Switch AUT role",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "Switch AUT role": {
-    "main": [
-     [
-      {
-       "node": "AUT Build update",
-       "type": "main",
-       "index": 0
-      }
-     ],
-     [
-      {
-       "node": "AUT Format denied",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "AUT Build update": {
-    "main": [
-     [
-      {
-       "node": "AUT HTTP update",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "AUT HTTP update": {
-    "main": [
-     [
-      {
-       "node": "AUT Format",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "AUT Format": {
-    "main": [
-     [
-      {
-       "node": "TG AUT",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "AUT Format denied": {
-    "main": [
-     [
-      {
-       "node": "TG AUT denied",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "SH AA Build": {
-    "main": [
-     [
-      {
-       "node": "SH AA HTTP",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "SH AA HTTP": {
-    "main": [
-     [
-      {
-       "node": "SH AA Check",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "SH AA Check": {
-    "main": [
-     [
-      {
-       "node": "Switch SH AA",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "Switch SH AA": {
-    "main": [
-     [
-      {
-       "node": "SH Update state",
-       "type": "main",
-       "index": 0
-      }
-     ],
-     [
-      {
-       "node": "SH Verify build",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "AU AA Build": {
-    "main": [
-     [
-      {
-       "node": "AU AA HTTP",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "AU AA HTTP": {
-    "main": [
-     [
-      {
-       "node": "AU Verify build",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "AU Verify route": {
-    "main": [
-     [
-      {
-       "node": "Switch AU verify",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "Switch AU verify": {
-    "main": [
-     [
-      {
-       "node": "SC Cont build",
-       "type": "main",
-       "index": 0
-      }
-     ],
-     [
-      {
-       "node": "AU Verify format",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "SC ED read": {
-    "main": [
-     [
-      {
-       "node": "SC ED HTTP",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "SC ED HTTP": {
-    "main": [
-     [
-      {
-       "node": "SC ED route",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "SC ED route": {
-    "main": [
-     [
-      {
-       "node": "Switch SC ED",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "Switch SC ED": {
-    "main": [
-     [
-      {
-       "node": "SC ED format",
-       "type": "main",
-       "index": 0
-      }
-     ],
-     [
-      {
-       "node": "Switch SC OK",
        "type": "main",
        "index": 0
       }
