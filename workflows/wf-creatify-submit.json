@@ -266,7 +266,7 @@
      "sendBody": true,
      "contentType": "json",
      "specifyBody": "json",
-     "jsonBody": "{{ JSON.stringify(Object.assign({}, $('Code validate').first().json.body.json_payload, {webhook_url: ($env.WEBHOOK_URL || '').replace(/\\/$/, '') + '/webhook/factory/creatify/6d8f2a41c9e7b3d5f0a1c4e8'})) }}",
+     "jsonBody": "={{ Object.assign({}, $('Code validate').first().json.body.json_payload, {webhook_url: (($env.WEBHOOK_URL || '').replace(/\\/+$/, '') || '') + '/webhook/factory/creatify/6d8f2a41c9e7b3d5f0a1c4e8'}) }}",
      "options": {},
      "sendHeaders": true,
      "specifyHeaders": "keypair",
