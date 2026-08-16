@@ -28644,9 +28644,7 @@
       "appendAttribution": false
      },
      "replyMarkup": "inlineKeyboard",
-     "inlineKeyboard": {
-      "rows": "={{ $json.rows }}"
-     }
+     "inlineKeyboard": "={{ {rows: $json.rows} }}"
     },
     "id": "5909b121-055e-43f7-ba0e-8684feeffd07",
     "name": "TG avv ask avatar",
@@ -29221,9 +29219,7 @@
       "appendAttribution": false
      },
      "replyMarkup": "inlineKeyboard",
-     "inlineKeyboard": {
-      "rows": "={{ $json.rows }}"
-     }
+     "inlineKeyboard": "={{ {rows: $json.rows} }}"
     },
     "id": "c1a2b3c4-0000-4000-8000-000000000002",
     "name": "TG avv preview photo",
@@ -29250,9 +29246,7 @@
       "appendAttribution": false
      },
      "replyMarkup": "inlineKeyboard",
-     "inlineKeyboard": {
-      "rows": "={{ $json.rows }}"
-     }
+     "inlineKeyboard": "={{ {rows: $json.rows} }}"
     },
     "id": "c1a2b3c4-0000-4000-8000-000000000003",
     "name": "TG avv preview text",

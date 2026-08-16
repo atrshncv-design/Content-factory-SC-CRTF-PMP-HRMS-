@@ -80,6 +80,8 @@ class WfTgBotStructureTests(unittest.TestCase):
             if n["type"] != "n8n-nodes-base.telegram":
                 continue
             kb = n.get("parameters", {}).get("inlineKeyboard", {})
+            if not isinstance(kb, dict):  # expression-клавиатура целиком (= {{ {rows: ...} }})
+                continue
             rows_val = kb.get("rows", [])
             if isinstance(rows_val, str):  # expression-клавиатура (динамические кнопки)
                 continue
