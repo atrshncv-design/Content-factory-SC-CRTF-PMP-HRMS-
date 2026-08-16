@@ -103,7 +103,12 @@
       "timeout": 30000,
       "retryOnFail": true,
       "maxTries": 3,
-      "waitBetweenTries": 2000
+      "waitBetweenTries": 2000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
      }
     },
     "id": "cr7-cc-banner",
@@ -175,7 +180,12 @@
       "timeout": 120000,
       "retryOnFail": true,
       "maxTries": 3,
-      "waitBetweenTries": 5000
+      "waitBetweenTries": 5000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
      },
      "sendHeaders": true,
      "specifyHeaders": "keypair",
@@ -205,7 +215,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "// CR-7: нормализация ответа POST /api/iab_images/ -> {ok, banner_id, status, urls}\nconst r = ($json && typeof $json === 'object') ? $json : {};\nconst urls = Array.isArray(r.output) ? r.output.map((o) => ({\n  name: o.name || null,\n  size: o.size || null,\n  type: o.type || null,\n  url: o.url || null\n})) : [];\nreturn [{\n  json: {\n    ok: true,\n    banner_id: r.id || null,\n    status: r.status || null,\n    urls,\n    credits_used: (r.credits_used !== undefined && r.credits_used !== null) ? r.credits_used : null,\n    failed_reason: r.failed_reason || null,\n    raw: r\n  }\n}];"
+     "jsCode": "const r = ($json && typeof $json === 'object' && !Array.isArray($json)) ? $json : {};\nconst body = (r.body && typeof r.body === 'object' && !Array.isArray(r.body)) ? r.body : r;\nconst err = (typeof body.error === 'string' && body.error) ? body.error\n  : (typeof body.detail === 'string' && body.detail) ? body.detail\n  : (typeof body.message === 'string' && body.message) ? body.message : null;\nif (!body.id || err) {\n  return [{ json: { ok: false, error: err || 'invalid_response_no_id', raw: r } }];\n}\nconst urls = Array.isArray(body.output) ? body.output.map((o) => ({\n  name: o.name || null,\n  size: o.size || null,\n  type: o.type || null,\n  url: o.url || null\n})) : [];\nreturn [{\n  json: {\n    ok: true,\n    banner_id: body.id || null,\n    status: body.status || null,\n    urls,\n    credits_used: (body.credits_used !== undefined && body.credits_used !== null) ? body.credits_used : null,\n    failed_reason: body.failed_reason || null,\n    raw: body\n  }\n}];"
     },
     "id": "cr7-norm-banner",
     "name": "Code normalize banner",
@@ -356,7 +366,12 @@
       "timeout": 30000,
       "retryOnFail": true,
       "maxTries": 3,
-      "waitBetweenTries": 2000
+      "waitBetweenTries": 2000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
      }
     },
     "id": "cr7-cc-insp",
@@ -428,7 +443,12 @@
       "timeout": 120000,
       "retryOnFail": true,
       "maxTries": 3,
-      "waitBetweenTries": 5000
+      "waitBetweenTries": 5000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
      },
      "sendHeaders": true,
      "specifyHeaders": "keypair",
@@ -458,7 +478,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "// CR-7: нормализация ответа POST /api/inspiration_jobs/ -> {ok, inspiration_id, job_id, status}\nconst r = ($json && typeof $json === 'object') ? $json : {};\nreturn [{\n  json: {\n    ok: true,\n    inspiration_id: r.inspiration_id || null,\n    job_id: r.id || null,\n    status: r.status || null,\n    gen_type: r.gen_type || null,\n    output: r.output || null,\n    failed_reason: r.failed_reason || null,\n    credits_used: (r.credits_used !== undefined && r.credits_used !== null) ? r.credits_used : null,\n    raw: r\n  }\n}];"
+     "jsCode": "const r = ($json && typeof $json === 'object' && !Array.isArray($json)) ? $json : {};\nconst body = (r.body && typeof r.body === 'object' && !Array.isArray(r.body)) ? r.body : r;\nconst err = (typeof body.error === 'string' && body.error) ? body.error\n  : (typeof body.detail === 'string' && body.detail) ? body.detail\n  : (typeof body.message === 'string' && body.message) ? body.message : null;\nif (!body.id || err) {\n  return [{ json: { ok: false, error: err || 'invalid_response_no_id', raw: r } }];\n}\nreturn [{\n  json: {\n    ok: true,\n    inspiration_id: body.inspiration_id || null,\n    job_id: body.id || null,\n    status: body.status || null,\n    gen_type: body.gen_type || null,\n    output: body.output || null,\n    failed_reason: body.failed_reason || null,\n    credits_used: (body.credits_used !== undefined && body.credits_used !== null) ? body.credits_used : null,\n    raw: body\n  }\n}];"
     },
     "id": "cr7-norm-insp",
     "name": "Code normalize inspiration",

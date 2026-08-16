@@ -9,7 +9,7 @@ window.STATE =
   "briefFile": "2026-08-16-brief.md",
   "memoryFile": "AGENTS.md",
   "startedAt": "2026-08-16T08:09:59+04:00",
-  "updatedAt": "2026-08-16T10:42:55+04:00",
+  "updatedAt": "2026-08-16T11:25:00+04:00",
   "finishedAt": null,
   "stages": [
     {
@@ -61,8 +61,8 @@ window.STATE =
   ],
   "requirements": {
     "total": 19,
-    "done": 10,
-    "inTicket": 7,
+    "done": 11,
+    "inTicket": 6,
     "inSpec": 0,
     "placeholder": 1,
     "deferred": 1,
@@ -110,7 +110,7 @@ window.STATE =
         "hermes/skills/json-builder.md",
         "hermes-bridge/server.py"
       ],
-      "status": "pending",
+      "status": "done",
       "retries": 0
     },
     {
@@ -133,7 +133,7 @@ window.STATE =
         "workflows/wf-creatify-adclone.json",
         "workflows/wf-creatify-text.json"
       ],
-      "status": "pending",
+      "status": "done",
       "retries": 0
     },
     {
@@ -191,7 +191,7 @@ window.STATE =
         "workflows/wf-publish-status.json",
         "workflows/wf-sync-accounts.json"
       ],
-      "status": "pending",
+      "status": "done",
       "retries": 0
     },
     {

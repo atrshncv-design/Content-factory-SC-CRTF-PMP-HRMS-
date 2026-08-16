@@ -153,7 +153,12 @@
       "timeout": 120000,
       "retryOnFail": true,
       "maxTries": 3,
-      "waitBetweenTries": 5000
+      "waitBetweenTries": 5000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
      },
      "sendHeaders": true,
      "specifyHeaders": "keypair",
@@ -183,7 +188,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const r = $json;\nconst assets = Array.isArray(r.assets) ? r.assets : [];\nconst first = assets.length > 0 ? assets[0] : null;\nreturn [{\n  json: {\n    ok: true,\n    asset_id: r.id || null,\n    url: (first && first.url) || null,\n    status: r.status || null,\n    credits_used: r.credits_used || 0,\n    gen_type: r.gen_type || null,\n    failed_reason: r.failed_reason || null,\n    raw: r\n  }\n}];"
+     "jsCode": "const r = ($json && typeof $json === 'object' && !Array.isArray($json)) ? $json : {};\nconst body = (r.body && typeof r.body === 'object' && !Array.isArray(r.body)) ? r.body : r;\nconst err = (typeof body.error === 'string' && body.error) ? body.error\n  : (typeof body.detail === 'string' && body.detail) ? body.detail\n  : (typeof body.message === 'string' && body.message) ? body.message : null;\nif (!body.id || err) {\n  return [{ json: { ok: false, error: err || 'invalid_response_no_id', raw: r } }];\n}\nconst assets = Array.isArray(body.assets) ? body.assets : [];\nconst first = assets.length > 0 ? assets[0] : null;\nreturn [{\n  json: {\n    ok: true,\n    asset_id: body.id || null,\n    url: (first && first.url) || null,\n    status: body.status || null,\n    credits_used: body.credits_used || 0,\n    gen_type: body.gen_type || null,\n    failed_reason: body.failed_reason || null,\n    raw: body\n  }\n}];"
     }
    },
    {

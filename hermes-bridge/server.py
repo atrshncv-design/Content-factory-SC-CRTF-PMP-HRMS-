@@ -178,6 +178,57 @@ def _image_mime(ext):
     return IMAGE_MIME.get(ext, DEFAULT_IMAGE_MIME)
 
 
+TEXT_MARKERS_JSON_FENCE = re.compile(r"```(?:json)?\s*([\s\S]*?)```")
+
+
+def _normalize_json_answer(answer):
+    """json-builder seam: strip markdown fences / prose around a JSON object.
+
+    Гарантирует строгий JSON без обрамляющих markdown-блоков на выходе /ask.
+    Возвращает исходную строку, если JSON не извлекается (парсит бот).
+    """
+    if not answer:
+        return answer
+    t = answer.strip()
+    m = TEXT_MARKERS_JSON_FENCE.search(t)
+    if m:
+        inner = m.group(1).strip()
+        try:
+            json.loads(inner)
+            return inner
+        except ValueError:
+            pass
+    start = t.find("{")
+    if start >= 0:
+        depth = 0
+        in_str = False
+        esc = False
+        for i in range(start, len(t)):
+            c = t[i]
+            if in_str:
+                if esc:
+                    esc = False
+                elif c == "\\":
+                    esc = True
+                elif c == '"':
+                    in_str = False
+                continue
+            if c == '"':
+                in_str = True
+            elif c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    cand = t[start:i + 1]
+                    try:
+                        json.loads(cand)
+                        return cand
+                    except ValueError:
+                        break
+    return answer
+
+
 def _hermes_ocr_image(tmp_path):
     """Ask hermes (vision) to OCR the image; return raw stdout (may raise)."""
     env = dict(os.environ)
@@ -257,8 +308,12 @@ class Handler(BaseHTTPRequestHandler):
             proc = subprocess.run(
                 cmd, capture_output=True, text=True, timeout=300, env=env
             )
+            answer = proc.stdout.strip()
+            if skill == "json-builder":
+                # шов строгого JSON: снять markdown-обёртку, если LLM её добавил
+                answer = _normalize_json_answer(answer)
             self._send(200, {
-                "answer": proc.stdout.strip(),
+                "answer": answer,
                 "stderr": proc.stderr.strip(),
                 "returncode": proc.returncode,
             })

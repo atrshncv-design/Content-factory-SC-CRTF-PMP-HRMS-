@@ -71,7 +71,12 @@
       "timeout": 20000,
       "retryOnFail": true,
       "maxTries": 3,
-      "waitBetweenTries": 3000
+      "waitBetweenTries": 3000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
      }
     }
    },
@@ -202,7 +207,12 @@
       "timeout": 120000,
       "retryOnFail": true,
       "maxTries": 3,
-      "waitBetweenTries": 5000
+      "waitBetweenTries": 5000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
      },
      "sendHeaders": true,
      "specifyHeaders": "keypair",
@@ -232,7 +242,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const r = $json;\nreturn [{\n  json: {\n    ok: true,\n    product_video_id: r.id || null,\n    status: r.status || null,\n    generated_photo_url: r.generated_photo_url || null,\n    failed_reason: r.failed_reason || null,\n    credits_used: r.credits_used || 0,\n    raw: r\n  }\n}];"
+     "jsCode": "const r = ($json && typeof $json === 'object' && !Array.isArray($json)) ? $json : {};\nconst body = (r.body && typeof r.body === 'object' && !Array.isArray(r.body)) ? r.body : r;\nconst err = (typeof body.error === 'string' && body.error) ? body.error\n  : (typeof body.detail === 'string' && body.detail) ? body.detail\n  : (typeof body.message === 'string' && body.message) ? body.message : null;\nif (!body.id || err) {\n  return [{ json: { ok: false, error: err || 'invalid_response_no_id', raw: r } }];\n}\nreturn [{\n  json: {\n    ok: true,\n    product_video_id: body.id || null,\n    status: body.status || null,\n    generated_photo_url: body.generated_photo_url || null,\n    failed_reason: body.failed_reason || null,\n    credits_used: body.credits_used || 0,\n    raw: body\n  }\n}];"
     }
    },
    {
@@ -286,7 +296,12 @@
       "timeout": 120000,
       "retryOnFail": true,
       "maxTries": 3,
-      "waitBetweenTries": 5000
+      "waitBetweenTries": 5000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
      },
      "sendHeaders": true,
      "specifyHeaders": "keypair",
@@ -316,7 +331,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const r = $json;\nreturn [{\n  json: {\n    ok: true,\n    product_video_id: r.id || null,\n    status: r.status || null,\n    generated_photo_url: r.generated_photo_url || null,\n    generated_video_url: r.generated_video_url || null,\n    failed_reason: r.failed_reason || null,\n    credits_used: r.credits_used || 0,\n    raw: r\n  }\n}];"
+     "jsCode": "const r = ($json && typeof $json === 'object' && !Array.isArray($json)) ? $json : {};\nconst body = (r.body && typeof r.body === 'object' && !Array.isArray(r.body)) ? r.body : r;\nconst err = (typeof body.error === 'string' && body.error) ? body.error\n  : (typeof body.detail === 'string' && body.detail) ? body.detail\n  : (typeof body.message === 'string' && body.message) ? body.message : null;\nif (!body.id || err) {\n  return [{ json: { ok: false, error: err || 'invalid_response_no_id', raw: r } }];\n}\nreturn [{\n  json: {\n    ok: true,\n    product_video_id: body.id || null,\n    status: body.status || null,\n    generated_photo_url: body.generated_photo_url || null,\n    generated_video_url: body.generated_video_url || null,\n    failed_reason: body.failed_reason || null,\n    credits_used: body.credits_used || 0,\n    raw: body\n  }\n}];"
     }
    },
    {

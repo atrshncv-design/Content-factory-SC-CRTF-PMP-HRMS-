@@ -106,7 +106,12 @@
       "timeout": 60000,
       "retryOnFail": true,
       "maxTries": 3,
-      "waitBetweenTries": 5000
+      "waitBetweenTries": 5000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
      },
      "contentType": "json"
     },
@@ -123,7 +128,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $json;\nreturn [{ json: {\n  persona_id: p.id,\n  creator_name: p.creator_name || '',\n  gender: p.gender || '',\n  client_id: $('Validate').first().json.client_id\n} }];"
+     "jsCode": "const r = ($json && typeof $json === 'object' && !Array.isArray($json)) ? $json : {};\nconst body = (r.body && typeof r.body === 'object' && !Array.isArray(r.body)) ? r.body : r;\nconst err = (typeof body.error === 'string' && body.error) ? body.error\n  : (typeof body.detail === 'string' && body.detail) ? body.detail\n  : (typeof body.message === 'string' && body.message) ? body.message : null;\nif (!body.id || err) {\n  return [{ json: { ok: false, error: err || 'persona_create_failed', raw: r } }];\n}\nreturn [{ json: {\n  ok: true,\n  persona_id: body.id,\n  creator_name: body.creator_name || '',\n  gender: body.gender || '',\n  client_id: $('Validate').first().json.client_id\n} }];"
     },
     "id": "6fa17983849c5a8ab4c789bb03458ae8",
     "name": "Code Extract id",
@@ -773,6 +778,46 @@
      1100,
      1320
     ]
+   },
+   {
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.ok }}",
+           "rightValue": true,
+           "operator": {
+            "type": "boolean",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ]
+     },
+     "options": {
+      "fallbackOutput": "extra"
+     }
+    },
+    "id": "cr1-extract-ok",
+    "name": "extract ok",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     980,
+     -160
+    ]
    }
   ],
   "connections": {
@@ -831,7 +876,7 @@
     "main": [
      [
       {
-       "node": "Build insert",
+       "node": "extract ok",
        "type": "main",
        "index": 0
       }
@@ -1146,6 +1191,24 @@
      [
       {
        "node": "Split In Batches",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "extract ok": {
+    "main": [
+     [
+      {
+       "node": "Build insert",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "Respond error",
        "type": "main",
        "index": 0
       }

@@ -91,7 +91,12 @@
       ]
      },
      "options": {
-      "timeout": 15000
+      "timeout": 15000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
      }
     },
     "id": "fd545ef5-e7f4-4b7e-8159-3c9597a476c7",
@@ -207,7 +212,12 @@
       "timeout": 60000,
       "retryOnFail": true,
       "maxTries": 3,
-      "waitBetweenTries": 5000
+      "waitBetweenTries": 5000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
      }
     },
     "id": "0bf3b461-d74b-4b70-909b-310f40a5d9f5",
@@ -223,7 +233,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const d = ($json && typeof $json === 'object') ? $json : {};\n// ВАЖНО (проверено 13.08, CR-4): сущность Link у Creatify = ВЕРХНИЙ id ответа\n// POST /api/links/ ({id: <link-id>, link: {...}}). Вложенный link.id невалиден:\n// GET /api/links/<вложенный>/ -> 404, POST /api/ads_clone/ с ним -> 400 \"Invalid link ID\".\nconst linkId = d.id || (d.link && d.link.id) || null;\nreturn [{ json: { link_id: linkId } }];"
+     "jsCode": "const r = ($json && typeof $json === 'object' && !Array.isArray($json)) ? $json : {};\nconst body = (r.body && typeof r.body === 'object' && !Array.isArray(r.body)) ? r.body : r;\nconst err = (typeof body.error === 'string' && body.error) ? body.error\n  : (typeof body.detail === 'string' && body.detail) ? body.detail\n  : (typeof body.message === 'string' && body.message) ? body.message : null;\nconst linkId = body.id || (body.link && body.link.id) || null;\nif (!linkId || err) {\n  return [{ json: { ok: false, error: err || 'link_create_failed', raw: r } }];\n}\nreturn [{ json: { ok: true, link_id: linkId } }];"
     },
     "id": "3b62171a-955a-4d3e-bd2a-2fbbe489125a",
     "name": "Extract link",
@@ -276,7 +286,12 @@
       "timeout": 120000,
       "retryOnFail": true,
       "maxTries": 3,
-      "waitBetweenTries": 5000
+      "waitBetweenTries": 5000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
      }
     },
     "id": "e985ebd7-f068-4942-95fd-9d589c614180",
@@ -292,7 +307,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const d = ($json && typeof $json === 'object') ? $json : {};\nreturn [{ json: {\n  ok: true,\n  ad_clone_id: d.id || null,\n  status: d.status || 'unknown',\n  credits_used: (typeof d.credits_used === 'number') ? d.credits_used : null,\n  video_output: d.video_output || null,\n  media_job: d.media_job || null,\n  link: d.link || null,\n  cost_warning: 'ad_clone стоит ~84 кредита'\n} }];\n"
+     "jsCode": "const r = ($json && typeof $json === 'object' && !Array.isArray($json)) ? $json : {};\nconst body = (r.body && typeof r.body === 'object' && !Array.isArray(r.body)) ? r.body : r;\nconst err = (typeof body.error === 'string' && body.error) ? body.error\n  : (typeof body.detail === 'string' && body.detail) ? body.detail\n  : (typeof body.message === 'string' && body.message) ? body.message : null;\nif (!body.id || err) {\n  return [{ json: { ok: false, error: err || 'invalid_response_no_id', raw: r } }];\n}\nreturn [{ json: {\n  ok: true,\n  ad_clone_id: body.id || null,\n  status: body.status || 'unknown',\n  credits_used: (typeof body.credits_used === 'number') ? body.credits_used : null,\n  video_output: body.video_output || null,\n  media_job: body.media_job || null,\n  link: body.link || null,\n  cost_warning: 'ad_clone стоит ~84 кредита'\n} }];"
     },
     "id": "977deda5-423d-426e-b45a-3936832ed3c2",
     "name": "Normalize",
@@ -345,6 +360,46 @@
     "typeVersion": 1.5,
     "position": [
      0,
+     0
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.ok }}",
+           "rightValue": true,
+           "operator": {
+            "type": "boolean",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ]
+     },
+     "options": {
+      "fallbackOutput": "extra"
+     }
+    },
+    "id": "cr4-link-ok",
+    "name": "link ok",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     80,
      0
     ]
    }
@@ -463,7 +518,7 @@
     "main": [
      [
       {
-       "node": "Build body",
+       "node": "link ok",
        "type": "main",
        "index": 0
       }
@@ -497,6 +552,24 @@
      [
       {
        "node": "Respond ok",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "link ok": {
+    "main": [
+     [
+      {
+       "node": "Build body",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "Respond invalid",
        "type": "main",
        "index": 0
       }

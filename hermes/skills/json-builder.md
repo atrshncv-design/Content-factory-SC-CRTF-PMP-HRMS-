@@ -20,6 +20,14 @@ description: Субагент-JSON-сборщик контент-завода: �
 3. Обязательные поля заполнены; нельзя `null` там, где ждут строку.
 4. `video_length` ∈ {15, 30, 45, 60} — из сценария.
 5. `webhook_url`, `link`, `override_voice`, `override_avatar` — заданы в `context`.
+6. `override_script` — **чистый текст сценария без какой-либо разметки**:
+   без TG-markdown (`*жирный*`, `_курсив_`, `` `код` ``), без markdown-ссылок
+   `[текст](url)`, без `#`-заголовков, без списков-маркеров (`-`, `*` в начале
+   строки), без emoji-маркеров. Только обычный русский текст.
+7. Ни одно поле из схемы ниже не пропускай: `name`, `link`, `target_platform`,
+   `target_audience`, `video_length`, `aspect_ratio`, `language`, `model_version`,
+   `script_style`, `visual_style`, `override_script`, `webhook_url` — все обязаны
+   присутствовать в ответе.
 
 ## Вход (в `context`)
 
@@ -95,5 +103,9 @@ description: Субагент-JSON-сборщик контент-завода: �
 - [ ] `video_length` ∈ {15, 30, 45, 60}.
 - [ ] `aspect_ratio` = `9x16`.
 - [ ] `language` = `ru`.
-- [ ] `override_script` = полный текст сценария без markdown.
+- [ ] `override_script` = полный текст сценария без markdown и без TG-разметки
+      (`*`, `_`, `` ` ``, `[x](url)`, `#` — отсутствуют).
 - [ ] `webhook_url` — непустой URL.
+- [ ] Все поля схемы (name, link, target_platform, target_audience, video_length,
+      aspect_ratio, language, model_version, script_style, visual_style,
+      override_script, webhook_url) присутствуют — ни одно не пропущено.

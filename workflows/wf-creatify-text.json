@@ -106,7 +106,12 @@
       ]
      },
      "options": {
-      "timeout": 15000
+      "timeout": 15000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
      }
     },
     "id": "d2000000-0000-4000-8000-000000000005",
@@ -193,7 +198,12 @@
      "specifyBody": "json",
      "jsonBody": "={{ {title: $('Normalize input').first().json.topic, description: $('Normalize input').first().json.description, language: $('Normalize input').first().json.language, target_audience: $('Normalize input').first().json.target_audience, video_length: $('Normalize input').first().json.video_length} }}",
      "options": {
-      "timeout": 120000
+      "timeout": 120000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
      },
      "sendHeaders": true,
      "specifyHeaders": "keypair",
@@ -227,7 +237,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const r = ($json.body && typeof $json.body === 'object' && $json.body.id) ? $json.body : $json;\nconst list = Array.isArray(r.generated_scripts) ? r.generated_scripts : [];\nconst first = list[0] || {};\nconst text = String(first.paragraphs || '');\nconst done = r.status === 'done' && text.length > 0;\nreturn [{ json: { ok: done ? 1 : 0, script_id: String(r.id || ''), status: String(r.status || 'unknown'), text: text, script_name: first.script_name || null, script_style: first.script_style || null, scripts_count: list.length, credits_used: r.credits_used != null ? Number(r.credits_used) : null, failed_reason: r.failed_reason || null, error: done ? null : 'generation_not_ready' } }];"
+     "jsCode": "const r = ($json && typeof $json === 'object' && !Array.isArray($json)) ? $json : {};\nconst body = (r.body && typeof r.body === 'object' && !Array.isArray(r.body)) ? r.body : r;\nconst err = (typeof body.error === 'string' && body.error) ? body.error\n  : (typeof body.detail === 'string' && body.detail) ? body.detail\n  : (typeof body.message === 'string' && body.message) ? body.message : null;\nif (!body.id || err) {\n  return [{ json: { ok: 0, error: err || 'invalid_response_no_id', script_id: '', status: 'error', text: '', script_name: null, script_style: null, scripts_count: 0, credits_used: null, failed_reason: err || null, raw: r } }];\n}\nconst list = Array.isArray(body.generated_scripts) ? body.generated_scripts : [];\nconst first = list[0] || {};\nconst text = String(first.paragraphs || '');\nconst done = body.status === 'done' && text.length > 0;\nreturn [{ json: { ok: done ? 1 : 0, script_id: String(body.id || ''), status: String(body.status || 'unknown'), text: text, script_name: first.script_name || null, script_style: first.script_style || null, scripts_count: list.length, credits_used: body.credits_used != null ? Number(body.credits_used) : null, failed_reason: body.failed_reason || null, error: done ? null : 'generation_not_ready' } }];"
     },
     "id": "d2000000-0000-4000-8000-000000000010",
     "name": "Normalize",

@@ -72,7 +72,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "return [\n  { json: { id: 101, name: 'Robotec Instagram', platform: 'instagram', login: 'robotec_ru', connection_status: 1 } },\n  { json: { id: 102, name: 'Robotec YouTube', platform: 'youtube', login: 'robotec', connection_status: 1 } },\n  { json: { id: 104, name: 'Robotec Threads', platform: 'threads', login: 'robotec', connection_status: 1 } },\n  { json: { id: 105, name: 'Robotec X', platform: 'x', login: 'robotec', connection_status: 1 } },\n  { json: { id: 106, name: 'Robotec TikTok', platform: 'tiktok', login: 'robotec', connection_status: 2 } }\n];"
+     "jsCode": "// Mock-снимок аккаунтов postmypost — повторяет состояние БД на 13.08: 5 аккаунтов\n// (IG=101, YT=102, Threads=104, X=105, TikTok=106).\n// VK ОТСУТСТВУЕТ (G01): аккаунты подключает пользователь перед платными тестами;\n// после подключения VK появится в этом синке через real-ветку GET /v4.1/accounts.\nreturn [\n  { json: { id: 101, name: 'Robotec Instagram', platform: 'instagram', login: 'robotec_ru', connection_status: 1 } },\n  { json: { id: 102, name: 'Robotec YouTube', platform: 'youtube', login: 'robotec', connection_status: 1 } },\n  { json: { id: 104, name: 'Robotec Threads', platform: 'threads', login: 'robotec', connection_status: 1 } },\n  { json: { id: 105, name: 'Robotec X', platform: 'x', login: 'robotec', connection_status: 1 } },\n  { json: { id: 106, name: 'Robotec TikTok', platform: 'tiktok', login: 'robotec', connection_status: 2 } }\n];"
     },
     "id": "51e00000-0000-4000-8000-000000000103",
     "name": "Code mock accounts",

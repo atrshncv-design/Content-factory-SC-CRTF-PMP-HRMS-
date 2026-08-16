@@ -29,7 +29,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const raw = ($json.body && typeof $json.body === 'object' && !Array.isArray($json.body)) ? $json.body : ($json || {});\nconst isNum = (v) => v !== undefined && v !== null && String(v).trim() !== '' && Number.isFinite(Number(v));\nconst json_payload = raw.json_payload;\nconst valid = (isNum(raw.script_id) && isNum(raw.client_id)\n  && json_payload !== null && typeof json_payload === 'object' && !Array.isArray(json_payload)\n  && typeof raw.link_id === 'string' && raw.link_id.trim() !== '') ? 1 : 0;\nreturn [{ json: { valid: valid, body: { script_id: raw.script_id, client_id: raw.client_id, json_payload: json_payload, link_id: raw.link_id } } }];"
+     "jsCode": "const raw = ($json.body && typeof $json.body === 'object' && !Array.isArray($json.body)) ? $json.body : ($json || {});\nconst isNum = (v) => v !== undefined && v !== null && String(v).trim() !== '' && Number.isFinite(Number(v));\nconst isStr = (v) => typeof v === 'string' && v.trim() !== '';\nconst json_payload = raw.json_payload;\nlet valid = (isNum(raw.script_id) && isNum(raw.client_id)\n  && json_payload !== null && typeof json_payload === 'object' && !Array.isArray(json_payload)\n  && isStr(raw.link_id)) ? 1 : 0;\nconst errors = [];\nif (valid === 1) {\n  const p = json_payload;\n  if (!isStr(p.link)) { valid = 0; errors.push('missing link'); }\n  if (![15, 30, 45, 60].includes(Number(p.video_length))) { valid = 0; errors.push('video_length must be 15/30/45/60'); }\n  if (p.aspect_ratio !== undefined && p.aspect_ratio !== null && p.aspect_ratio !== '9x16') { valid = 0; errors.push('aspect_ratio must be 9x16'); }\n  if (p.language !== undefined && p.language !== null && String(p.language).toLowerCase() !== 'ru') { valid = 0; errors.push('language must be ru'); }\n  if (p.target_platform !== undefined && p.target_platform !== null && !['Instagram', 'Tiktok', 'Youtube'].includes(p.target_platform)) { valid = 0; errors.push('target_platform must be Instagram/Tiktok/Youtube'); }\n  if (p.override_script !== undefined && p.override_script !== null) {\n    if (typeof p.override_script !== 'string') { valid = 0; errors.push('override_script must be string'); }\n    else {\n      const s = p.override_script;\n      if (/\\*\\*|```|`|\\[[^\\]]*\\]\\(|^#{1,6}\\s|^[-*_]\\s/.test(s)) { valid = 0; errors.push('override_script has markdown/TG markup'); }\n    }\n  }\n  if (p.webhook_url !== undefined && p.webhook_url !== null && !/^https?:\\/\\/[^\\s]+$/.test(String(p.webhook_url))) { valid = 0; errors.push('webhook_url must be http(s)'); }\n}\nreturn [{ json: { valid: valid, errors: errors, body: { script_id: raw.script_id, client_id: raw.client_id, json_payload: json_payload, link_id: raw.link_id } } }];"
     },
     "id": "d1000000-0000-4000-8000-000000000010",
     "name": "Code validate",
@@ -259,7 +259,7 @@
      "sendBody": true,
      "contentType": "json",
      "specifyBody": "json",
-     "jsonBody": "={{ JSON.stringify(Object.assign({}, $('Code validate').first().json.body.json_payload, {webhook_url: $env.WEBHOOK_URL + 'webhook/factory/creatify/6d8f2a41c9e7b3d5f0a1c4e8'})) }}",
+     "jsonBody": "{{ JSON.stringify(Object.assign({}, $('Code validate').first().json.body.json_payload, {webhook_url: ($env.WEBHOOK_URL || '').replace(/\\/$/, '') + '/webhook/factory/creatify/6d8f2a41c9e7b3d5f0a1c4e8'})) }}",
      "options": {},
      "sendHeaders": true,
      "specifyHeaders": "keypair",
@@ -362,7 +362,7 @@
    {
     "parameters": {
      "respondWith": "json",
-     "responseBody": "{\"ok\":false,\"error\":\"invalid_input\"}",
+     "responseBody": "={{ {ok: false, error: 'invalid_input', details: $('Code validate').first().json.errors} }}",
      "options": {}
     },
     "id": "d1000000-0000-4000-8000-000000000012",

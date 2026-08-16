@@ -167,3 +167,6 @@
 | 36 | Release-readiness волна 1: SC-кластер (05) | ✅ done (16.08: аудит 0 issues по 6 воркфлоу, sim 38/38, гейты low_credits) |
 | 37 | Release-readiness волна 1: профили/bridge (07) | ✅ done (16.08: pytest 15/15, миграции v1-v3 в репо) |
 | 38 | Release-readiness волна 1: системное/инфра (08) | ✅ done (16.08: DEPLOYMENT сверен, register-диспетчер, .env.example полный, compose актуален) |
+| 39 | Release-readiness волна 2: полный цикл аналитика→submit (02) | ✅ done (16.08: контракт тем, строгий JSON, гейты 10/50, link/submit sim зелёные) |
+| 40 | Release-readiness волна 2: премиум-Creatify (03) | ✅ done (16.08: avatar/banner/product/asset впаяны до точки списания; adclone/inspiration/text — deferred с причинами) |
+| 41 | Release-readiness волна 2: публикация 7 платформ (06) | ✅ done (16.08: Switch upload_needed исправлен, text-only маршрут, caption-адаптация, 30/30 sim) |

@@ -279,7 +279,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "let mock = false;\ntry { mock = $('Code mock').first().json.mock === true; } catch (e) { mock = false; }\nconst id = $('Split In Batches').item.json.id;\nreturn [{ json: { chat_id: 941296693, text: 'Опубликовано #' + id + (mock ? ' (mock)' : '') } }];"
+     "jsCode": "const id = $('Split In Batches').item.json.id;\n// Без (mock)-маркера: оператору виден факт публикации; mock/real различаются в executions и posts.status.\nreturn [{ json: { chat_id: 941296693, text: 'Опубликовано #' + id } }];"
     },
     "id": "99999999-1111-2222-3333-444444444472",
     "name": "Build body tg published",

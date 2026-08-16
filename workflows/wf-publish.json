@@ -88,8 +88,14 @@
      "genericAuthType": "httpBearerAuth",
      "sendBody": true,
      "specifyBody": "json",
-     "jsonBody": "={{ {project_id: $env.POSTMYPOST_PROJECT_ID, url: $env.WEBHOOK_URL + 'media/' + $('Webhook').first().json.body.generation_id + '.mp4'} }}",
-     "options": {}
+     "jsonBody": "={{ (() => { const wh = $('Webhook').first().json.body || {}; const f = Array.isArray(wh.file_ids) ? wh.file_ids : []; const url = f.find(x => typeof x === 'string' && (x.indexOf('http://') === 0 || x.indexOf('https://') === 0)); return { project_id: Number($env.POSTMYPOST_PROJECT_ID), url: url || ($env.WEBHOOK_URL + 'media/' + (wh.generation_id || '') + '.mp4') }; })() }}",
+     "options": {
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     }
     },
     "id": "31000000-0000-4000-8000-000000000004",
     "name": "HTTP real upload",
@@ -110,7 +116,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const wh = $('Webhook').first().json.body || {};\nconst accRows = ($('HTTP SELECT accounts').first().json.rows) || [];\nconst accByPlatform = {};\nfor (const r of accRows) {\n  if (r && r.platform && accByPlatform[r.platform] === undefined) accByPlatform[r.platform] = r.id;\n}\nconst platforms = Array.isArray(wh.platforms) ? wh.platforms : [];\nconst reqAccountIds = Array.isArray(wh.account_ids) ? wh.account_ids : [];\nlet contentBase = '';\nif (typeof wh.content === 'string' && wh.content.length > 0) contentBase = wh.content;\nelse if (typeof wh.captions === 'string' && wh.captions.length > 0) contentBase = wh.captions;\nelse if (wh.captions && typeof wh.captions === 'object' && typeof wh.captions.instagram === 'string') contentBase = wh.captions.instagram;\nconst title = (typeof wh.title === 'string') ? wh.title : '';\nconst link = (typeof wh.link === 'string') ? wh.link : '';\nlet fileIds = Array.isArray(wh.file_ids) ? wh.file_ids : [];\nif (fileIds.length === 0 && $json.file_id !== undefined && $json.file_id !== null) fileIds = [$json.file_id];\nconst reqType = wh.publication_type;\nconst pubTypeReq = (typeof wh.publish_type === 'string') ? wh.publish_type.trim().toLowerCase() : null;\nconst tiktokOpts = (wh.tiktok_options && typeof wh.tiktok_options === 'object') ? wh.tiktok_options : {};\nconst legacyMap = { instagram: 101, youtube: 102, tiktok: 106, threads: 104, x: 105 };\nconst details = [];\nconst report = [];\nconst accountIdSet = {};\nfor (const rawP of platforms) {\n  let p = String(rawP).toLowerCase();\n  if (p === 'twitter') p = 'x';\n  let content = contentBase;\n  if (wh.captions && typeof wh.captions === 'object' && wh.captions[p] !== undefined && wh.captions[p] !== null) content = wh.captions[p];\n  const d = {};\n  const idx = platforms.indexOf(rawP);\n  let accountId = null;\n  if (idx >= 0 && idx < reqAccountIds.length && reqAccountIds[idx] !== null && reqAccountIds[idx] !== undefined) accountId = reqAccountIds[idx];\n  else if (accByPlatform[p] !== undefined) accountId = accByPlatform[p];\n  else if (legacyMap[p] !== undefined) accountId = legacyMap[p];\n  if (accountId !== null) { d.account_id = accountId; accountIdSet[accountId] = true; }\n  // PM-2: publish_type (post|reels|story) takes priority; else PM-1 logic unchanged\n  let effType = null;\n  if (pubTypeReq === 'story' && (p === 'instagram' || p === 'facebook')) {\n    effType = 2; // STORY\n  } else if (pubTypeReq === 'reels') {\n    effType = 4; // REELS_SHORTS_CLIPS\n  } else if (pubTypeReq === 'post') {\n    effType = 1; // POST\n  }\n  if (effType === null) {\n    if (reqType === 1 || reqType === 2 || reqType === 4) {\n      effType = reqType;\n    } else if (fileIds.length > 0 && (p === 'instagram' || p === 'youtube' || p === 'tiktok' || p === 'rutube')) {\n      effType = 4;\n    } else {\n      effType = 1;\n    }\n  }\n  d.publication_type = effType;\n  if (content) d.content = content;\n  if (p === 'instagram') {\n    if (fileIds.length > 0) d.file_ids = fileIds;\n    if (d.publication_type === 4) d.instagram_share_to_feed = true;\n  } else if (p === 'youtube') {\n    d.youtube_privacy_status = 1;\n    if (title) d.title = title;\n    if (fileIds.length > 0) d.file_ids = fileIds;\n  } else if (p === 'tiktok') {\n    if (fileIds.length > 0) d.file_ids = fileIds;\n    if (tiktokOpts.comment !== undefined) d.tiktok_comment = !!tiktokOpts.comment;\n    if (tiktokOpts.duet !== undefined) d.tiktok_duet = !!tiktokOpts.duet;\n    if (tiktokOpts.stitch !== undefined) d.tiktok_stitch = !!tiktokOpts.stitch;\n  } else if (p === 'pinterest') {\n    if (link) d.link = link;\n    if (fileIds.length > 0) d.file_ids = fileIds;\n  } else if (p === 'rutube') {\n    if (title) d.title = title;\n    if (fileIds.length > 0) d.file_ids = fileIds;\n  } else if (p === 'ok') {\n    if (fileIds.length > 0) d.file_ids = fileIds;\n  } else if (p === 'reddit') {\n    if (title) d.title = title;\n    if (link) d.link = link;\n  } else if (p === 'tumblr' || p === 'linkedin') {\n    if (title) d.title = title;\n  } else if (p === 'facebook') {\n    if (fileIds.length > 0) d.file_ids = fileIds;\n  }\n  details.push(d);\n  let r = p + ': type=' + d.publication_type;\n  r += (d.account_id !== undefined) ? ' account=' + d.account_id : ' NO_ACCOUNT';\n  if (d.file_ids) r += ' files=' + JSON.stringify(d.file_ids);\n  if (d.title) r += ' title';\n  if (d.link) r += ' link';\n  if (d.tiktok_comment !== undefined) r += ' tiktok_comment=' + d.tiktok_comment;\n  if (d.tiktok_duet !== undefined) r += ' tiktok_duet=' + d.tiktok_duet;\n  if (d.tiktok_stitch !== undefined) r += ' tiktok_stitch=' + d.tiktok_stitch;\n  report.push(r);\n}\nconst accountIds = Object.keys(accountIdSet).map(Number);\nconst postAt = wh.post_at || new Date().toISOString();\nreturn [{ json: {\n  details: details,\n  account_ids: accountIds,\n  file_ids: fileIds,\n  post_at: postAt,\n  caption: contentBase,\n  platforms: platforms,\n  publication_type: (pubTypeReq === 'story' ? 2 : pubTypeReq === 'reels' ? 4 : pubTypeReq === 'post' ? 1 : (reqType || (details.length ? details[0].publication_type : 1))),\n  generation_id: wh.generation_id,\n  account_map: accByPlatform,\n  details_report: report\n} }];"
+     "jsCode": "// КОНТРАКТ ПУБЛИКАЦИИ, 7 платформ (тикет 06):\n//   видео: instagram/youtube/tiktok -> publication_type 4 (REELS_SHORTS_CLIPS) + file_ids из upload/init;\n//   текст: telegram/x/threads/vk   -> publication_type 1 (POST), только content.\n//   account_id: account_ids[запроса] -> social_accounts (БД, синк wf-sync-accounts) -> legacy {ig:101,yt:102,tiktok:106,threads:104,x:105}.\n//     telegram/vk legacy-фолбэка НЕТ: до подключения аккаунтов postmypost detail уходит без account_id\n//     (Code filter accounts отрежет недоступные, публикация остальных платформ не ломается).\n//   Адаптация caption (гарантии на стороне публикации, дополняют контракт caption-adapter):\n//     telegram: markdown (*b*, _i_, [t](url)) СТРИПИТСЯ — postmypost публикует TG как plain-текст,\n//       иначе символы разметки видны буквально;\n//     x: жёсткий лимит 280 символов (обрезание + многоточие) — страховка к контракту ≤280;\n//     threads: длинный разговорный текст (контракт caption-adapter), ограничений нет;\n//     vk: текст БЕЗ markdown, ссылки только raw URL, приветствие по client_profile.name (контракт caption-adapter).\n//       Ограничение postmypost: VK-пост уходит от подключённого сообщества/страницы; видео-посты в VK вне\n//       scope (7 платформ = IG/TikTok/YT видео; TG/X/Threads/VK текст). Аккаунт VK в проекте postmypost\n//       ОТСУТСТВУЕТ (G01, синк 13.08: 5 аккаунтов IG/YT/Threads/X/TikTok) — публикация в VK до подключения\n//       пользователем вернёт 422 «аккаунт не подключён».\nconst stripMarkdown = function (s) {\n  return s\n    .replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, '$1 ($2)')\n    .replace(/\\*\\*([^*]+)\\*\\*/g, '$1')\n    .replace(/__([^_]+)__/g, '$1')\n    .replace(/(^|[^*])\\*([^*\\n]+)\\*/g, '$1$2')\n    .replace(/(^|[^_])_([^_\\n]+)_/g, '$1$2');\n};\nconst wh = $('Webhook').first().json.body || {};\nconst accRows = ($('HTTP SELECT accounts').first().json.rows) || [];\nconst accByPlatform = {};\nfor (const r of accRows) {\n  if (r && r.platform && accByPlatform[r.platform] === undefined) accByPlatform[r.platform] = r.id;\n}\nconst platforms = Array.isArray(wh.platforms) ? wh.platforms : [];\nconst reqAccountIds = Array.isArray(wh.account_ids) ? wh.account_ids : [];\nlet contentBase = '';\nif (typeof wh.content === 'string' && wh.content.length > 0) contentBase = wh.content;\nelse if (typeof wh.captions === 'string' && wh.captions.length > 0) contentBase = wh.captions;\nelse if (wh.captions && typeof wh.captions === 'object' && typeof wh.captions.instagram === 'string') contentBase = wh.captions.instagram;\nconst title = (typeof wh.title === 'string') ? wh.title : '';\nconst link = (typeof wh.link === 'string') ? wh.link : '';\nlet fileIds = [];\n// Приоритет: file_id из upload-ветки (upload/init скачал медиа) над file_ids запроса\n// (URL-строка от бота или устаревший id) — иначе результат upload/init теряется.\nif ($json.file_id !== undefined && $json.file_id !== null) fileIds = [$json.file_id];\nelse if (Array.isArray(wh.file_ids)) fileIds = wh.file_ids;\nconst reqType = wh.publication_type;\nconst pubTypeReq = (typeof wh.publish_type === 'string') ? wh.publish_type.trim().toLowerCase() : null;\nconst tiktokOpts = (wh.tiktok_options && typeof wh.tiktok_options === 'object') ? wh.tiktok_options : {};\nconst legacyMap = { instagram: 101, youtube: 102, tiktok: 106, threads: 104, x: 105 };\nconst details = [];\nconst report = [];\nconst accountIdSet = {};\nfor (const rawP of platforms) {\n  let p = String(rawP).toLowerCase();\n  if (p === 'twitter') p = 'x';\n  let content = contentBase;\n  if (wh.captions && typeof wh.captions === 'object' && wh.captions[p] !== undefined && wh.captions[p] !== null) content = wh.captions[p];\n  if (p === 'telegram' && content) content = stripMarkdown(content);\n  if (p === 'x' && content && content.length > 280) content = content.slice(0, 277) + '…';\n  const d = {};\n  const idx = platforms.indexOf(rawP);\n  let accountId = null;\n  if (idx >= 0 && idx < reqAccountIds.length && reqAccountIds[idx] !== null && reqAccountIds[idx] !== undefined) accountId = reqAccountIds[idx];\n  else if (accByPlatform[p] !== undefined) accountId = accByPlatform[p];\n  else if (legacyMap[p] !== undefined) accountId = legacyMap[p];\n  if (accountId !== null) { d.account_id = accountId; accountIdSet[accountId] = true; }\n  // PM-2: publish_type (post|reels|story) takes priority; else PM-1 logic unchanged\n  let effType = null;\n  if (pubTypeReq === 'story' && (p === 'instagram' || p === 'facebook')) {\n    effType = 2; // STORY\n  } else if (pubTypeReq === 'reels') {\n    effType = 4; // REELS_SHORTS_CLIPS\n  } else if (pubTypeReq === 'post') {\n    effType = 1; // POST\n  }\n  if (effType === null) {\n    if (reqType === 1 || reqType === 2 || reqType === 4) {\n      effType = reqType;\n    } else if (fileIds.length > 0 && (p === 'instagram' || p === 'youtube' || p === 'tiktok' || p === 'rutube')) {\n      effType = 4;\n    } else {\n      effType = 1;\n    }\n  }\n  d.publication_type = effType;\n  if (content) d.content = content;\n  if (p === 'instagram') {\n    if (fileIds.length > 0) d.file_ids = fileIds;\n    if (d.publication_type === 4) d.instagram_share_to_feed = true;\n  } else if (p === 'youtube') {\n    d.youtube_privacy_status = 1;\n    if (title) d.title = title;\n    if (fileIds.length > 0) d.file_ids = fileIds;\n  } else if (p === 'tiktok') {\n    if (fileIds.length > 0) d.file_ids = fileIds;\n    if (tiktokOpts.comment !== undefined) d.tiktok_comment = !!tiktokOpts.comment;\n    if (tiktokOpts.duet !== undefined) d.tiktok_duet = !!tiktokOpts.duet;\n    if (tiktokOpts.stitch !== undefined) d.tiktok_stitch = !!tiktokOpts.stitch;\n  } else if (p === 'pinterest') {\n    if (link) d.link = link;\n    if (fileIds.length > 0) d.file_ids = fileIds;\n  } else if (p === 'rutube') {\n    if (title) d.title = title;\n    if (fileIds.length > 0) d.file_ids = fileIds;\n  } else if (p === 'ok') {\n    if (fileIds.length > 0) d.file_ids = fileIds;\n  } else if (p === 'reddit') {\n    if (title) d.title = title;\n    if (link) d.link = link;\n  } else if (p === 'tumblr' || p === 'linkedin') {\n    if (title) d.title = title;\n  } else if (p === 'facebook') {\n    if (fileIds.length > 0) d.file_ids = fileIds;\n  }\n  details.push(d);\n  let r = p + ': type=' + d.publication_type;\n  r += (d.account_id !== undefined) ? ' account=' + d.account_id : ' NO_ACCOUNT';\n  if (d.file_ids) r += ' files=' + JSON.stringify(d.file_ids);\n  if (d.title) r += ' title';\n  if (d.link) r += ' link';\n  if (d.tiktok_comment !== undefined) r += ' tiktok_comment=' + d.tiktok_comment;\n  if (d.tiktok_duet !== undefined) r += ' tiktok_duet=' + d.tiktok_duet;\n  if (d.tiktok_stitch !== undefined) r += ' tiktok_stitch=' + d.tiktok_stitch;\n  report.push(r);\n}\nconst accountIds = Object.keys(accountIdSet).map(Number);\nconst postAt = wh.post_at || new Date().toISOString();\nreturn [{ json: {\n  details: details,\n  account_ids: accountIds,\n  file_ids: fileIds,\n  post_at: postAt,\n  caption: contentBase,\n  platforms: platforms,\n  publication_type: (pubTypeReq === 'story' ? 2 : pubTypeReq === 'reels' ? 4 : pubTypeReq === 'post' ? 1 : (reqType || (details.length ? details[0].publication_type : 1))),\n  generation_id: wh.generation_id,\n  account_map: accByPlatform,\n  details_report: report\n} }];"
     },
     "id": "31000000-0000-4000-8000-000000000005",
     "name": "Code build details",
@@ -185,7 +191,13 @@
      "sendBody": true,
      "specifyBody": "json",
      "jsonBody": "={{ {project_id: Number($env.POSTMYPOST_PROJECT_ID), post_at: $json.post_at, account_ids: $json.account_ids, publication_status: 5, details: $json.details} }}",
-     "options": {}
+     "options": {
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     }
     },
     "id": "31000000-0000-4000-8000-000000000008",
     "name": "HTTP real publication",
@@ -315,7 +327,27 @@
          },
          "conditions": [
           {
-           "leftValue": "={{ Array.isArray($('Webhook').first().json.body.file_ids) && $('Webhook').first().json.body.file_ids.length > 0 }}",
+           "leftValue": "={{ (() => { const wh = $('Webhook').first().json.body || {}; const f = Array.isArray(wh.file_ids) ? wh.file_ids : []; return f.length > 0 && f.every(x => typeof x === 'number'); })() }}",
+           "rightValue": true,
+           "operator": {
+            "type": "boolean",
+            "operation": "true"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ (() => { const wh = $('Webhook').first().json.body || {}; const f = Array.isArray(wh.file_ids) ? wh.file_ids : []; const pl = (Array.isArray(wh.platforms) ? wh.platforms : []).map(p => { const s = String(p).toLowerCase(); return s === 'twitter' ? 'x' : s; }); const video = ['instagram', 'youtube', 'tiktok']; return f.length === 0 && !pl.some(p => video.indexOf(p) !== -1); })() }}",
            "rightValue": true,
            "operator": {
             "type": "boolean",
@@ -358,7 +390,13 @@
      "url": "={{ 'https://api.postmypost.io/v4.1/accounts?project_id=' + $env.POSTMYPOST_PROJECT_ID }}",
      "authentication": "genericCredentialType",
      "genericAuthType": "httpBearerAuth",
-     "options": {}
+     "options": {
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     }
     },
     "id": "31000000-0000-4000-8000-000000000010",
     "name": "HTTP real accounts",
@@ -523,7 +561,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const bd = $('Code build details').first().json;\nconst items = $input.all().map(i => i.json);\nif (!Array.isArray(items) || items.length === 0) {\n  return [{ json: { ...bd, adapted: false } }];\n}\nconst details = items.map(d => {\n  const o = {};\n  for (const k of Object.keys(d)) {\n    if (k !== 'platform' && k !== '__prompt') o[k] = d[k];\n  }\n  return o;\n});\nreturn [{ json: { ...bd, details: details, adapted: true } }];"
+     "jsCode": "const bd = $('Code build details').first().json;\nconst items = $input.all().map(i => i.json);\nif (!Array.isArray(items) || items.length === 0) {\n  return [{ json: { ...bd, adapted: false } }];\n}\nconst platforms = Array.isArray(bd.platforms) ? bd.platforms : [];\nconst stripMarkdown = function (s) {\n  return s\n    .replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, '$1 ($2)')\n    .replace(/\\*\\*([^*]+)\\*\\*/g, '$1')\n    .replace(/__([^_]+)__/g, '$1')\n    .replace(/(^|[^*])\\*([^*\\n]+)\\*/g, '$1$2')\n    .replace(/(^|[^_])_([^_\\n]+)_/g, '$1$2');\n};\n// Адаптированные caption проходят те же публикационные гарантии, что и базовые:\n// telegram — без markdown (postmypost рендерит plain), x — не длиннее 280.\nconst details = items.map((d, i) => {\n  const o = {};\n  for (const k of Object.keys(d)) {\n    if (k !== 'platform' && k !== '__prompt') o[k] = d[k];\n  }\n  let p = String(platforms[i] !== undefined && platforms[i] !== null ? platforms[i] : '').toLowerCase();\n  if (p === 'twitter') p = 'x';\n  if (p === 'telegram' && typeof o.content === 'string') o.content = stripMarkdown(o.content);\n  if (p === 'x' && typeof o.content === 'string' && o.content.length > 280) o.content = o.content.slice(0, 277) + '…';\n  return o;\n});\nreturn [{ json: { ...bd, details: details, adapted: true } }];"
     },
     "id": "31000000-0000-4000-8000-0000000000f7",
     "name": "Code merge adapted",
@@ -586,6 +624,13 @@
    },
    "Switch upload needed": {
     "main": [
+     [
+      {
+       "node": "NoOp skip upload",
+       "type": "main",
+       "index": 0
+      }
+     ],
      [
       {
        "node": "NoOp skip upload",
