@@ -36,7 +36,7 @@
       },
       "conditions": [
        {
-        "leftValue": "={{ $env.FACTORY_WEBHOOK_SECRET ? (($json.headers || {})['x-factory-secret'] === $env.FACTORY_WEBHOOK_SECRET) : false }}",
+        "leftValue": "={{ (($json.headers || {})['authorization'] === ('Bearer ' + $env.CREATIFY_API_KEY)) || ($env.FACTORY_WEBHOOK_SECRET && (($json.headers || {})['x-factory-secret'] === $env.FACTORY_WEBHOOK_SECRET)) }}",
         "rightValue": true,
         "operator": {
          "type": "boolean",
@@ -71,7 +71,7 @@
      "sendBody": true,
      "contentType": "json",
      "specifyBody": "json",
-     "jsonBody": "={{ {sql: 'SELECT g.id, g.script_id, g.status, s.full_text, substr(s.full_text, 1, 120) AS script_excerpt, (SELECT tg_user_id FROM sessions WHERE script_id = g.script_id) AS tg_user_id, (SELECT topic_id FROM sessions WHERE script_id = g.script_id) AS topic_id, (SELECT quick_payload FROM sessions WHERE script_id = g.script_id) AS session_qp FROM generations g LEFT JOIN scripts s ON s.id=g.script_id WHERE g.creatify_id = ?', params: [String($json.body.id)]} }}",
+     "jsonBody": "={{ {sql: 'SELECT g.id, g.script_id, g.status, s.full_text, substr(s.full_text, 1, 120) AS script_excerpt, (SELECT tg_user_id FROM sessions WHERE script_id = g.script_id OR generation_id = g.id) AS tg_user_id, (SELECT topic_id FROM sessions WHERE script_id = g.script_id OR generation_id = g.id) AS topic_id, (SELECT quick_payload FROM sessions WHERE script_id = g.script_id OR generation_id = g.id) AS session_qp FROM generations g LEFT JOIN scripts s ON s.id=g.script_id WHERE g.creatify_id = ?', params: [String($json.body.id)]} }}",
      "options": {
       "timeout": 15000
      }

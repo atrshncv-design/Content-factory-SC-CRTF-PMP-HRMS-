@@ -13464,7 +13464,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst f = $('SHT Format').first().json;\nconst t = $('SH Topic').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst type = esc('ai_shorts');\nreturn [{ json: { sql: \"INSERT INTO generations (client_id, request_payload, status, video_output_url, local_path, webhook_received, completed_at, creatify_id) VALUES ((SELECT COALESCE(active_client_id, (SELECT CAST(value AS INTEGER) FROM settings WHERE key = 'active_client_id'), 0) FROM users WHERE tg_user_id = ?), ?, 'pending', NULL, NULL, 0, NULL, ?)\", params: [p.tg_user_id, JSON.stringify({ topic: t.topic, type: type }), String(f.shorts_id)] } }];"
+     "jsCode": "const p = $('Parser').first().json;\nconst f = $('SHT Format').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nlet topic = '';\ntry { topic = String($('SH Topic').first().json.topic || ''); } catch (e) {}\nif (!topic) {\n  try {\n    const r = $('SC OK read').first().json;\n    if (r && r.rows && r.rows[0] && r.rows[0].quick_payload) {\n      topic = String(JSON.parse(r.rows[0].quick_payload).topic || '');\n    }\n  } catch (e) {}\n}\nconst type = esc('ai_shorts');\nreturn [{ json: { sql: \"INSERT INTO generations (client_id, script_id, request_payload, status, video_output_url, local_path, webhook_received, completed_at, creatify_id) VALUES ((SELECT COALESCE(active_client_id, (SELECT CAST(value AS INTEGER) FROM settings WHERE key = 'active_client_id'), 0) FROM users WHERE tg_user_id = ?), 0, ?, 'pending', NULL, NULL, 0, NULL, ?)\", params: [p.tg_user_id, JSON.stringify({ topic: topic, type: type }), String(f.shorts_id)] } }];"
     },
     "id": "7446c1fe-fae6-4039-8b37-9500892d2046",
     "name": "SH Format async",
@@ -28330,6 +28330,44 @@
      5200
     ],
     "id": "a0320932-0000-4000-8000-000000000932"
+   },
+   {
+    "parameters": {
+     "method": "POST",
+     "url": "http://db-bridge:8787/query",
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "name": "X-BRIDGE-TOKEN",
+        "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+       }
+      ]
+     },
+     "sendBody": true,
+     "specifyBody": "json",
+     "jsonBody": "={{ (() => { const g = $('SH HTTP gen async').first().json; const p = $('Parser').first().json; return { sql: \"UPDATE sessions SET generation_id=?, script_id=COALESCE(script_id, 0) WHERE tg_user_id=?\", params: [String(g.lastInsertRowid || ''), String(p.tg_user_id || '')] }; })() }}",
+     "options": {
+      "timeout": 15000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     }
+    },
+    "id": "a1b2c3d4-0000-4000-8000-00000000a111",
+    "name": "SH HTTP gen link",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     180,
+     3820
+    ]
    }
   ],
   "connections": {
@@ -37720,7 +37758,7 @@
     "main": [
      [
       {
-       "node": "SH Text async",
+       "node": "SH HTTP gen link",
        "type": "main",
        "index": 0
       }
@@ -38712,6 +38750,17 @@
      [
       {
        "node": "UV LB parse",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "SH HTTP gen link": {
+    "main": [
+     [
+      {
+       "node": "SH Text async",
        "type": "main",
        "index": 0
       }
