@@ -2950,7 +2950,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"INSERT INTO scripts (client_id, topic_id, hook, body, cta, target_length, format_tag, full_text, status) SELECT 1, COALESCE(topic_id, 0), '', '', '', 30, 'user', ?, 'pending' FROM sessions WHERE tg_user_id = ?\", params: [p.raw, p.tg_user_id] } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"INSERT INTO scripts (client_id, topic_id, hook, body, cta, target_length, format_tag, full_text, status) SELECT 1, topic_id, '', '', '', 30, 'user', ?, 'pending' FROM sessions WHERE tg_user_id = ?\", params: [p.raw, p.tg_user_id] } }];\n"
     },
     "id": "14723f27-ca16-4da7-95be-64e397c72a25",
     "name": "GE Build insert",
@@ -12582,7 +12582,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst st = $('DU Parse state').first().json;\nconst s = $('DU HTTP settings').first().json;\nconst row = (s.rows || [])[0] || {};\nconst clientId = Number(row.ac_id) || 0;\nconst fullText = 'Ролик из ссылки: ' + st.url;\nreturn [{ json: { sql: \"INSERT INTO scripts (client_id, topic_id, hook, body, cta, target_length, format_tag, full_text, status) VALUES (?, 0, '', '', '', ?, 'user', ?, 'pending')\", params: [clientId, Number(st.dur), fullText] } }];\n"
+     "jsCode": "\nconst st = $('DU Parse state').first().json;\nconst s = $('DU HTTP settings').first().json;\nconst t = $('DU HTTP topic').first().json;\nconst row = (s.rows || [])[0] || {};\nconst clientId = Number(row.ac_id) || 0;\nconst topicId = Number(t.lastInsertRowid) || 0;\nconst fullText = 'Ролик из ссылки: ' + st.url;\nreturn [{ json: { sql: \"INSERT INTO scripts (client_id, topic_id, hook, body, cta, target_length, format_tag, full_text, status) VALUES (?, ?, '', '', '', ?, 'user', ?, 'pending')\", params: [clientId, topicId, Number(st.dur), fullText] } }];\n"
     },
     "id": "cd9ae603-1740-4f2a-8f05-024c3f28fa76",
     "name": "DU Build script",
@@ -26484,7 +26484,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst item = $input.first().json || {};\nconst script = String(item.script || '').trim();\nconst sf = (item.script_full && typeof item.script_full === 'object') ? item.script_full : {};\nconst topicId = Number(item.topic_id) || 0;\nconst fullText = String(sf.full_text || script);\nconst sql = \"INSERT INTO scripts (client_id, topic_id, hook, body, cta, target_length, format_tag, full_text, status) VALUES (1, ?, ?, ?, ?, ?, ?, ?, 'pending')\";\nconst params = [topicId, String(sf.hook || ''), String(sf.body || ''), String(sf.cta || ''), Number(sf.target_length) || 30, String(sf.format_tag || 'user'), fullText];\nreturn [{ json: { sql: sql, params: params, script: script, script_full: sf, topic_id: topicId, source_url: String(item.source_url || ''), video_length: Number(item.video_length) || 30, chat_id: p.chat_id } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst item = $input.first().json || {};\nconst script = String(item.script || '').trim();\nconst sf = (item.script_full && typeof item.script_full === 'object') ? item.script_full : {};\nconst topicId = Number(item.topic_id) || null;\nconst fullText = String(sf.full_text || script);\nconst sql = \"INSERT INTO scripts (client_id, topic_id, hook, body, cta, target_length, format_tag, full_text, status) VALUES (1, ?, ?, ?, ?, ?, ?, ?, 'pending')\";\nconst params = [topicId, String(sf.hook || ''), String(sf.body || ''), String(sf.cta || ''), Number(sf.target_length) || 30, String(sf.format_tag || 'user'), fullText];\nreturn [{ json: { sql: sql, params: params, script: script, script_full: sf, topic_id: topicId, source_url: String(item.source_url || ''), video_length: Number(item.video_length) || 30, chat_id: p.chat_id } }];\n"
     },
     "id": "52af2ce7-7f83-4602-84ac-2b78807e854d",
     "name": "SC Cont build",
@@ -28367,6 +28367,51 @@
     "position": [
      180,
      3820
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst st = $('DU Parse state').first().json;\nconst s = $('DU HTTP settings').first().json;\nconst row = (s.rows || [])[0] || {};\nconst clientId = Number(row.ac_id) || 0;\nconst url = String(st.url || '').trim();\nreturn [{ json: { sql: \"INSERT INTO topics (client_id, cycle_date, title, source_url, status) VALUES (?, date('now'), ?, ?, 'pending')\", params: [clientId, url, url] } }];\n"
+    },
+    "id": "ed15ad1f-0c64-4a10-802c-9068757d71f1",
+    "name": "DU Build topic",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     2280,
+     20
+    ]
+   },
+   {
+    "parameters": {
+     "method": "POST",
+     "url": "http://db-bridge:8787/query",
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-BRIDGE-TOKEN",
+        "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+       }
+      ]
+     },
+     "sendBody": true,
+     "contentType": "json",
+     "specifyBody": "json",
+     "jsonBody": "={{ $json }}",
+     "options": {
+      "timeout": 15000
+     }
+    },
+    "id": "6c0aabf7-794e-4e5a-8e17-ae0e0666c9b0",
+    "name": "DU HTTP topic",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     2340,
+     20
     ]
    }
   ],
@@ -32527,7 +32572,7 @@
     "main": [
      [
       {
-       "node": "DU Build script",
+       "node": "DU Build topic",
        "type": "main",
        "index": 0
       }
@@ -38761,6 +38806,28 @@
      [
       {
        "node": "SH Text async",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "DU Build topic": {
+    "main": [
+     [
+      {
+       "node": "DU HTTP topic",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "DU HTTP topic": {
+    "main": [
+     [
+      {
+       "node": "DU Build script",
        "type": "main",
        "index": 0
       }
