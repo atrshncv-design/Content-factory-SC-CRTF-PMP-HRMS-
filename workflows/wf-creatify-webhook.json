@@ -486,8 +486,7 @@
     "parameters": {
      "resource": "message",
      "operation": "sendVideo",
-     "chatId": "={{ $json.chat_id }}",
-     "file": "={{ $json.video }}",
+     "chatId": "={{ $('Build stage3').first().json.chat_id }}",
      "replyMarkup": "inlineKeyboard",
      "inlineKeyboard": {
       "rows": [
@@ -536,8 +535,10 @@
       ]
      },
      "additionalFields": {
-      "caption": "={{ $json.text }}"
-     }
+      "caption": "={{ $('Build stage3').first().json.text }}"
+     },
+     "binaryData": true,
+     "binaryPropertyName": "data"
     },
     "id": "e0000000-0014-4000-8000-000000000001",
     "name": "Telegram stage3",
@@ -741,7 +742,7 @@
       },
       "conditions": [
        {
-        "leftValue": "={{ $json.auto_approve }}",
+        "leftValue": "={{ $('Build stage3').first().json.auto_approve }}",
         "rightValue": true,
         "operator": {
          "type": "boolean",
@@ -764,11 +765,12 @@
     "parameters": {
      "resource": "message",
      "operation": "sendVideo",
-     "chatId": "={{ $json.chat_id }}",
-     "file": "={{ $json.video }}",
+     "chatId": "={{ $('Build stage3').first().json.chat_id }}",
      "additionalFields": {
-      "caption": "={{ $json.text }}"
-     }
+      "caption": "={{ $('Build stage3').first().json.text }}"
+     },
+     "binaryData": true,
+     "binaryPropertyName": "data"
     },
     "id": "e0000000-0022-4000-8000-000000000001",
     "name": "Telegram stage3 auto",
@@ -888,6 +890,33 @@
     "position": [
      1040,
      700
+    ]
+   },
+   {
+    "parameters": {
+     "method": "GET",
+     "url": "={{ $('Build stage3').first().json.video }}",
+     "sendBody": false,
+     "responseFormat": "file",
+     "options": {
+      "timeout": 120000,
+      "response": {
+       "response": {
+        "responseFormat": "file",
+        "output": "response",
+        "binaryPropertyName": "data",
+        "neverError": false
+       }
+      }
+     }
+    },
+    "id": "d1e2f3a4-0000-4000-8000-00000000b222",
+    "name": "HTTP download video",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     1480,
+     1400
     ]
    }
   ],
@@ -1140,7 +1169,7 @@
     "main": [
      [
       {
-       "node": "IF auto approve",
+       "node": "HTTP download video",
        "type": "main",
        "index": 0
       }
@@ -1257,6 +1286,17 @@
      [
       {
        "node": "Respond unknown",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "HTTP download video": {
+    "main": [
+     [
+      {
+       "node": "IF auto approve",
        "type": "main",
        "index": 0
       }
