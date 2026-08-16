@@ -28413,6 +28413,123 @@
      2340,
      20
     ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst sub = $('DU Parse submit').first().json;\nconst scriptId = Number($('DU HTTP script').first().json.lastInsertRowid) || 0;\nreturn [{ json: { sql: \"UPDATE sessions SET state='QUICK_URL_GENERATING', generation_id=?, script_id=COALESCE(script_id, ?), updated_at=datetime('now') WHERE tg_user_id=?\", params: [String(sub.generation_id), scriptId, p.tg_user_id] } }];\n"
+    },
+    "id": "36fff061-1def-4259-b289-7bdd41927602",
+    "name": "DU Build gen link",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     3020,
+     20
+    ]
+   },
+   {
+    "parameters": {
+     "method": "POST",
+     "url": "http://db-bridge:8787/query",
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "name": "X-BRIDGE-TOKEN",
+        "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+       }
+      ]
+     },
+     "sendBody": true,
+     "contentType": "json",
+     "specifyBody": "json",
+     "jsonBody": "={{ $json }}",
+     "options": {
+      "timeout": 15000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     }
+    },
+    "id": "a8be0701-bae8-4003-8747-737d61b96657",
+    "name": "DU HTTP gen link",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     3080,
+     20
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst sub = $('DU Parse submit').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst text = '✅ Генерация запущена (id ' + esc(sub.generation_id) + ', creatify ' + esc(String(sub.creatify_id).slice(0, 8)) + '…). Пришлю видео сюда, как creatify ответит.';\nreturn [{ json: { chat_id: p.chat_id, text: text } }];\n"
+    },
+    "id": "58d1e536-11ed-463b-9eee-286b85765a21",
+    "name": "DU Format ok",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     3140,
+     20
+    ]
+   },
+   {
+    "parameters": {
+     "resource": "message",
+     "operation": "sendMessage",
+     "chatId": "={{ $('Parser').first().json.chat_id }}",
+     "text": "={{ $json.text }}",
+     "additionalFields": {
+      "appendAttribution": false
+     },
+     "replyMarkup": "inlineKeyboard",
+     "inlineKeyboard": {
+      "rows": [
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
+          },
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "id": "4d421698-8eae-44e0-8d7e-1531173f113d",
+    "name": "TG du ok",
+    "type": "n8n-nodes-base.telegram",
+    "typeVersion": 1.2,
+    "position": [
+     3200,
+     20
+    ],
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
    }
   ],
   "connections": {
@@ -32720,7 +32837,13 @@
    },
    "Switch DU submit": {
     "main": [
-     [],
+     [
+      {
+       "node": "DU Build gen link",
+       "type": "main",
+       "index": 0
+      }
+     ],
      [
       {
        "node": "DU Format fail submit",
@@ -38828,6 +38951,39 @@
      [
       {
        "node": "DU Build script",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "DU Build gen link": {
+    "main": [
+     [
+      {
+       "node": "DU HTTP gen link",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "DU HTTP gen link": {
+    "main": [
+     [
+      {
+       "node": "DU Format ok",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "DU Format ok": {
+    "main": [
+     [
+      {
+       "node": "TG du ok",
        "type": "main",
        "index": 0
       }
