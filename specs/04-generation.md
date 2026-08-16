@@ -123,7 +123,7 @@ n8n-воркфлоу `wf-creatify-poll` каждые 5 мин по задача�
 | `video_length` | enum | **`15` / `30`** (наш диапазон) |
 | `aspect_ratio` | enum | **`9x16`** (вертикальный) |
 | `language` | enum (~80) | **`ru`** |
-| `model_version` | enum | `standard` / `aurora_v1_fast` (дешевле) |
+| `model_version` | enum | `standard` (5 кред/30 сек) / `aurora_v1_fast` (0.5 кред/сек — дороже для >=10 сек) |
 | `script_style` | enum 50+ | `ProblemSolutionV2`, `DontWorryWriter`, `*Hook`… |
 | `visual_style` | enum 50+ | `DynamicProductTemplate`, `VlogTemplate`, `VanillaTemplate`… |
 | `override_avatar` | UUID | из библиотеки (если фиксируем лицо) |

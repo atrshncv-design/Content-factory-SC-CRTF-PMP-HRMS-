@@ -56,7 +56,7 @@ description: Субагент-JSON-сборщик контент-завода: �
 | `video_length` | enum | `15` / `30` (наш диапазон) |
 | `aspect_ratio` | enum | **`9x16`** (вертикальный) |
 | `language` | enum (~80) | **`ru`** |
-| `model_version` | enum | `standard` / `aurora_v1_fast` (дешевле) |
+| `model_version` | enum | `standard` (**5 кред/30 сек**) / `aurora_v1_fast` (0.5 кред/сек — ДОРОЖЕ для роликов ≥10 сек; использовать НЕ надо) |
 | `script_style` | enum 50+ | `ProblemSolutionV2`, `DontWorryWriter`, `*Hook`… |
 | `visual_style` | enum 50+ | `DynamicProductTemplate`, `VlogTemplate`, `VanillaTemplate`… |
 | `override_avatar` | UUID | из библиотеки |
@@ -82,7 +82,7 @@ description: Субагент-JSON-сборщик контент-завода: �
   "language": "ru",
   "target_audience": "<аудитория из client_profile>",
   "target_platform": "Instagram",
-  "model_version": "aurora_v1_fast",
+  "model_version": "standard",
   "override_script": "<full_text сценария>",
   "override_voice": "<voice_id из context>",
   "background_music_volume": 0.15,

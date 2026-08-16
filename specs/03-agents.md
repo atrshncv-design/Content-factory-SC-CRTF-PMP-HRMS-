@@ -171,7 +171,7 @@ Creatify URL-to-video делает: видео 15/30/45/60 сек, формат 
   "language": "ru",
   "target_audience": "директора заводов, главные инженеры",
   "target_platform": "Instagram",
-  "model_version": "aurora_v1_fast",
+  "model_version": "standard",
   "override_script": "<full_text сценария>",
   "override_voice": "<voice_id русского мужского экспертного>",
   "no_background_music": false,
