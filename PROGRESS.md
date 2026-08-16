@@ -172,3 +172,4 @@
 | 41 | Release-readiness волна 2: публикация 7 платформ (06) | ✅ done (16.08: Switch upload_needed исправлен, text-only маршрут, caption-адаптация, 30/30 sim) |
 | 42 | Release-readiness волна 3: E2E smoke (09) | ✅ done (16.08: цепочка /start→publish прослежена, 23 webhook-пути, smoke-checklist.md) |
 | 43 | Ревью-фиксы безопасности (10) | ✅ done (16.08: header-auth 21 webhook + 30 вызывающих, fail-closed колбэк creatify, хардкод=0, DEPLOYMENT обновлён) |
+| 44 | Деплой волн 1-3 на сервер (16.08, гейт пользователя «ок») | ✅ done: бэкап, синк 24 воркфлоу, миграции v5 (no-op), импорт 24 + publish 23 (zz-test-sqlite off), credential Factory Webhook Auth (пустое значение), bridge перезапущен, 35 команд, getWebhookInfo ok, fail-closed 500/403 подтверждён. Ждёт: FACTORY_WEBHOOK_SECRET в .env + значение в credential + платные тесты |
