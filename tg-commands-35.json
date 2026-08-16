@@ -109,18 +109,6 @@
       "description": "Список моих аватаров и их статус"
     },
     {
-      "command": "asset",
-      "description": "Генерация изображения: /asset <описание>"
-    },
-    {
-      "command": "product",
-      "description": "Ролик про товар: /product <image_url>"
-    },
-    {
-      "command": "banner",
-      "description": "IAB-баннер: /banner <image_url>"
-    },
-    {
       "command": "publish_type",
       "description": "Тип публикации: /publish_type post|reels|story"
     },

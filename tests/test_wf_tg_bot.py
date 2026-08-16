@@ -80,8 +80,13 @@ class WfTgBotStructureTests(unittest.TestCase):
             if n["type"] != "n8n-nodes-base.telegram":
                 continue
             kb = n.get("parameters", {}).get("inlineKeyboard", {})
-            for r in kb.get("rows", []):
-                for b in r.get("row", {}).get("buttons", []):
+            rows_val = kb.get("rows", [])
+            if isinstance(rows_val, str):  # expression-клавиатура (динамические кнопки)
+                continue
+            for r in rows_val:
+                if not isinstance(r, dict):
+                    continue
+                for b in (r.get("row", {}) if isinstance(r.get("row"), dict) else {}).get("buttons", []):
                     cb = (b.get("additionalFields") or {}).get("callback_data", "")
                     if "{{" in cb:
                         self.assertTrue(

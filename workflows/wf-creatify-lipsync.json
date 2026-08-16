@@ -1,0 +1,518 @@
+[
+ {
+  "updatedAt": "2026-08-16T00:00:00.000Z",
+  "createdAt": "2026-08-16T00:00:00.000Z",
+  "id": "20000000-0000-4000-8000-000000000026",
+  "name": "wf-creatify-lipsync",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+   {
+    "parameters": {
+     "httpMethod": "POST",
+     "path": "factory/lipsync",
+     "responseMode": "responseNode",
+     "authentication": "headerAuth",
+     "options": {}
+    },
+    "id": "328bf13b-5426-457c-8fa9-fe44b89e02a6",
+    "name": "Webhook",
+    "type": "n8n-nodes-base.webhook",
+    "typeVersion": 2.1,
+    "position": [
+     0,
+     0
+    ],
+    "webhookId": "cr5-lipsync",
+    "credentials": {
+     "httpHeaderAuth": {
+      "id": "f0000000-0000-4000-8000-00000000000a",
+      "name": "Factory Webhook Auth"
+     }
+    }
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const body = ($json.body && $json.body) || $json;\nconst text = (body.text !== undefined && body.text !== null && String(body.text).trim() !== '')\n  ? String(body.text).trim() : '';\nconst creator = (body.creator !== undefined && body.creator !== null && String(body.creator).trim() !== '')\n  ? String(body.creator).trim() : '';\nlet videoLength = (body.video_length !== undefined && body.video_length !== null && String(body.video_length).trim() !== '')\n  ? Number(body.video_length) : 30;\nif (!Number.isFinite(videoLength) || ![30, 60].includes(videoLength)) videoLength = 30;\nlet mode = (body.mode !== undefined && body.mode !== null && String(body.mode).trim() !== '')\n  ? String(body.mode).trim() : 'video';\nif (mode !== 'script_only') mode = 'video';\nconst webhookUrl = (body.webhook_url !== undefined && body.webhook_url !== null && String(body.webhook_url).trim() !== '')\n  ? String(body.webhook_url).trim() : null;\nfunction cleanText(raw) {\n  let t = String(raw === undefined || raw === null ? '' : raw);\n  t = t.replace(/```[\\s\\S]*?```/g, ' ');\n  t = t.replace(/`([^`]*)`/g, '$1');\n  t = t.replace(/\\*\\*([^*]+)\\*\\*/g, '$1');\n  t = t.replace(/__([^_]+)__/g, '$1');\n  t = t.replace(/\\[([^\\]]+)\\]\\([^)]*\\)/g, '$1');\n  t = t.replace(/^#{1,6}\\s*/gm, '');\n  t = t.replace(/^\\s*>\\s?/gm, '');\n  const lines = t.split('\\n').map(function (l) { return l.trim(); }).filter(function (l) {\n    if (!l) { return false; }\n    if (/^(note:?|tags,|tags:|so i should|just (produce|return|write|output)|the instruction|return only|below is|here is|вот сценарий|верни только|начни ответ|обернув|ok(,|!)?$|хорошо)/i.test(l)) { return false; }\n    return true;\n  });\n  t = lines.join('\\n');\n  t = t.replace(/^\\s*(?:Хук|HOOK|Hook|Основная часть|BODY|Body|Вывод и призыв|Вывод|CTA|Cta|Заключение|Призыв|Концовка|Вступление)\\s*[:—–\\-]\\s*/gim, '');\n  t = t.replace(/\\s+(?:Хук|Основная часть|Вывод и призыв|Вывод|Заключение|Призыв|Концовка)\\s*[:—–\\-]\\s*/gi, ' ');\n  t = t.replace(/\\s+(?:HOOK|BODY|CTA)\\s*[:—–\\-]\\s*/gi, ' ');\n  t = t.replace(/\\s+/g, ' ').trim();\n  return t;\n}\nconst cleaned = cleanText(text);\nconst words = cleaned === '' ? 0 : cleaned.split(/\\s+/).length;\nconst UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;\nif (cleaned === '') {\n  return [{ json: { ok: false, error: 'text пустой — укажи текст озвучки (или audio URL)' } }];\n}\nif (!UUID_RE.test(creator)) {\n  return [{ json: { ok: false, error: 'creator — невалидный UUID персоны (id из /api/personas)' } }];\n}\n/* Длительность lipsync = длине текста (озвучка ~2 слова/сек): 30с ≈ 60 слов, 60с ≈ 120 слов.\n   Обрезаем по границе предложения (та же логика, что в Code Build payload wf-creatify-shorts). */\nconst MAX_WORDS = Math.round(videoLength * 2);\nlet final = cleaned;\nlet finalWords = words;\nif (words > MAX_WORDS) {\n  const parts = final.split(/(?<=[.!?…])\\s+/);\n  let acc = '';\n  let accWords = 0;\n  for (const part of parts) {\n    const w = part.split(/\\s+/).length;\n    if (accWords + w > MAX_WORDS) break;\n    acc = acc ? acc + ' ' + part : part;\n    accWords += w;\n  }\n  if (!acc || accWords < Math.max(40, Math.round(MAX_WORDS * 0.6))) {\n    acc = final.split(/\\s+/).slice(0, MAX_WORDS).join(' ');\n    accWords = MAX_WORDS;\n  }\n  final = acc;\n  finalWords = accWords;\n}\nreturn [{ json: { ok: true, text: final, words: finalWords, creator: creator, video_length: videoLength, mode: mode, webhook_url: webhookUrl } }];"
+    },
+    "id": "7c138b5f-be19-416b-937f-bb2fe9cdd003",
+    "name": "Code validate",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     200,
+     0
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.ok }}",
+           "rightValue": true,
+           "operator": {
+            "type": "boolean",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ]
+     },
+     "options": {
+      "fallbackOutput": "extra"
+     }
+    },
+    "id": "8bdb2bf2-323c-4622-8603-f9358e2b4be0",
+    "name": "Switch valid",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     420,
+     0
+    ]
+   },
+   {
+    "parameters": {
+     "method": "GET",
+     "url": "https://api.creatify.ai/api/remaining_credits/",
+     "authentication": "none",
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-API-ID",
+        "value": "={{ $env.CREATIFY_API_ID }}"
+       },
+       {
+        "name": "X-API-KEY",
+        "value": "={{ $env.CREATIFY_API_KEY }}"
+       }
+      ]
+     },
+     "options": {
+      "timeout": 15000
+     }
+    },
+    "id": "b6eab0ab-ac2e-488d-81d6-3219b8f928e8",
+    "name": "HTTP credits",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     640,
+     -120
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const r = $json;\nconst balance = (r.remaining_credits !== undefined && r.remaining_credits !== null)\n  ? Number(r.remaining_credits) : 0;\nreturn [{ json: { ok: balance >= 10, balance: balance } }];"
+    },
+    "id": "194a36a3-8c8a-47b6-ae19-03585a52775c",
+    "name": "Code balance",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     860,
+     -120
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.ok }}",
+           "rightValue": true,
+           "operator": {
+            "type": "boolean",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ]
+     },
+     "options": {
+      "fallbackOutput": "extra"
+     }
+    },
+    "id": "9a56f649-4150-427e-97ef-2337bf5b8998",
+    "name": "Switch balance",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     1080,
+     -120
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const v = $('Code validate').first().json;\nconst p = {\n  name: 'Ролик из сценария',\n  text: v.text,\n  creator: v.creator,\n  aspect_ratio: '9x16',\n  model_version: 'standard'\n};\n/* Контракт lipsync НЕ поддерживает webhook_url — доставка ТОЛЬКО поллингом\n   (wf-creatify-poll). webhook_url сознательно НЕ добавляем в payload. */\nreturn [{ json: { ok: true, payload: p, mode: v.mode, video_length: v.video_length, words: v.words } }];"
+    },
+    "id": "c61efeb8-5f69-4a14-b65c-b7688abc9037",
+    "name": "Code Build payload",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     1300,
+     -120
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ String($('Code Build payload').first().json.mode || '') }}",
+           "rightValue": "script_only",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ]
+     },
+     "options": {
+      "fallbackOutput": "extra"
+     }
+    },
+    "id": "af6028f5-151e-4517-bb5c-a2aa09dd7c93",
+    "name": "Switch Script Only",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     1520,
+     -120
+    ]
+   },
+   {
+    "parameters": {
+     "method": "POST",
+     "url": "https://api.creatify.ai/api/lipsyncs/",
+     "authentication": "none",
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-API-ID",
+        "value": "={{ $env.CREATIFY_API_ID }}"
+       },
+       {
+        "name": "X-API-KEY",
+        "value": "={{ $env.CREATIFY_API_KEY }}"
+       }
+      ]
+     },
+     "options": {
+      "timeout": 120000,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+     },
+     "sendBody": true,
+     "specifyBody": "json",
+     "contentType": "json",
+     "jsonBody": "={{ $json.payload }}"
+    },
+    "id": "85851336-2bc8-476e-9780-b3a329d9316d",
+    "name": "HTTP lipsync",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     1740,
+     -120
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const r = $json;\nreturn [{\n  json: {\n    ok: true,\n    lipsync_id: r.id || null,\n    status: r.status || null,\n    video_output: r.output || r.video_output || null,\n    duration: r.duration || null,\n    credits_used: r.credits_used || 0\n  }\n}];"
+    },
+    "id": "96571ec5-71e8-4708-81fe-83b15bd28cef",
+    "name": "Code Normalize",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     1960,
+     -120
+    ]
+   },
+   {
+    "parameters": {
+     "respondWith": "json",
+     "responseBody": "={{ $('Code Normalize').first().json }}",
+     "options": {}
+    },
+    "id": "70038563-2461-431e-a888-e6f3ce245b2f",
+    "name": "Respond ok",
+    "type": "n8n-nodes-base.respondToWebhook",
+    "typeVersion": 1.5,
+    "position": [
+     2180,
+     -120
+    ]
+   },
+   {
+    "parameters": {
+     "respondWith": "json",
+     "responseBody": "={{ {ok: false, error: $json.error} }}",
+     "options": {}
+    },
+    "id": "dd1d6bbe-71e3-4f5e-9fbc-26ed3cbc7fdc",
+    "name": "Respond error",
+    "type": "n8n-nodes-base.respondToWebhook",
+    "typeVersion": 1.5,
+    "position": [
+     640,
+     220
+    ]
+   },
+   {
+    "parameters": {
+     "respondWith": "json",
+     "responseBody": "={{ {ok: false, error: 'low_credits', balance: $('Code balance').first().json.balance} }}",
+     "options": {}
+    },
+    "id": "bb1cb0df-38cc-49db-9189-f41b55003be4",
+    "name": "Respond low credits",
+    "type": "n8n-nodes-base.respondToWebhook",
+    "typeVersion": 1.5,
+    "position": [
+     1300,
+     100
+    ]
+   },
+   {
+    "parameters": {
+     "respondWith": "json",
+     "responseBody": "={{ {ok: true, script: $('Code Build payload').first().json.payload.text, words: $('Code Build payload').first().json.words} }}",
+     "options": {}
+    },
+    "id": "e1824e06-cfe5-41ed-8df0-7267c9889e95",
+    "name": "Respond script only",
+    "type": "n8n-nodes-base.respondToWebhook",
+    "typeVersion": 1.5,
+    "position": [
+     1960,
+     60
+    ]
+   }
+  ],
+  "connections": {
+   "Webhook": {
+    "main": [
+     [
+      {
+       "node": "Code validate",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Code validate": {
+    "main": [
+     [
+      {
+       "node": "Switch valid",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Switch valid": {
+    "main": [
+     [
+      {
+       "node": "HTTP credits",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "Respond error",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "HTTP credits": {
+    "main": [
+     [
+      {
+       "node": "Code balance",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Code balance": {
+    "main": [
+     [
+      {
+       "node": "Switch balance",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Switch balance": {
+    "main": [
+     [
+      {
+       "node": "Code Build payload",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "Respond low credits",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Code Build payload": {
+    "main": [
+     [
+      {
+       "node": "Switch Script Only",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Switch Script Only": {
+    "main": [
+     [
+      {
+       "node": "Respond script only",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "HTTP lipsync",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "HTTP lipsync": {
+    "main": [
+     [
+      {
+       "node": "Code Normalize",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Code Normalize": {
+    "main": [
+     [
+      {
+       "node": "Respond ok",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   }
+  },
+  "settings": {
+   "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {},
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "d9cc0d0b-48c3-4b17-98eb-780ee524b0ba",
+  "activeVersionId": "d9cc0d0b-48c3-4b17-98eb-780ee524b0ba",
+  "versionCounter": 1,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+   {
+    "updatedAt": "2026-08-16T00:00:00.000Z",
+    "createdAt": "2026-08-16T00:00:00.000Z",
+    "role": "workflow:owner",
+    "workflowId": "20000000-0000-4000-8000-000000000026",
+    "projectId": "M9eH49D0HafLr8AX",
+    "project": {
+     "updatedAt": "2026-08-11T13:27:47.312Z",
+     "createdAt": "2026-08-11T12:45:09.939Z",
+     "id": "M9eH49D0HafLr8AX",
+     "name": "Factory Owner <owner@factory.local>",
+     "type": "personal",
+     "icon": null,
+     "description": null,
+     "customTelemetryTags": [],
+     "creatorId": "540b79b5-6a9e-447f-90cf-22ee507d8a5d"
+    }
+   }
+  ],
+  "versionMetadata": {
+   "name": null,
+   "description": null
+  }
+ }
+]

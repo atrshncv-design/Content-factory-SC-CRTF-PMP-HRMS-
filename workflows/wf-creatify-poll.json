@@ -47,7 +47,7 @@
      },
      "sendBody": true,
      "specifyBody": "json",
-     "jsonBody": "{\"sql\":\"SELECT id, creatify_id FROM generations WHERE status IN ('pending','running') AND webhook_received=0 AND created_at < datetime('now','-15 minutes') LIMIT 50\",\"params\":[]}",
+     "jsonBody": "{\"sql\":\"SELECT id, creatify_id, request_payload FROM generations WHERE status IN ('pending','running') AND webhook_received=0 AND created_at < datetime('now','-15 minutes') LIMIT 50\",\"params\":[]}",
      "options": {}
     },
     "id": "bbbbbbbb-1111-2222-3333-444444444452",
@@ -239,6 +239,115 @@
      440,
      120
     ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "// Разделение строк generations по типу request_payload (JSON-строка):\n// type='lipsync' → ветка GET /api/lipsyncs/, все остальные → link_to_videos (как раньше).\nconst rows = ($json.rows || []).slice();\nconst videoRows = [];\nconst lipsyncRows = [];\nfor (const r of rows) {\n  let type = '';\n  try {\n    const rp = JSON.parse(String(r.request_payload || '{}'));\n    type = String((rp && rp.type) || '');\n  } catch (e) { type = ''; }\n  if (type === 'lipsync') lipsyncRows.push(r);\n  else videoRows.push(r);\n}\nconst out = [];\nif (videoRows.length) out.push({ json: { rows: videoRows, kind: 'link_to_videos' } });\nif (lipsyncRows.length) out.push({ json: { rows: lipsyncRows, kind: 'lipsync' } });\nreturn out;"
+    },
+    "id": "aaaaaaaa-1111-2222-3333-444444444453",
+    "name": "Code split",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     -360,
+     180
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.kind }}",
+           "rightValue": "lipsync",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ]
+     },
+     "options": {
+      "fallbackOutput": "extra"
+     }
+    },
+    "id": "aaaaaaaa-1111-2222-3333-444444444454",
+    "name": "Switch kind",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     40,
+     180
+    ]
+   },
+   {
+    "parameters": {
+     "method": "GET",
+     "url": "https://api.creatify.ai/api/lipsyncs/",
+     "authentication": "none",
+     "sendQuery": true,
+     "queryParameters": {
+      "parameters": [
+       {
+        "name": "ids",
+        "value": "={{ $json.rows.map(r=>r.creatify_id).join(',') }}"
+       }
+      ]
+     },
+     "options": {},
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-API-ID",
+        "value": "={{ $env.CREATIFY_API_ID }}"
+       },
+       {
+        "name": "X-API-KEY",
+        "value": "={{ $env.CREATIFY_API_KEY }}"
+       }
+      ]
+     }
+    },
+    "id": "99999999-1111-2222-3333-444444444453",
+    "name": "HTTP GET lipsync",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     240,
+     180
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "// Обработка ответа GET /api/lipsyncs/?ids=...\n// creatify_id берём из SELECT (HTTP db-bridge), НЕ из ответа creatify.\n// lipsync доставляется ТОЛЬКО поллингом (webhook_url контракт не поддерживает) →\n// webhook_received=1 ставим здесь, чтобы пайплайн продолжился как после вебхука.\nconst rows = ($('HTTP db-bridge').first().json.rows) || [];\nif (!rows.length) return [];\n\nconst resp = $json; // список {id, status, output, duration, credits_used, failed_reason, ...}\nconst items = Array.isArray(resp) ? resp\n  : (Array.isArray(resp && resp.results) ? resp.results\n  : (Array.isArray(resp && resp.items) ? resp.items : []));\n\nfunction vid(rec) {\n  if (!rec || typeof rec !== 'object') return null;\n  for (const k of ['output', 'video_output', 'video_output_url', 'video_url', 'output_video', 'output_url']) {\n    if (typeof rec[k] === 'string' && rec[k]) return rec[k];\n  }\n  return null;\n}\n\nconst SQL_DONE = \"UPDATE generations SET status='done', video_output_url=?, webhook_received=1, completed_at=datetime('now') WHERE creatify_id=?\";\nconst SQL_FAIL = \"UPDATE generations SET status='failed', failed_reason=?, webhook_received=1 WHERE creatify_id=?\";\nconst out = [];\nfor (const row of rows) {\n  const cid = (row && row.creatify_id != null) ? String(row.creatify_id) : null;\n  if (!cid) continue;\n  const rec = items.find(r => r && String(r.id) === cid);\n  if (!rec) continue; // записи в ответе нет — не трогаем, след. цикл опросит снова\n  const st = String(rec.status || '').toLowerCase();\n  if (st === 'done') {\n    out.push({ json: { sql: SQL_DONE, params: [vid(rec), cid], creatify_id: cid, status: st } });\n  } else if (st === 'failed' || st === 'error') {\n    out.push({ json: { sql: SQL_FAIL, params: [String(rec.failed_reason || 'unknown'), cid], creatify_id: cid, status: 'failed' } });\n  }\n  // pending / running / processing / queued — без UPDATE, след. цикл опросит снова\n}\nreturn out;"
+    },
+    "id": "88888888-1111-2222-3333-444444444453",
+    "name": "Code process lipsync",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     440,
+     180
+    ]
    }
   ],
   "connections": {
@@ -268,7 +377,7 @@
     "main": [
      [
       {
-       "node": "Switch mock",
+       "node": "Code split",
        "type": "main",
        "index": 0
       }
@@ -293,7 +402,7 @@
      ],
      [
       {
-       "node": "HTTP GET creatify",
+       "node": "Switch kind",
        "type": "main",
        "index": 0
       }
@@ -312,6 +421,57 @@
     ]
    },
    "Code process": {
+    "main": [
+     [
+      {
+       "node": "HTTP db-bridge UPDATE",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Code split": {
+    "main": [
+     [
+      {
+       "node": "Switch mock",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Switch kind": {
+    "main": [
+     [
+      {
+       "node": "HTTP GET lipsync",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "HTTP GET creatify",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "HTTP GET lipsync": {
+    "main": [
+     [
+      {
+       "node": "Code process lipsync",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Code process lipsync": {
     "main": [
      [
       {

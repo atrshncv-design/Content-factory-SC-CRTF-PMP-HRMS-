@@ -35,7 +35,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const item = $input.first().json;\nfunction parseCommand(text) {\n  const t = String(text || '').toLowerCase().trim();\n  const C = {\n    'start': 'start', 'старт': 'start', '/start': 'start',\n    'help': 'help', 'помощь': 'help', '/help': 'help',\n    'status': 'status', 'статус': 'status', '/status': 'status',\n    'cancel': 'cancel', 'стоп': 'cancel', 'отмена': 'cancel', '/cancel': 'cancel',\n    'ping': 'ping', 'пинг': 'ping', '/ping': 'ping',\n    'start_cycle': 'start_cycle', 'запуск цикла': 'start_cycle', 'старт цикла': 'start_cycle', '/start_cycle': 'start_cycle',\n    'mode': 'mode', 'режим': 'mode', '/mode': 'mode',\n    'topics': 'topics', 'темы': 'topics', '/topics': 'topics',\n    'competitors': 'competitors', 'конкуренты': 'competitors', '/competitors': 'competitors',\n    'accounts': 'accounts', 'аккаунты': 'accounts', '/accounts': 'accounts',\n    'budget': 'budget', 'бюджет': 'budget', '/budget': 'budget',\n    'clients': 'clients', 'клиенты': 'clients', '/clients': 'clients',\n    'client': 'client', 'клиент': 'client', '/client': 'client',\n    'reload_skills': 'reload_skills', '/reload_skills': 'reload_skills',\n    'creators': 'creators', 'авторы': 'creators', 'поиск авторов': 'creators', '/creators': 'creators',\n    'creator': 'creator', 'автор': 'creator', '/creator': 'creator',\n    'creator_content': 'creator_content', 'creator-content': 'creator_content', 'контент автора': 'creator_content', '/creator_content': 'creator_content', '/creator-content': 'creator_content',\n    'audience': 'audience', 'аудитория': 'audience', '/audience': 'audience',\n    'transcript': 'transcript', 'транскрипт': 'transcript', '/transcript': 'transcript',\n    'comments': 'comments', 'комментарии': 'comments', '/comments': 'comments',\n    'upload_avatar': 'upload_avatar', 'upload-avatar': 'upload_avatar', 'загрузить аватар': 'upload_avatar', '/upload_avatar': 'upload_avatar', '/upload-avatar': 'upload_avatar',\n    'my_avatars': 'my_avatars', 'my-avatars': 'my_avatars', 'мои аватары': 'my_avatars', '/my_avatars': 'my_avatars', '/my-avatars': 'my_avatars',\n    'asset': 'asset', 'ассет': 'asset', '/asset': 'asset',\n    'shorts': 'shorts', 'шортсы': 'shorts', '/shorts': 'shorts',\n    'product': 'product', 'продукт': 'product', '/product': 'product',\n    'banner': 'banner', 'баннер': 'banner', '/banner': 'banner',\n    'publish_type': 'publish_type', 'publish-type': 'publish_type', 'тип публикации': 'publish_type', '/publish_type': 'publish_type', '/publish-type': 'publish_type',\n    'menu': 'menu', 'меню': 'menu', '/menu': 'menu', '/меню': 'menu',\n    'instruction': 'instruction', 'инструкция': 'instruction', 'инструкции': 'instruction', '/instruction': 'instruction', '/инструкция': 'instruction',\n    'url2video': 'url2video', 'видео из ссылки': 'url2video', '/url2video': 'url2video',\n    'gen_url2video': 'url2video', 'gen_shorts': 'shorts',\n    'text_post': 'text_post', 'текстовый пост': 'text_post', '/text_post': 'text_post', '/текстовый пост': 'text_post',\n    'durc': 'durc',\n    'add_operator': 'add_operator', 'добавить оператора': 'add_operator', '/add_operator': 'add_operator',\n    'remove_operator': 'remove_operator', 'удалить оператора': 'remove_operator', '/remove_operator': 'remove_operator', '/удалить оператора': 'remove_operator',\n    'operators': 'operators', 'операторы': 'operators', '/operators': 'operators',\n    'profile': 'profile', 'профиль': 'profile', '/profile': 'profile', '/профиль': 'profile',\n    'profiles': 'profiles', 'профили': 'profiles', '/profiles': 'profiles', '/профили': 'profiles',\n    'questions': 'questions', 'вопросы': 'questions', '/questions': 'questions', '/вопросы': 'questions',\n  };\n  const words = t.split(/\\s+/);\n  let command = 'unknown';\n  const args = { url: null, id: null, value: null, platform: null, handle: null, section: null, action: null };\n  if (t.startsWith('onboard ') || t === 'onboard' || t.startsWith('/onboard')) { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('онбординг ') || t === 'онбординг') { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('client ') || t.startsWith('клиент ') || t.startsWith('/client ')) { command = 'client'; args.id = words[1] || null; }\n  else if (t.startsWith('добавить оператора ') || t.startsWith('/add_operator ') || t.startsWith('add_operator ')) { command = 'add_operator'; const off = t.startsWith('добавить оператора ') ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('удалить оператора ') || t.startsWith('/remove_operator ') || t.startsWith('/удалить оператора ')) { command = 'remove_operator'; const off = (t.startsWith('удалить оператора ') || t.startsWith('/удалить оператора ')) ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('creator ') || t.startsWith('автор ') || t.startsWith('/creator ')) { command = 'creator'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('creator_content ') || t.startsWith('creator-content ') || t.startsWith('контент автора ') || t.startsWith('/creator_content ') || t.startsWith('/creator-content ')) { command = 'creator_content'; const off = t.startsWith('контент автора ') ? 2 : 1; args.platform = words[off] || null; args.handle = words[off + 1] || null; }\n  else if (t.startsWith('audience ') || t.startsWith('аудитория ') || t.startsWith('/audience ')) { command = 'audience'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('поиск авторов ')) { command = 'creators'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('загрузить аватар ')) { command = 'upload_avatar'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('тип публикации ')) { command = 'publish_type'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('menu_')) { command = 'menu'; args.section = t.slice(5) || null; }\n  else if (t.startsWith('dur_')) { command = 'dur'; args.value = t.slice(4) || null; }\n  else if (t.startsWith('durc_')) { command = 'durc'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('hint_')) { command = 'hint'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('видео из ссылки ')) { command = 'url2video'; args.url = words.slice(3).join(' ') || null; }\n  else if (t === 'вопросы' || t === '/вопросы' || t === 'questions' || t === '/questions') { command = 'questions'; args.action = 'list'; }\n  else if (t.startsWith('вопросы сброс') || t.startsWith('/вопросы сброс')) { command = 'questions'; args.action = 'reset'; }\n  else if (t.startsWith('вопрос ') || t.startsWith('/вопросы ')) { command = 'questions'; args.action = 'set'; const N = /^\\d+$/.test(words[1] || '') ? parseInt(words[1], 10) : null; args.n = N; args.value = words.slice(2).join(' ') || null; }\n  else if (t === 'авто' || t === '/авто' || t === 'auto' || t === '/auto') { command = 'auto'; args.action = 'toggle'; }\n  else if (t.startsWith('авто вкл') || t.startsWith('/авто вкл') || t.startsWith('auto on') || t.startsWith('/auto on')) { command = 'auto'; args.action = 'on'; }\n  else if (t.startsWith('авто выкл') || t.startsWith('/авто выкл') || t.startsWith('auto off') || t.startsWith('/auto off')) { command = 'auto'; args.action = 'off'; }\n  else if (C[t]) { command = C[t]; }\n  else if (C[words[0]]) { command = C[words[0]]; args.value = words.slice(1).join(' ') || null; }\n  if (command === 'shorts' && args.value && /^https?:\\/\\//i.test(args.value)) args.url = args.value;\n  return { command: command, args: args };\n}\n\nlet out = null;\nif (item.callback_query) {\n  const q = item.callback_query;\n  const fromId = (q.from && q.from.id) || null;\n  const chatId = (q.message && q.message.chat && q.message.chat.id) || null;\n  const msgId = (q.message && q.message.message_id) || null;\n  const data = String(q.data || '');\n  if (data.startsWith('cmd:')) {\n    const parsed = parseCommand(data.slice(4));\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: parsed.command, args: parsed.args, raw: data, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parts = data.split(':');\n    const action = parts[0] || '';\n    const entityType = parts[1] || null;\n    const entityId = parts.slice(2).join(':') || null;\n    const map = {\n      approve: { topic: 'approve_topic', script: 'approve_script', gen: 'publish_gen' },\n      edit: { topic: 'edit_topic', script: 'edit_script' },\n      reject: { topic: 'reject_topic', script: 'reject_script', gen: 'reject_gen' },\n      alt: { topic: 'alt_topic' },\n      regen: { gen: 'regen_gen' },\n      toggle: { platform: 'toggle_platform', ppm: 'toggle_ppm' },\n      publish: { gen: 'publish_gen' },\n      confirm: { publish: 'confirm_publish' },\n    };\n    let cb = 'unknown';\n    if (action === 'schedule') cb = 'schedule';\n    else if (action === 'confirm') cb = 'confirm_publish';\n    else if (action === 'publish') cb = 'publish_gen';\n    else if (action === 'tx_toggle') cb = 'tx_toggle';\n    else if (action === 'tx_publish') cb = 'tx_publish';\n    else if (action === 'ro_yes' || action === 'ro_no') cb = action;\n    else if (action === 'ppm_done') cb = 'ppm_done';\n    else if (action.startsWith('pf_')) cb = action;\n    else if (action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit') cb = action;\n    else if (action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject') cb = action;\n    else if (map[action] && map[action][entityType]) cb = map[action][entityType];\n    const isRoCb = action === 'ro_yes' || action === 'ro_no';\n    const isScCb = action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit';\n    const isVdCb = action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject';\n    out = { kind: 'callback', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: null, args: {}, raw: data, callback_action: cb,\n            entity_type: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? null : entityType,\n            entity_id: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? (parts[1] || null) : entityId };\n  }\n} else if (item.message) {\n  const m = item.message;\n  const fromId = (m.from && m.from.id) || null;\n  const chatId = (m.chat && m.chat.id) || null;\n  const text = String(m.text || '').trim();\n  if (m.document) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_doc', args: { file_id: m.document.file_id || null, file_name: m.document.file_name || null, mime: m.document.mime_type || null },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.photo && m.photo.length) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_photo', args: { file_id: m.photo[m.photo.length - 1].file_id || null, file_name: 'photo_' + (m.message_id || 'x') + '.jpg' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.video) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_video', args: { file_id: m.video.file_id || null, file_name: m.video.file_name || 'video.mp4' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parsed = parseCommand(text);\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: parsed.command, args: parsed.args, raw: text, callback_action: null, entity_type: null, entity_id: null };\n  }\n} else {\n  out = { kind: 'unknown', tg_user_id: null, chat_id: null, message_id: null, query_id: null, command: 'unknown', args: {}, raw: '', callback_action: null, entity_type: null, entity_id: null };\n}\nreturn [{ json: out }];\n"
+     "jsCode": "const item = $input.first().json;\nfunction parseCommand(text) {\n  const t = String(text || '').toLowerCase().trim();\n  const C = {\n    'start': 'start', 'старт': 'start', '/start': 'start',\n    'help': 'help', 'помощь': 'help', '/help': 'help',\n    'status': 'status', 'статус': 'status', '/status': 'status',\n    'cancel': 'cancel', 'стоп': 'cancel', 'отмена': 'cancel', '/cancel': 'cancel',\n    'ping': 'ping', 'пинг': 'ping', '/ping': 'ping',\n    'start_cycle': 'start_cycle', 'запуск цикла': 'start_cycle', 'старт цикла': 'start_cycle', '/start_cycle': 'start_cycle',\n    'mode': 'mode', 'режим': 'mode', '/mode': 'mode',\n    'topics': 'topics', 'темы': 'topics', '/topics': 'topics',\n    'competitors': 'competitors', 'конкуренты': 'competitors', '/competitors': 'competitors',\n    'accounts': 'accounts', 'аккаунты': 'accounts', '/accounts': 'accounts',\n    'budget': 'budget', 'бюджет': 'budget', '/budget': 'budget',\n    'clients': 'clients', 'клиенты': 'clients', '/clients': 'clients',\n    'client': 'client', 'клиент': 'client', '/client': 'client',\n    'reload_skills': 'reload_skills', '/reload_skills': 'reload_skills',\n    'creators': 'creators', 'авторы': 'creators', 'поиск авторов': 'creators', '/creators': 'creators',\n    'creator': 'creator', 'автор': 'creator', '/creator': 'creator',\n    'creator_content': 'creator_content', 'creator-content': 'creator_content', 'контент автора': 'creator_content', '/creator_content': 'creator_content', '/creator-content': 'creator_content',\n    'audience': 'audience', 'аудитория': 'audience', '/audience': 'audience',\n    'transcript': 'transcript', 'транскрипт': 'transcript', '/transcript': 'transcript',\n    'comments': 'comments', 'комментарии': 'comments', '/comments': 'comments',\n    'upload_avatar': 'upload_avatar', 'upload-avatar': 'upload_avatar', 'загрузить аватар': 'upload_avatar', '/upload_avatar': 'upload_avatar', '/upload-avatar': 'upload_avatar',\n    'my_avatars': 'my_avatars', 'my-avatars': 'my_avatars', 'мои аватары': 'my_avatars', '/my_avatars': 'my_avatars', '/my-avatars': 'my_avatars',\n    'asset': 'asset', 'ассет': 'asset', '/asset': 'asset',\n    'shorts': 'shorts', 'шортсы': 'shorts', '/shorts': 'shorts',\n    'product': 'product', 'продукт': 'product', '/product': 'product',\n    'banner': 'banner', 'баннер': 'banner', '/banner': 'banner',\n    'publish_type': 'publish_type', 'publish-type': 'publish_type', 'тип публикации': 'publish_type', '/publish_type': 'publish_type', '/publish-type': 'publish_type',\n    'menu': 'menu', 'меню': 'menu', '/menu': 'menu', '/меню': 'menu',\n    'instruction': 'instruction', 'инструкция': 'instruction', 'инструкции': 'instruction', '/instruction': 'instruction', '/инструкция': 'instruction',\n    'url2video': 'url2video', 'видео из ссылки': 'url2video', '/url2video': 'url2video',\n    'gen_url2video': 'url2video', 'gen_shorts': 'shorts',\n    'avatar_video': 'avatar_video', 'видео с аватаром': 'avatar_video', 'аватар видео': 'avatar_video', 'avv': 'avatar_video', 'gen_avatar_video': 'avatar_video',\n    'text_post': 'text_post', 'текстовый пост': 'text_post', '/text_post': 'text_post', '/текстовый пост': 'text_post',\n    'durc': 'durc',\n    'add_operator': 'add_operator', 'добавить оператора': 'add_operator', '/add_operator': 'add_operator',\n    'remove_operator': 'remove_operator', 'удалить оператора': 'remove_operator', '/remove_operator': 'remove_operator', '/удалить оператора': 'remove_operator',\n    'operators': 'operators', 'операторы': 'operators', '/operators': 'operators',\n    'profile': 'profile', 'профиль': 'profile', '/profile': 'profile', '/профиль': 'profile',\n    'profiles': 'profiles', 'профили': 'profiles', '/profiles': 'profiles', '/профили': 'profiles',\n    'questions': 'questions', 'вопросы': 'questions', '/questions': 'questions', '/вопросы': 'questions',\n  };\n  const words = t.split(/\\s+/);\n  let command = 'unknown';\n  const args = { url: null, id: null, value: null, platform: null, handle: null, section: null, action: null };\n  if (t.startsWith('onboard ') || t === 'onboard' || t.startsWith('/onboard')) { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('онбординг ') || t === 'онбординг') { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('client ') || t.startsWith('клиент ') || t.startsWith('/client ')) { command = 'client'; args.id = words[1] || null; }\n  else if (t.startsWith('добавить оператора ') || t.startsWith('/add_operator ') || t.startsWith('add_operator ')) { command = 'add_operator'; const off = t.startsWith('добавить оператора ') ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('удалить оператора ') || t.startsWith('/remove_operator ') || t.startsWith('/удалить оператора ')) { command = 'remove_operator'; const off = (t.startsWith('удалить оператора ') || t.startsWith('/удалить оператора ')) ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('creator ') || t.startsWith('автор ') || t.startsWith('/creator ')) { command = 'creator'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('creator_content ') || t.startsWith('creator-content ') || t.startsWith('контент автора ') || t.startsWith('/creator_content ') || t.startsWith('/creator-content ')) { command = 'creator_content'; const off = t.startsWith('контент автора ') ? 2 : 1; args.platform = words[off] || null; args.handle = words[off + 1] || null; }\n  else if (t.startsWith('audience ') || t.startsWith('аудитория ') || t.startsWith('/audience ')) { command = 'audience'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('поиск авторов ')) { command = 'creators'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('загрузить аватар ')) { command = 'upload_avatar'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('тип публикации ')) { command = 'publish_type'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('menu_')) { command = 'menu'; args.section = t.slice(5) || null; }\n  else if (t.startsWith('dur_')) { command = 'dur'; args.value = t.slice(4) || null; }\n  else if (t.startsWith('durc_')) { command = 'durc'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('hint_')) { command = 'hint'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('видео из ссылки ')) { command = 'url2video'; args.url = words.slice(3).join(' ') || null; }\n  else if (t === 'вопросы' || t === '/вопросы' || t === 'questions' || t === '/questions') { command = 'questions'; args.action = 'list'; }\n  else if (t.startsWith('вопросы сброс') || t.startsWith('/вопросы сброс')) { command = 'questions'; args.action = 'reset'; }\n  else if (t.startsWith('вопрос ') || t.startsWith('/вопросы ')) { command = 'questions'; args.action = 'set'; const N = /^\\d+$/.test(words[1] || '') ? parseInt(words[1], 10) : null; args.n = N; args.value = words.slice(2).join(' ') || null; }\n  else if (t === 'авто' || t === '/авто' || t === 'auto' || t === '/auto') { command = 'auto'; args.action = 'toggle'; }\n  else if (t.startsWith('авто вкл') || t.startsWith('/авто вкл') || t.startsWith('auto on') || t.startsWith('/auto on')) { command = 'auto'; args.action = 'on'; }\n  else if (t.startsWith('авто выкл') || t.startsWith('/авто выкл') || t.startsWith('auto off') || t.startsWith('/auto off')) { command = 'auto'; args.action = 'off'; }\n  else if (C[t]) { command = C[t]; }\n  else if (C[words[0]]) { command = C[words[0]]; args.value = words.slice(1).join(' ') || null; }\n  if (command === 'shorts' && args.value && /^https?:\\/\\//i.test(args.value)) args.url = args.value;\n  return { command: command, args: args };\n}\n\nlet out = null;\nif (item.callback_query) {\n  const q = item.callback_query;\n  const fromId = (q.from && q.from.id) || null;\n  const chatId = (q.message && q.message.chat && q.message.chat.id) || null;\n  const msgId = (q.message && q.message.message_id) || null;\n  const data = String(q.data || '');\n  if (data.startsWith('cmd:')) {\n    const parsed = parseCommand(data.slice(4));\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: parsed.command, args: parsed.args, raw: data, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parts = data.split(':');\n    const action = parts[0] || '';\n    const entityType = parts[1] || null;\n    const entityId = parts.slice(2).join(':') || null;\n    const map = {\n      approve: { topic: 'approve_topic', script: 'approve_script', gen: 'publish_gen' },\n      edit: { topic: 'edit_topic', script: 'edit_script' },\n      reject: { topic: 'reject_topic', script: 'reject_script', gen: 'reject_gen' },\n      alt: { topic: 'alt_topic' },\n      regen: { gen: 'regen_gen' },\n      toggle: { platform: 'toggle_platform', ppm: 'toggle_ppm' },\n      publish: { gen: 'publish_gen' },\n      confirm: { publish: 'confirm_publish' },\n    };\n    let cb = 'unknown';\n    if (action === 'schedule') cb = 'schedule';\n    else if (action === 'confirm') cb = 'confirm_publish';\n    else if (action === 'publish') cb = 'publish_gen';\n    else if (action === 'tx_toggle') cb = 'tx_toggle';\n    else if (action === 'tx_publish') cb = 'tx_publish';\n    else if (action === 'ro_yes' || action === 'ro_no') cb = action;\n    else if (action === 'ppm_done') cb = 'ppm_done';\n    else if (action.startsWith('pf_')) cb = action;\n    else if (action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit') cb = action;\n    else if (action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject') cb = action;\n    else if (action === 'avv_sel') cb = 'avv_sel';\n    else if (map[action] && map[action][entityType]) cb = map[action][entityType];\n    const isRoCb = action === 'ro_yes' || action === 'ro_no';\n    const isScCb = action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit';\n    const isVdCb = action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject';\n    out = { kind: 'callback', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: null, args: {}, raw: data, callback_action: cb,\n            entity_type: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? null : entityType,\n            entity_id: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? (parts[1] || null) : entityId };\n  }\n} else if (item.message) {\n  const m = item.message;\n  const fromId = (m.from && m.from.id) || null;\n  const chatId = (m.chat && m.chat.id) || null;\n  const text = String(m.text || '').trim();\n  if (m.document) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_doc', args: { file_id: m.document.file_id || null, file_name: m.document.file_name || null, mime: m.document.mime_type || null },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.photo && m.photo.length) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_photo', args: { file_id: m.photo[m.photo.length - 1].file_id || null, file_name: 'photo_' + (m.message_id || 'x') + '.jpg' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.video) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_video', args: { file_id: m.video.file_id || null, file_name: m.video.file_name || 'video.mp4' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parsed = parseCommand(text);\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: parsed.command, args: parsed.args, raw: text, callback_action: null, entity_type: null, entity_id: null };\n  }\n} else {\n  out = { kind: 'unknown', tg_user_id: null, chat_id: null, message_id: null, query_id: null, command: 'unknown', args: {}, raw: '', callback_action: null, entity_type: null, entity_id: null };\n}\nreturn [{ json: out }];\n"
     },
     "id": "8a103f8b-937b-4265-989e-b51bcad58551",
     "name": "Parser",
@@ -1013,6 +1013,26 @@
           {
            "leftValue": "={{ $json.command }}",
            "rightValue": "auto",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.command }}",
+           "rightValue": "avatar_video",
            "operator": {
             "type": "string",
             "operation": "equals"
@@ -2653,7 +2673,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst rows = $('Gate HTTP').first().json.rows || [];\nconst state = (rows[0] && rows[0].state) || 'IDLE';\nif (p.command === 'unknown' && state === 'CYCLE_SCRIPT_EDITING') return [{ json: { mode: 'script_edit' } }];\nif (p.command === 'unknown' && state === 'QUICK_URL_AWAIT_LINK') return [{ json: { mode: 'quick_url_link' } }];\nif (p.command === 'unknown' && state === 'QUICK_URL_AWAIT_DUR') return [{ json: { mode: 'quick_url_dur' } }];\nif (p.command === 'unknown' && state === 'QUICK_URL_GENERATING') return [{ json: { mode: 'quick_url_generating' } }];\nif (p.command === 'unknown' && state === 'QUICK_SHORTS_GENERATING') return [{ json: { mode: 'quick_url_generating' } }];\nif (p.command === 'unknown' && state === 'QUICK_SHORTS_AWAIT_TOPIC') return [{ json: { mode: 'quick_shorts_topic' } }];\nif (p.command === 'unknown' && state === 'QUICK_TEXT_AWAIT') return [{ json: { mode: 'quick_text' } }];\nif (p.command === 'unknown' && state === 'CYCLE_DUR_AWAIT') return [{ json: { mode: 'cycle_dur' } }];\nif (p.command === 'unknown' && state === 'PROFILE_AWAIT') return [{ json: { mode: 'profile_answer' } }];\nif (p.command === 'unknown' && state === 'PROFILE_ADD_LINK') return [{ json: { mode: 'profile_add_link' } }];\nif (p.command === 'unknown' && state === 'PROFILE_ADD_DOC') return [{ json: { mode: 'profile_add_doc' } }];\nif (p.command === 'unknown' && state === 'SCRIPT_AWAIT') return [{ json: { mode: 'script_await' } }];\nreturn [{ json: { mode: 'normal' } }];\n"
+     "jsCode": "const p = $('Parser').first().json;\nconst rows = $('Gate HTTP').first().json.rows || [];\nconst state = (rows[0] && rows[0].state) || 'IDLE';\nif (p.command === 'unknown' && state === 'CYCLE_SCRIPT_EDITING') return [{ json: { mode: 'script_edit' } }];\nif (p.command === 'unknown' && state === 'QUICK_URL_AWAIT_LINK') return [{ json: { mode: 'quick_url_link' } }];\nif (p.command === 'unknown' && state === 'QUICK_URL_AWAIT_DUR') return [{ json: { mode: 'quick_url_dur' } }];\nif (p.command === 'unknown' && state === 'QUICK_URL_GENERATING') return [{ json: { mode: 'quick_url_generating' } }];\nif (p.command === 'unknown' && state === 'QUICK_SHORTS_GENERATING') return [{ json: { mode: 'quick_url_generating' } }];\nif (p.command === 'unknown' && state === 'QUICK_SHORTS_AWAIT_TOPIC') return [{ json: { mode: 'quick_shorts_topic' } }];\nif (p.command === 'unknown' && state === 'AVATAR_VIDEO_AWAIT_TOPIC') return [{ json: { mode: 'avv_topic' } }];\nif (p.command === 'unknown' && state === 'QUICK_TEXT_AWAIT') return [{ json: { mode: 'quick_text' } }];\nif (p.command === 'unknown' && state === 'CYCLE_DUR_AWAIT') return [{ json: { mode: 'cycle_dur' } }];\nif (p.command === 'unknown' && state === 'PROFILE_AWAIT') return [{ json: { mode: 'profile_answer' } }];\nif (p.command === 'unknown' && state === 'PROFILE_ADD_LINK') return [{ json: { mode: 'profile_add_link' } }];\nif (p.command === 'unknown' && state === 'PROFILE_ADD_DOC') return [{ json: { mode: 'profile_add_doc' } }];\nif (p.command === 'unknown' && state === 'SCRIPT_AWAIT') return [{ json: { mode: 'script_await' } }];\nreturn [{ json: { mode: 'normal' } }];\n"
     },
     "id": "74c9e39a-8cbc-4758-a504-3f85b72422bd",
     "name": "Gate Check",
@@ -2760,6 +2780,26 @@
           {
            "leftValue": "={{ $json.mode }}",
            "rightValue": "quick_shorts_topic",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.mode }}",
+           "rightValue": "avv_topic",
            "operator": {
             "type": "string",
             "operation": "equals"
@@ -3859,6 +3899,26 @@
           {
            "leftValue": "={{ $json.callback_action }}",
            "rightValue": "sc_edit",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.callback_action }}",
+           "rightValue": "avv_sel",
            "operator": {
             "type": "string",
             "operation": "equals"
@@ -9135,153 +9195,6 @@
     }
    },
    {
-    "id": "519e3559-020e-447f-add1-2baf35fdf023",
-    "name": "AST Build",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     600,
-     3580
-    ],
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst v = String((p.args && (p.args.value || p.args.url)) || '').trim();\nif (!v) return [{ json: { valid: false, chat_id: p.chat_id, text: '❌ Укажи промпт для генерации изображения. Пример: asset котик в космосе, стиль пиксель-арт' } }];\nreturn [{ json: { valid: true, payload: { prompt: v } } }];\n"
-    }
-   },
-   {
-    "id": "f7597ea8-e0e2-4f02-aa86-96d20c35cad9",
-    "name": "AST Switch",
-    "type": "n8n-nodes-base.switch",
-    "typeVersion": 3.4,
-    "position": [
-     840,
-     3580
-    ],
-    "parameters": {
-     "mode": "rules",
-     "rules": {
-      "values": [
-       {
-        "conditions": {
-         "options": {
-          "caseSensitive": true,
-          "leftValue": "",
-          "typeValidation": "strict"
-         },
-         "conditions": [
-          {
-           "leftValue": "={{ String($json.valid) }}",
-           "rightValue": "true",
-           "operator": {
-            "type": "string",
-            "operation": "equals"
-           }
-          }
-         ],
-         "combinator": "and"
-        }
-       }
-      ]
-     },
-     "options": {
-      "fallbackOutput": "extra"
-     }
-    }
-   },
-   {
-    "id": "3b020453-370e-45d7-aac8-835e3e4109d1",
-    "name": "AST HTTP",
-    "type": "n8n-nodes-base.httpRequest",
-    "typeVersion": 4.5,
-    "position": [
-     1080,
-     3580
-    ],
-    "parameters": {
-     "method": "POST",
-     "url": "http://localhost:5678/webhook/factory/asset",
-     "sendBody": true,
-     "contentType": "json",
-     "specifyBody": "json",
-     "jsonBody": "={{ $json.payload }}",
-     "options": {
-      "timeout": 60000,
-      "response": {
-       "response": {
-        "neverError": true
-       }
-      }
-     },
-     "sendHeaders": true,
-     "headerParameters": {
-      "parameters": [
-       {
-        "name": "X-FACTORY-TOKEN",
-        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
-       }
-      ]
-     }
-    }
-   },
-   {
-    "id": "10892010-b5b6-4ab0-8e5b-42dff30f2177",
-    "name": "AST Format",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     1320,
-     3580
-    ],
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst b = $('AST Build').first().json;\nlet r = {};\ntry { r = $('AST HTTP').first().json; } catch (e) {}\nr\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nif (!b.valid) return [{ json: { chat_id: p.chat_id, text: esc(b.text) } }];\nconst body = (r && r.body && typeof r.body === 'object') ? r.body : (r || {});\nif (!body || body.ok !== true) {\n  const e = body && body.error;\n  const msg = (typeof e === 'string' && e) ? e : (e && e.message) || 'генерация ассета не удалась';\n  return [{ json: { chat_id: p.chat_id, text: '😕 Ассет не создан: ' + esc(msg) } }];\n}\nconst url = String(body.url || '');\nif (!url) return [{ json: { chat_id: p.chat_id, text: '⚠️ Ассет создан, но URL пока не готов (статус: ' + esc(String(body.status || '?')) + ')' } }];\nreturn [{ json: { chat_id: p.chat_id, text: '🖼 Ассет готов:\\n' + esc(url) } }];\n"
-    }
-   },
-   {
-    "id": "a249e332-7962-4cd8-a0a8-25a1c6fe6c96",
-    "name": "TG asset",
-    "type": "n8n-nodes-base.telegram",
-    "typeVersion": 1.2,
-    "position": [
-     1560,
-     3580
-    ],
-    "credentials": {
-     "telegramApi": {
-      "id": "10000000-0000-4000-8000-000000000004",
-      "name": "telegram"
-     }
-    },
-    "parameters": {
-     "resource": "message",
-     "operation": "sendMessage",
-     "chatId": "={{ $('Parser').first().json.chat_id }}",
-     "text": "={{ $json.text }}",
-     "additionalFields": {
-      "appendAttribution": false
-     },
-     "inlineKeyboard": {
-      "rows": [
-       {
-        "row": {
-         "buttons": [
-          {
-           "text": "📋 Меню",
-           "additionalFields": {
-            "callback_data": "={{ \"cmd:menu\" }}"
-           }
-          }
-         ]
-        }
-       }
-      ]
-     },
-     "replyMarkup": "inlineKeyboard"
-    }
-   },
-   {
     "id": "300db465-315a-42f1-9b55-2d8b7139fbcf",
     "name": "SHT Build",
     "type": "n8n-nodes-base.code",
@@ -9371,7 +9284,7 @@
      "sendBody": true,
      "contentType": "json",
      "specifyBody": "json",
-     "jsonBody": "={{ (() => {\n  const u = $('SH Update state').first().json;\n  const webhook = ($env.WEBHOOK_URL || '').replace(/\\/$/, '') + '/webhook/factory/creatify/6d8f2a41c9e7b3d5f0a1c4e8';\n  const script = String((u && u.script) || '').trim();\n  if (script) return { script: script, aspect_ratio: '9:16', style: 'auto', webhook_url: webhook };\n  return { topic: String((u && u.topic) || ''), mode: 'script_only' };\n})() }}",
+     "jsonBody": "={{ (() => {\n  const u = $('SH Update state').first().json;\n  const webhook = ($env.WEBHOOK_URL || '').replace(/\\/$/, '') + '/webhook/factory/creatify/6d8f2a41c9e7b3d5f0a1c4e8';\n  const script = String((u && u.script) || '').trim();\n  const vl = Number((u && u.video_length) || 30);\n  if (script) return { script: script, aspect_ratio: '9:16', style: 'auto', webhook_url: webhook, video_length: vl };\n  return { topic: String((u && u.topic) || ''), mode: 'script_only', video_length: vl };\n})() }}",
      "options": {
       "timeout": 450000,
       "response": {
@@ -9414,300 +9327,6 @@
     "position": [
      1560,
      3840
-    ],
-    "credentials": {
-     "telegramApi": {
-      "id": "10000000-0000-4000-8000-000000000004",
-      "name": "telegram"
-     }
-    },
-    "parameters": {
-     "resource": "message",
-     "operation": "sendMessage",
-     "chatId": "={{ $('Parser').first().json.chat_id }}",
-     "text": "={{ $json.text }}",
-     "additionalFields": {
-      "appendAttribution": false
-     },
-     "inlineKeyboard": {
-      "rows": [
-       {
-        "row": {
-         "buttons": [
-          {
-           "text": "📋 Меню",
-           "additionalFields": {
-            "callback_data": "={{ \"cmd:menu\" }}"
-           }
-          }
-         ]
-        }
-       }
-      ]
-     },
-     "replyMarkup": "inlineKeyboard"
-    }
-   },
-   {
-    "id": "83728f91-2b96-4217-9e77-df670794d25d",
-    "name": "PRD Build",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     600,
-     4100
-    ],
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst v = String((p.args && (p.args.value || p.args.url)) || '').trim();\nif (!v) return [{ json: { valid: false, chat_id: p.chat_id, text: '❌ Укажи прямую ссылку на фото товара (PNG/JPG). Пример: product https://picsum.photos/800/800' } }];\nif (!/^https?:\\/\\//i.test(v)) return [{ json: { valid: false, chat_id: p.chat_id, text: '❌ image_url должен быть http(s) URL' } }];\nreturn [{ json: { valid: true, payload: { image_url: v } } }];\n"
-    }
-   },
-   {
-    "id": "60868c8b-ea2a-45d4-8fb7-8fcf261efe34",
-    "name": "PRD Switch",
-    "type": "n8n-nodes-base.switch",
-    "typeVersion": 3.4,
-    "position": [
-     840,
-     4100
-    ],
-    "parameters": {
-     "mode": "rules",
-     "rules": {
-      "values": [
-       {
-        "conditions": {
-         "options": {
-          "caseSensitive": true,
-          "leftValue": "",
-          "typeValidation": "strict"
-         },
-         "conditions": [
-          {
-           "leftValue": "={{ String($json.valid) }}",
-           "rightValue": "true",
-           "operator": {
-            "type": "string",
-            "operation": "equals"
-           }
-          }
-         ],
-         "combinator": "and"
-        }
-       }
-      ]
-     },
-     "options": {
-      "fallbackOutput": "extra"
-     }
-    }
-   },
-   {
-    "id": "b6660e9c-4c49-4258-827a-411fb1841b31",
-    "name": "PRD HTTP",
-    "type": "n8n-nodes-base.httpRequest",
-    "typeVersion": 4.5,
-    "position": [
-     1080,
-     4100
-    ],
-    "parameters": {
-     "method": "POST",
-     "url": "http://localhost:5678/webhook/factory/product",
-     "sendBody": true,
-     "contentType": "json",
-     "specifyBody": "json",
-     "jsonBody": "={{ $json.payload }}",
-     "options": {
-      "timeout": 60000,
-      "response": {
-       "response": {
-        "neverError": true
-       }
-      }
-     },
-     "sendHeaders": true,
-     "headerParameters": {
-      "parameters": [
-       {
-        "name": "X-FACTORY-TOKEN",
-        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
-       }
-      ]
-     }
-    }
-   },
-   {
-    "id": "dd1d5697-803b-42fd-b786-de7d10eff910",
-    "name": "PRD Format",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     1320,
-     4100
-    ],
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst b = $('PRD Build').first().json;\nlet r = {};\ntry { r = $('PRD HTTP').first().json; } catch (e) {}\nr\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nif (!b.valid) return [{ json: { chat_id: p.chat_id, text: esc(b.text) } }];\nconst body = (r && r.body && typeof r.body === 'object') ? r.body : (r || {});\nif (!body || body.ok !== true) {\n  const e = body && body.error;\n  let msg = (typeof e === 'string' && e) ? e : (e && e.message) || 'генерация product-видео не удалась';\n  if (msg === 'low_credits') msg = 'недостаточно кредитов creatify';\n  return [{ json: { chat_id: p.chat_id, text: '😕 Product-видео не создано: ' + esc(msg) } }];\n}\nconst out = ['📦 Product-видео (id: ' + esc(String(body.product_video_id || '?')) + ', статус: ' + esc(String(body.status || '?')) + ')'];\nif (body.generated_photo_url) out.push('🖼 Фото: ' + esc(String(body.generated_photo_url)));\nif (body.generated_video_url) out.push('🎬 Видео: ' + esc(String(body.generated_video_url)));\nreturn [{ json: { chat_id: p.chat_id, text: out.join('\\n') } }];\n"
-    }
-   },
-   {
-    "id": "21f98376-c49e-475c-93bf-ce89d57a3010",
-    "name": "TG product",
-    "type": "n8n-nodes-base.telegram",
-    "typeVersion": 1.2,
-    "position": [
-     1560,
-     4100
-    ],
-    "credentials": {
-     "telegramApi": {
-      "id": "10000000-0000-4000-8000-000000000004",
-      "name": "telegram"
-     }
-    },
-    "parameters": {
-     "resource": "message",
-     "operation": "sendMessage",
-     "chatId": "={{ $('Parser').first().json.chat_id }}",
-     "text": "={{ $json.text }}",
-     "additionalFields": {
-      "appendAttribution": false
-     },
-     "inlineKeyboard": {
-      "rows": [
-       {
-        "row": {
-         "buttons": [
-          {
-           "text": "📋 Меню",
-           "additionalFields": {
-            "callback_data": "={{ \"cmd:menu\" }}"
-           }
-          }
-         ]
-        }
-       }
-      ]
-     },
-     "replyMarkup": "inlineKeyboard"
-    }
-   },
-   {
-    "id": "d023fba0-9df4-4c0a-98a9-35fde8435349",
-    "name": "BNR Build",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     600,
-     4360
-    ],
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst v = String((p.args && (p.args.value || p.args.url)) || '').trim();\nif (!v) return [{ json: { valid: false, chat_id: p.chat_id, text: '❌ Укажи прямую ссылку на изображение для баннера. Пример: banner https://picsum.photos/1200/628' } }];\nif (!/^https?:\\/\\//i.test(v)) return [{ json: { valid: false, chat_id: p.chat_id, text: '❌ image_url должен быть http(s) URL' } }];\nreturn [{ json: { valid: true, payload: { image_url: v } } }];\n"
-    }
-   },
-   {
-    "id": "f06f69c3-4361-45ca-8ae5-9a5429db4d08",
-    "name": "BNR Switch",
-    "type": "n8n-nodes-base.switch",
-    "typeVersion": 3.4,
-    "position": [
-     840,
-     4360
-    ],
-    "parameters": {
-     "mode": "rules",
-     "rules": {
-      "values": [
-       {
-        "conditions": {
-         "options": {
-          "caseSensitive": true,
-          "leftValue": "",
-          "typeValidation": "strict"
-         },
-         "conditions": [
-          {
-           "leftValue": "={{ String($json.valid) }}",
-           "rightValue": "true",
-           "operator": {
-            "type": "string",
-            "operation": "equals"
-           }
-          }
-         ],
-         "combinator": "and"
-        }
-       }
-      ]
-     },
-     "options": {
-      "fallbackOutput": "extra"
-     }
-    }
-   },
-   {
-    "id": "802d65e9-496e-44b8-a851-b3b518e3c2ca",
-    "name": "BNR HTTP",
-    "type": "n8n-nodes-base.httpRequest",
-    "typeVersion": 4.5,
-    "position": [
-     1080,
-     4360
-    ],
-    "parameters": {
-     "method": "POST",
-     "url": "http://localhost:5678/webhook/factory/banner",
-     "sendBody": true,
-     "contentType": "json",
-     "specifyBody": "json",
-     "jsonBody": "={{ $json.payload }}",
-     "options": {
-      "timeout": 60000,
-      "response": {
-       "response": {
-        "neverError": true
-       }
-      }
-     },
-     "sendHeaders": true,
-     "headerParameters": {
-      "parameters": [
-       {
-        "name": "X-FACTORY-TOKEN",
-        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
-       }
-      ]
-     }
-    }
-   },
-   {
-    "id": "1c6c6a7a-4e2f-4ada-81e0-419eec8368f7",
-    "name": "BNR Format",
-    "type": "n8n-nodes-base.code",
-    "typeVersion": 2,
-    "position": [
-     1320,
-     4360
-    ],
-    "parameters": {
-     "mode": "runOnceForAllItems",
-     "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst b = $('BNR Build').first().json;\nlet r = {};\ntry { r = $('BNR HTTP').first().json; } catch (e) {}\nr\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nif (!b.valid) return [{ json: { chat_id: p.chat_id, text: esc(b.text) } }];\nconst body = (r && r.body && typeof r.body === 'object') ? r.body : (r || {});\nif (!body || body.ok !== true) {\n  const e = body && body.error;\n  let msg = (typeof e === 'string' && e) ? e : (e && e.message) || 'генерация баннера не удалась';\n  if (msg === 'low_credits') msg = 'недостаточно кредитов creatify';\n  return [{ json: { chat_id: p.chat_id, text: '😕 Баннер не создан: ' + esc(msg) } }];\n}\nconst urls = Array.isArray(body.urls) ? body.urls : [];\nif (!urls.length) return [{ json: { chat_id: p.chat_id, text: '🖼 Баннер создан (id: ' + esc(String(body.banner_id || '?')) + '), но ссылок пока нет (статус: ' + esc(String(body.status || '?')) + ')' } }];\nconst lines = urls.map(u => esc(String(u.url || '')) + (u.size ? ' (' + esc(String(u.size)) + ')' : ''));\nreturn [{ json: { chat_id: p.chat_id, text: '🖼 Баннер готов (id: ' + esc(String(body.banner_id || '?')) + '):\\n\\n' + lines.join('\\n') } }];\n"
-    }
-   },
-   {
-    "id": "92b2ac81-369f-4f86-9005-c367e64895d3",
-    "name": "TG banner",
-    "type": "n8n-nodes-base.telegram",
-    "typeVersion": 1.2,
-    "position": [
-     1560,
-     4360
     ],
     "credentials": {
      "telegramApi": {
@@ -10491,7 +10110,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst text = '⚡ ГЕНЕРАЦИЯ\\n\\n🎯 Быстрые сценарии:\\n🔗 URL → видео — ролик из ссылки (5 кред за 30 сек)\\n🎬 AI Shorts — шортс по теме (5 кред за 30 сек)\\n\\n🔄 Продвинутый цикл — анализ ниши, тема, ИИ-сценарий, видео, публикация\\n\\nДополнительно (требуют аргумент — пример в скобках):\\n👤 Аватар из видео (upload_avatar <url>)\\n🖼️ Изображение (asset <промпт>)\\n📦 Product-видео (product <url фото>)\\n🪧 Баннеры (banner <url фото>)';\nreturn [{ json: { chat_id: p.chat_id, text: esc(text) } }];\n"
+     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst text = '⚡ ГЕНЕРАЦИЯ\\n\\n🎯 Быстрые сценарии:\\n🔗 URL → видео — ролик из ссылки (5 кред за 30 сек)\\n🎬 AI Shorts — шортс по теме (5 кред за 30 сек)\\n\\n🔄 Продвинутый цикл — анализ ниши, тема, ИИ-сценарий, видео, публикация\\n\\n🎭 Видео с аватаром — аватар озвучивает твой текст (5 кред за 30 сек)\\n👤 Создать аватар: upload_avatar <url фото>';\nreturn [{ json: { chat_id: p.chat_id, text: esc(text) } }];\n"
     },
     "id": "4ee458aa-7492-40b6-9ced-d131cbb33f60",
     "name": "MU gen Format",
@@ -10528,6 +10147,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:gen_shorts\" }}"
            }
+          },
+          {
+           "text": "🎭 Видео с аватаром",
+           "additionalFields": {
+            "callback_data": "={{ \\\"cmd:avatar_video\\\" }}"
+           }
           }
          ]
         }
@@ -10551,30 +10176,6 @@
            "text": "👤 Аватар",
            "additionalFields": {
             "callback_data": "={{ \"cmd:hint_upload_avatar\" }}"
-           }
-          },
-          {
-           "text": "🖼️ Ассет",
-           "additionalFields": {
-            "callback_data": "={{ \"cmd:hint_asset\" }}"
-           }
-          }
-         ]
-        }
-       },
-       {
-        "row": {
-         "buttons": [
-          {
-           "text": "📦 Product",
-           "additionalFields": {
-            "callback_data": "={{ \"cmd:hint_product\" }}"
-           }
-          },
-          {
-           "text": "🪧 Баннеры",
-           "additionalFields": {
-            "callback_data": "={{ \"cmd:hint_banner\" }}"
            }
           }
          ]
@@ -11477,7 +11078,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst lb = $('UV LB parse').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst cr = lb.creatify != null ? lb.creatify : '?';\nconst text = '⏱ Длительность ролика: 30 сек — 5 кред · 60 сек — 10 кред · 90 сек — 15 кред. Остаток creatify: ' + esc(cr);\nreturn [{ json: { chat_id: p.chat_id, text: text } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst lb = $('UV LB parse').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst cr = lb.creatify != null ? lb.creatify : '?';\nconst text = '⏱ Длительность ролика: 30 сек — 5 кред · 60 сек — 10 кред. Остаток creatify: ' + esc(cr);\nreturn [{ json: { chat_id: p.chat_id, text: text } }];\n"
     },
     "id": "2026d4f7-4f0e-481f-ad03-09bbdc235c7d",
     "name": "UV Ask dur",
@@ -11513,12 +11114,6 @@
            "text": "⏱ 60 сек",
            "additionalFields": {
             "callback_data": "={{ \"cmd:dur_60\" }}"
-           }
-          },
-          {
-           "text": "⏱ 90 сек",
-           "additionalFields": {
-            "callback_data": "={{ \"cmd:dur_90\" }}"
            }
           }
          ]
@@ -11957,7 +11552,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('DU HTTP state').first().json.rows || [];\nconst state = (rows[0] && rows[0].state) || 'IDLE';\nlet qp = {};\ntry { qp = JSON.parse((rows[0] && rows[0].quick_payload) || '{}'); } catch (e) { qp = {}; }\nconst url = String(qp.url || '');\nconst dur = Number(p.args.value) || Number(qp.duration) || 0;\nconst durValid = dur >= 15 && dur <= 300;\nconst quick = !!(url && durValid);\nconst topic = String(qp.topic || '');\nlet mode = 'dur_wrong';\nif (state === 'QUICK_URL_AWAIT_DUR' && p.command === 'dur' && durValid) mode = 'dur_ok';\nelse if (p.callback_action === 'regen_gen' && topic) mode = 'rg_shorts';\nelse if (p.callback_action === 'regen_gen' && quick) mode = 'rg_ok';\nelse if (p.callback_action === 'regen_gen' && url) mode = 'dur_wrong';\nelse if (p.callback_action === 'regen_gen') mode = 'rg_cycle';\nreturn [{ json: { mode: mode, state: state, url: url, dur: dur, quick: quick, topic: topic } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('DU HTTP state').first().json.rows || [];\nconst state = (rows[0] && rows[0].state) || 'IDLE';\nlet qp = {};\ntry { qp = JSON.parse((rows[0] && rows[0].quick_payload) || '{}'); } catch (e) { qp = {}; }\nconst url = String(qp.url || '');\nconst dur = Number(p.args.value) || Number(qp.duration) || 0;\nconst durValid = (dur === 30 || dur === 60);\nconst quick = !!(url && durValid);\nconst topic = String(qp.topic || '');\nlet mode = 'dur_wrong';\nif (state === 'QUICK_URL_AWAIT_DUR' && p.command === 'dur' && durValid) mode = 'dur_ok';\nelse if (p.callback_action === 'regen_gen' && topic) mode = 'rg_shorts';\nelse if (p.callback_action === 'regen_gen' && quick) mode = 'rg_ok';\nelse if (p.callback_action === 'regen_gen' && url) mode = 'dur_wrong';\nelse if (p.callback_action === 'regen_gen') mode = 'rg_cycle';\nreturn [{ json: { mode: mode, state: state, url: url, dur: dur, quick: quick, topic: topic } }];\n"
     },
     "id": "4e85601d-b136-40c8-8b01-11edd51a8727",
     "name": "DU Parse state",
@@ -12092,7 +11687,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst text = esc('⏱ Сначала начни сценарий: кнопка «URL → видео». Длительность ролика — 15–300 секунд.');\nreturn [{ json: { chat_id: p.chat_id, text: text } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst text = esc('⚠️ Только 30 или 60 секунд. Начни сценарий: кнопка «URL → видео».');\nreturn [{ json: { chat_id: p.chat_id, text: text } }];\n"
     },
     "id": "db4095eb-13f8-4f46-b0a0-26a44db8c33f",
     "name": "DU Format wrong",
@@ -13254,7 +12849,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst item = $input.first().json || {};\nlet topic = String(item.topic || '').trim();\nif (!topic) {\n  try { const t = $('SH Topic').first().json; topic = String(t.topic || '').trim(); } catch (e) {}\n}\nconst script = (item.script !== undefined && item.script !== null && String(item.script).trim() !== '')\n  ? String(item.script).trim() : null;\nconst attempts = Number(item.attempts) || 1;\nconst mode = script ? 'video' : 'script_only';\nconst payload = { topic: topic, script: script, mode: mode, attempts: attempts, auto_approve: 0 };\nreturn [{ json: { sql: \"UPDATE sessions SET state='QUICK_SHORTS_GENERATING', quick_payload=json_set(?, '$.auto_approve', COALESCE((SELECT auto_approve FROM users WHERE tg_user_id = ?), 0)), updated_at=datetime('now') WHERE tg_user_id = ?\", params: [JSON.stringify(payload), p.tg_user_id, p.tg_user_id], topic: topic, script: script, mode: mode, attempts: attempts } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst item = $input.first().json || {};\nlet topic = String(item.topic || '').trim();\nif (!topic) {\n  try { const t = $('SH Topic').first().json; topic = String(t.topic || '').trim(); } catch (e) {}\n}\nif (!topic) {\n  try { const dd = $('SH Dur apply').first().json; topic = String(dd.topic || '').trim(); } catch (e) {}\n}\nconst script = (item.script !== undefined && item.script !== null && String(item.script).trim() !== '')\n  ? String(item.script).trim() : null;\nconst attempts = Number(item.attempts) || 1;\nconst mode = script ? 'video' : 'script_only';\nconst videoLength = Number(item.video_length) || (() => { try { return Number($('SH Dur apply').first().json.video_length) || 30; } catch (e) { return 30; } })();\nconst payload = { topic: topic, script: script, mode: mode, attempts: attempts, auto_approve: 0, video_length: videoLength };\nreturn [{ json: { sql: \"UPDATE sessions SET state='QUICK_SHORTS_GENERATING', quick_payload=json_set(?, '$.auto_approve', COALESCE((SELECT auto_approve FROM users WHERE tg_user_id = ?), 0)), updated_at=datetime('now') WHERE tg_user_id = ?\", params: [JSON.stringify(payload), p.tg_user_id, p.tg_user_id], topic: topic, script: script, mode: mode, attempts: attempts, video_length: videoLength } }];\n"
     },
     "id": "56bf7c8c-adb3-4c31-8070-ea177e451d89",
     "name": "SH Update state",
@@ -16894,24 +16489,6 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:durc_60\" }}"
            }
-          },
-          {
-           "text": "⏱ 90 сек",
-           "additionalFields": {
-            "callback_data": "={{ \"cmd:durc_90\" }}"
-           }
-          }
-         ]
-        }
-       },
-       {
-        "row": {
-         "buttons": [
-          {
-           "text": "🔢 Своя (напиши число)",
-           "additionalFields": {
-            "callback_data": "={{ \"cmd:durc_custom\" }}"
-           }
           }
          ]
         }
@@ -17001,7 +16578,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('DR HTTP state').first().json.rows || [];\nconst state = (rows[0] && rows[0].state) || 'IDLE';\nlet mode = 'not_await';\nlet dur = 0;\nif (state === 'CYCLE_DUR_AWAIT') {\n  if (p.command === 'durc' && (!p.args.value || p.args.value === 'custom')) {\n    mode = 'ask_custom';\n  } else {\n    const raw = String(p.args.value || p.raw || '').replace(/\\D/g, '');\n    dur = Number(raw) || 0;\n    mode = (dur >= 15 && dur <= 300) ? 'dur_ok' : 'dur_wrong';\n  }\n}\nreturn [{ json: { mode: mode, state: state, dur: dur } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('DR HTTP state').first().json.rows || [];\nconst state = (rows[0] && rows[0].state) || 'IDLE';\nlet mode = 'not_await';\nlet dur = 0;\nif (state === 'CYCLE_DUR_AWAIT') {\n  if (p.command === 'durc' && (!p.args.value || p.args.value === 'custom')) {\n    mode = 'ask_custom';\n  } else {\n    const raw = String(p.args.value || p.raw || '').replace(/\\D/g, '');\n    dur = Number(raw) || 0;\n    mode = (dur === 30 || dur === 60) ? 'dur_ok' : 'dur_wrong';\n  }\n}\nreturn [{ json: { mode: mode, state: state, dur: dur } }];\n"
     },
     "id": "eb396035-2e87-4cfa-8d9c-443ac25d73f5",
     "name": "DR Parse",
@@ -17240,24 +16817,6 @@
            "text": "⏱ 60 сек",
            "additionalFields": {
             "callback_data": "={{ \"cmd:durc_60\" }}"
-           }
-          },
-          {
-           "text": "⏱ 90 сек",
-           "additionalFields": {
-            "callback_data": "={{ \"cmd:durc_90\" }}"
-           }
-          }
-         ]
-        }
-       },
-       {
-        "row": {
-         "buttons": [
-          {
-           "text": "🔢 Своя (напиши число)",
-           "additionalFields": {
-            "callback_data": "={{ \"cmd:durc_custom\" }}"
            }
           }
          ]
@@ -26409,7 +25968,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('SC OK HTTP').first().json.rows || [];\nconst qp = (() => { try { return JSON.parse((rows[0] && rows[0].quick_payload) || '{}'); } catch (e) { return {}; } })();\nconst state = (rows[0] && rows[0].state) || '';\nconst script = String(qp.script || '').trim();\nif (state !== 'SCRIPT_AWAIT' || !script) {\n  return [{ json: { mode: 'err', chat_id: p.chat_id, text: '⚠️ Сценарий не найден или устарел. Запусти генерацию заново.' } }];\n}\nif (qp.flow === 'au') {\n  return [{ json: { mode: 'au_video', chat_id: p.chat_id, script: script,\n    topic_id: Number(qp.topic_id) || null,\n    script_full: (qp.script_full && typeof qp.script_full === 'object') ? qp.script_full : { full_text: script },\n    source_url: String(qp.source_url || ''), video_length: Number(qp.video_length) || 30 } }];\n}\nreturn [{ json: { mode: 'sh_video', chat_id: p.chat_id, script: script, topic: String(qp.topic || '') } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('SC OK HTTP').first().json.rows || [];\nconst qp = (() => { try { return JSON.parse((rows[0] && rows[0].quick_payload) || '{}'); } catch (e) { return {}; } })();\nconst state = (rows[0] && rows[0].state) || '';\nconst script = String(qp.script || '').trim();\nif (state !== 'SCRIPT_AWAIT' || !script) {\n  return [{ json: { mode: 'err', chat_id: p.chat_id, text: '⚠️ Сценарий не найден или устарел. Запусти генерацию заново.' } }];\n}\nif (qp.flow === 'avv') {\n  return [{ json: { mode: 'avv_video', chat_id: p.chat_id, script: script, avatar_id: String(qp.avatar_id || ''), topic: String(qp.topic || ''), video_length: Number(qp.video_length) || 30 } }];\n}\nif (qp.flow === 'au') {\n  return [{ json: { mode: 'au_video', chat_id: p.chat_id, script: script,\n    topic_id: Number(qp.topic_id) || null,\n    script_full: (qp.script_full && typeof qp.script_full === 'object') ? qp.script_full : { full_text: script },\n    source_url: String(qp.source_url || ''), video_length: Number(qp.video_length) || 30 } }];\n}\nreturn [{ json: { mode: 'sh_video', chat_id: p.chat_id, script: script, topic: String(qp.topic || ''), video_length: Number(qp.video_length) || 30 } }];\n"
     },
     "id": "d02c5ac9-47c6-42e8-a86c-fe4f234d99fd",
     "name": "SC OK route",
@@ -26436,6 +25995,26 @@
           {
            "leftValue": "={{ $json.mode }}",
            "rightValue": "sh_video",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.mode }}",
+           "rightValue": "avv_video",
            "operator": {
             "type": "string",
             "operation": "equals"
@@ -28530,6 +28109,1018 @@
       "name": "telegram"
      }
     }
+   },
+   {
+    "parameters": {
+     "resource": "message",
+     "operation": "sendMessage",
+     "chatId": "={{ $('Parser').first().json.chat_id }}",
+     "text": "={{ $json.text }}",
+     "additionalFields": {
+      "appendAttribution": false
+     },
+     "replyMarkup": "inlineKeyboard",
+     "inlineKeyboard": {
+      "rows": [
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
+          },
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "id": "f937c6bc-9765-4f4a-a246-12990bf63388",
+    "name": "TG premium off",
+    "type": "n8n-nodes-base.telegram",
+    "typeVersion": 1.2,
+    "position": [
+     1480,
+     420
+    ],
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst text = '⚠️ Формат отключён. Доступны: 🔗 URL→видео, 🎬 AI Shorts, 🎭 Видео с аватаром, 🔄 Запустить цикл (все по 5 кред за 30 сек).';\nreturn [{ json: { chat_id: p.chat_id, text: esc(text) } }];\n"
+    },
+    "id": "64e8a4c9-7d41-41e5-950d-6239e04bfd46",
+    "name": "Premium off Format",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     1420,
+     420
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst item = $input.first().json || {};\nlet topic = String(item.topic || '').trim();\nif (!topic) { try { const t = $('SH Topic').first().json; topic = String(t.topic || '').trim(); } catch (e) {} }\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst text = '⏱ Длительность шортса: 30 сек — 5 кред · 60 сек — 10 кред';\nreturn [{ json: { sql: \"UPDATE sessions SET state='QUICK_SHORTS_AWAIT_DUR', quick_payload=?, updated_at=datetime('now') WHERE tg_user_id=?\", params: [JSON.stringify({ topic: topic }), p.tg_user_id], chat_id: p.chat_id, text: esc(text) } }];\n"
+    },
+    "id": "eb9fa6c3-071c-43ad-8ba1-777a2777ef82",
+    "name": "SH Ask dur",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     1060,
+     4240
+    ]
+   },
+   {
+    "parameters": {
+     "resource": "message",
+     "operation": "sendMessage",
+     "chatId": "={{ $('Parser').first().json.chat_id }}",
+     "text": "={{ $json.text }}",
+     "additionalFields": {
+      "appendAttribution": false
+     },
+     "replyMarkup": "inlineKeyboard",
+     "inlineKeyboard": {
+      "rows": [
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "⏱ 30 сек",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:dur_30\" }}"
+           }
+          },
+          {
+           "text": "⏱ 60 сек",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:dur_60\" }}"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
+          },
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "id": "31c649aa-aead-4cb3-8b0d-c7b466f64270",
+    "name": "TG sh ask dur",
+    "type": "n8n-nodes-base.telegram",
+    "typeVersion": 1.2,
+    "position": [
+     1120,
+     4240
+    ],
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: 'SELECT state, quick_payload FROM sessions WHERE tg_user_id = ?', params: [p.tg_user_id] } }];\n"
+    },
+    "id": "612dccf9-e1c6-4abc-ba3b-8d0c8386350d",
+    "name": "SH Dur check",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     800,
+     620
+    ]
+   },
+   {
+    "parameters": {
+     "method": "POST",
+     "url": "http://db-bridge:8787/query",
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-BRIDGE-TOKEN",
+        "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+       }
+      ]
+     },
+     "sendBody": true,
+     "contentType": "json",
+     "specifyBody": "json",
+     "jsonBody": "={{ $json }}",
+     "options": {
+      "timeout": 15000
+     }
+    },
+    "id": "3938b053-ee36-4275-91ae-5c326463ed76",
+    "name": "SH HTTP dur state",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     860,
+     620
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('SH HTTP dur state').first().json.rows || [];\nconst state = (rows[0] && rows[0].state) || 'IDLE';\nconst dur = Number(p.args.value) || 0;\nif (state === 'QUICK_SHORTS_AWAIT_DUR') {\n  return [{ json: { route: (dur === 30 || dur === 60) ? 'shorts_ok' : 'shorts_wrong', chat_id: p.chat_id, dur: dur } }];\n}\nif (state === 'AVATAR_VIDEO_AWAIT_DUR') {\n  return [{ json: { route: (dur === 30 || dur === 60) ? 'avv_dur' : 'avv_wrong', chat_id: p.chat_id, dur: dur } }];\n}\nreturn [{ json: { route: 'du', chat_id: p.chat_id } }];\n"
+    },
+    "id": "508b4b4d-0eb5-4431-9751-7f1c54fff335",
+    "name": "SH Dur dispatch",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     920,
+     620
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.route }}",
+           "rightValue": "shorts_ok",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.route }}",
+           "rightValue": "avv_wrong",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.route }}",
+           "rightValue": "avv_dur",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.route }}",
+           "rightValue": "shorts_wrong",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ]
+     },
+     "options": {
+      "fallbackOutput": "extra"
+     }
+    },
+    "id": "36266985-5bb1-42a1-956c-48f208b2e621",
+    "name": "Switch SH dur",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     980,
+     620
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('SH HTTP dur state').first().json.rows || [];\nlet qp = {};\ntry { qp = JSON.parse((rows[0] && rows[0].quick_payload) || '{}'); } catch (e) { qp = {}; }\nconst dur = Number(p.args.value) || 30;\nconst topic = String(qp.topic || '').trim();\nreturn [{ json: { sql: \"UPDATE sessions SET state='QUICK_SHORTS_GENERATING', quick_payload=json_set(?, '$.video_length', ?), updated_at=datetime('now') WHERE tg_user_id=?\", params: [JSON.stringify({ topic: topic, video_length: dur }), dur, p.tg_user_id], topic: topic, video_length: dur, chat_id: p.chat_id } }];\n"
+    },
+    "id": "f29e7e34-1a2a-4fbb-9fae-5b562e50a03f",
+    "name": "SH Dur apply",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     1040,
+     620
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"UPDATE sessions SET state='AVATAR_VIDEO_AWAIT_AVATAR', quick_payload=NULL, updated_at=datetime('now') WHERE tg_user_id=?\", params: [p.tg_user_id] } }];\n"
+    },
+    "id": "d166da8e-9e58-4f08-b21d-a4d530c81b3d",
+    "name": "AVV Start",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     4260,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "method": "POST",
+     "url": "http://db-bridge:8787/query",
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-BRIDGE-TOKEN",
+        "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+       }
+      ]
+     },
+     "sendBody": true,
+     "contentType": "json",
+     "specifyBody": "json",
+     "jsonBody": "={{ $json }}",
+     "options": {
+      "timeout": 15000
+     }
+    },
+    "id": "fc0f1895-8803-4eea-9c17-d966d0b9e29c",
+    "name": "AVV HTTP state",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     4320,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT id, persona_id, creator_name FROM custom_avatars WHERE client_id = (SELECT COALESCE(active_client_id, 1) FROM users WHERE tg_user_id = ?) AND status = 'approved' ORDER BY id DESC\", params: [p.tg_user_id] } }];\n"
+    },
+    "id": "a5328ee1-6721-4f33-b942-72bfb260f367",
+    "name": "AVV Build avatars",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     4380,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "method": "POST",
+     "url": "http://db-bridge:8787/query",
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-BRIDGE-TOKEN",
+        "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+       }
+      ]
+     },
+     "sendBody": true,
+     "contentType": "json",
+     "specifyBody": "json",
+     "jsonBody": "={{ $json }}",
+     "options": {
+      "timeout": 15000
+     }
+    },
+    "id": "86988824-fe56-46f2-9dea-276ef52782ba",
+    "name": "AVV HTTP avatars",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     4440,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('AVV HTTP avatars').first().json.rows || [];\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nif (!rows.length) return [{ json: { mode: 'none', chat_id: p.chat_id, text: '🎭 Сначала создай аватар: /upload_avatar <url фото>. Потом вернись сюда.' } }];\nconst btns = rows.map(r => ({ text: String(r.creator_name || r.persona_id || 'Аватар').slice(0, 30), additionalFields: { callback_data: '={{ \\'avv_sel:' + String(r.id) + '\\' }}' } }));\nreturn [{ json: { mode: 'list', chat_id: p.chat_id, text: '🎭 Выбери аватара для видео:', rows: [{ row: { buttons: btns } }] } }];\n"
+    },
+    "id": "5fdabd02-7e30-4a70-a097-d0fde686e532",
+    "name": "AVV Ask avatar",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     4500,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "resource": "message",
+     "operation": "sendMessage",
+     "chatId": "={{ $('Parser').first().json.chat_id }}",
+     "text": "={{ $json.text }}",
+     "additionalFields": {
+      "appendAttribution": false
+     },
+     "replyMarkup": "inlineKeyboard",
+     "inlineKeyboard": {
+      "rows": [
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \\\"cmd:menu\\\" }}"
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "id": "e1ed2575-41dd-4b3a-b4ed-2e435cb02177",
+    "name": "TG avv none",
+    "type": "n8n-nodes-base.telegram",
+    "typeVersion": 1.2,
+    "position": [
+     4560,
+     300
+    ],
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
+   },
+   {
+    "parameters": {
+     "resource": "message",
+     "operation": "sendMessage",
+     "chatId": "={{ $('Parser').first().json.chat_id }}",
+     "text": "={{ $json.text }}",
+     "additionalFields": {
+      "appendAttribution": false
+     },
+     "replyMarkup": "inlineKeyboard",
+     "inlineKeyboard": {
+      "rows": "={{ $json.rows }}"
+     }
+    },
+    "id": "5909b121-055e-43f7-ba0e-8684feeffd07",
+    "name": "TG avv ask avatar",
+    "type": "n8n-nodes-base.telegram",
+    "typeVersion": 1.2,
+    "position": [
+     4620,
+     300
+    ],
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst avatarId = String(p.entity_type || '').trim();\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst text = '🎭 Пришли тему для видео с аватаром (1–2 предложения). Разверну в сценарий и озвучу аватаром.';\nreturn [{ json: { sql: \"UPDATE sessions SET state='AVATAR_VIDEO_AWAIT_TOPIC', quick_payload=?, updated_at=datetime('now') WHERE tg_user_id=?\", params: [JSON.stringify({ avatar_id: avatarId }), p.tg_user_id], chat_id: p.chat_id, text: esc(text) } }];\n"
+    },
+    "id": "acfaff26-2845-4636-803c-625f6acfbb5b",
+    "name": "AVV Save avatar",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     4680,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "resource": "message",
+     "operation": "sendMessage",
+     "chatId": "={{ $('Parser').first().json.chat_id }}",
+     "text": "={{ $json.text }}",
+     "additionalFields": {
+      "appendAttribution": false
+     },
+     "replyMarkup": "inlineKeyboard",
+     "inlineKeyboard": {
+      "rows": [
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \\\"cmd:cancel\\\" }}"
+           }
+          },
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \\\"cmd:menu\\\" }}"
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "id": "3c90576c-b340-4e02-912c-c7bf1cd85289",
+    "name": "TG avv ask topic",
+    "type": "n8n-nodes-base.telegram",
+    "typeVersion": 1.2,
+    "position": [
+     4740,
+     300
+    ],
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst topic = String(p.raw || '').trim();\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst text = '⏱ Длительность видео с аватаром: 30 сек — 5 кред · 60 сек — 10 кред';\nreturn [{ json: { sql: \"UPDATE sessions SET state='AVATAR_VIDEO_AWAIT_DUR', quick_payload=json_set(COALESCE(quick_payload,'{}'), '$.topic', ?), updated_at=datetime('now') WHERE tg_user_id=?\", params: [topic, p.tg_user_id], chat_id: p.chat_id, text: esc(text) } }];\n"
+    },
+    "id": "63049737-f009-4ef6-a486-c73ecdce9c33",
+    "name": "AVV Topic",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     4800,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "resource": "message",
+     "operation": "sendMessage",
+     "chatId": "={{ $('Parser').first().json.chat_id }}",
+     "text": "={{ $json.text }}",
+     "additionalFields": {
+      "appendAttribution": false
+     },
+     "replyMarkup": "inlineKeyboard",
+     "inlineKeyboard": {
+      "rows": [
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "⏱ 30 сек",
+           "additionalFields": {
+            "callback_data": "={{ \\\"cmd:dur_30\\\" }}"
+           }
+          },
+          {
+           "text": "⏱ 60 сек",
+           "additionalFields": {
+            "callback_data": "={{ \\\"cmd:dur_60\\\" }}"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \\\"cmd:cancel\\\" }}"
+           }
+          },
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \\\"cmd:menu\\\" }}"
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "id": "ac2c8f74-29f6-4ee9-9203-630b3b7db00d",
+    "name": "TG avv ask dur",
+    "type": "n8n-nodes-base.telegram",
+    "typeVersion": 1.2,
+    "position": [
+     4860,
+     300
+    ],
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('SH HTTP dur state').first().json.rows || [];\nlet qp = {};\ntry { qp = JSON.parse((rows[0] && rows[0].quick_payload) || '{}'); } catch (e) { qp = {}; }\nconst dur = Number(p.args.value) || 30;\nconst topic = String(qp.topic || '');\nconst avatarId = String(qp.avatar_id || '');\nreturn [{ json: { sql: \"UPDATE sessions SET state='SCRIPT_AWAIT', quick_payload=json_set(COALESCE(quick_payload,'{}'), '$.video_length', ?), updated_at=datetime('now') WHERE tg_user_id=?\", params: [dur, p.tg_user_id], topic: topic, video_length: dur, avatar_id: avatarId, chat_id: p.chat_id } }];\n"
+    },
+    "id": "3078ecb7-7c92-497c-a702-10cd8e1d0033",
+    "name": "AVV Dur apply",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     4920,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst d = $('AVV Dur apply').first().json;\nconst dur = Number(d.video_length) || 30;\nconst words = Math.round(dur * 2);\nconst prompt = 'Напиши сценарий короткого вертикального видео с аватаром (' + dur + ' сек, ~' + words + ' слов, русский), экспертный тон.\\nТема: ' + (d.topic || '') + '\\n\\nВерни строго JSON: {\\\"hook\\\", \\\"body\\\", \\\"cta\\\", \\\"full_text\\\", \\\"target_length_sec\\\", \\\"estimated_words\\\", \\\"format_tag\\\", \\\"notes\\\"}. Без markdown.';\nreturn [{ json: { skill: 'scriptwriter', prompt: prompt } }];\n"
+    },
+    "id": "a3a20d50-4180-4f64-85da-f3699268c1d7",
+    "name": "AVV Build prompt",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     4980,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "method": "POST",
+     "url": "http://host.docker.internal:8642/ask",
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-BRIDGE-TOKEN",
+        "value": "={{ $env.HERMES_BRIDGE_TOKEN }}"
+       }
+      ]
+     },
+     "sendBody": true,
+     "contentType": "json",
+     "specifyBody": "json",
+     "jsonBody": "={{ $json }}",
+     "options": {
+      "timeout": 300000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     }
+    },
+    "id": "7ffafc1e-9219-4ddc-8853-d13b0b1b13c8",
+    "name": "AVV HTTP bridge",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     5040,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nfunction extractJSON(s) {\n  if (!s) return null;\n  let t = String(s).trim();\n  const m = t.match(/```(?:json)?\\s*([\\s\\S]*?)```/);\n  if (m) t = m[1].trim();\n  const start = t.indexOf('{');\n  if (start >= 0) {\n    let depth = 0, inStr = false, esc = false;\n    for (let i = start; i < t.length; i++) {\n      const c = t[i];\n      if (inStr) { if (esc) esc = false; else if (c === '\\\\') esc = true; else if (c === '\"') inStr = false; continue; }\n      if (c === '\"') inStr = true;\n      else if (c === '{') depth++;\n      else if (c === '}') { depth--; if (depth === 0) { try { return JSON.parse(t.slice(start, i + 1)); } catch (e) { return null; } } }\n    }\n  }\n  try { return JSON.parse(t); } catch (e) { return null; }\n}\nconst raw = $('AVV HTTP bridge').first().json.answer || '';\nconst j = extractJSON(raw);\nif (!j) return [{ json: { ok: false, chat_id: $('Parser').first().json.chat_id, text: '⚠️ Сценарист не смог написать сценарий. Попробуй ещё раз.' } }];\nreturn [{ json: { ok: true, hook: String(j.hook || ''), body: String(j.body || ''), cta: String(j.cta || ''), full_text: String(j.full_text || ''), target_length: Number(j.target_length_sec || 30), words: Number(j.estimated_words || 60), format_tag: String(j.format_tag || 'demo') } }];\n"
+    },
+    "id": "c8cf0b01-9530-4481-8569-1a01e46b41f2",
+    "name": "AVV Parse script",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     5100,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst s = $('AVV Parse script').first().json;\nconst d = $('AVV Dur apply').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst sf = { hook: s.hook, body: s.body, cta: s.cta, full_text: s.full_text, target_length_sec: s.target_length };\nconst payload = JSON.stringify({ flow: 'avv', topic: String(d.topic || ''), video_length: Number(d.video_length) || 30, avatar_id: String(d.avatar_id || ''), script: s.full_text, script_full: sf, auto_approve: 0 });\nconst text = '📝 Сценарий готов (' + (Number(d.video_length) || 30) + ' сек, ~' + s.words + ' слов):\\n\\n' + esc(s.full_text);\nreturn [{ json: { sql: \"UPDATE sessions SET state='SCRIPT_AWAIT', quick_payload=?, updated_at=datetime('now') WHERE tg_user_id=?\", params: [payload, p.tg_user_id], chat_id: p.chat_id, text: text } }];\n"
+    },
+    "id": "592c6b1d-749b-4108-97d6-e8cfbf557790",
+    "name": "AVV Verify format",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     5160,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "resource": "message",
+     "operation": "sendMessage",
+     "chatId": "={{ $('Parser').first().json.chat_id }}",
+     "text": "={{ $json.text }}",
+     "additionalFields": {
+      "appendAttribution": false
+     },
+     "replyMarkup": "inlineKeyboard",
+     "inlineKeyboard": {
+      "rows": [
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "✅ Принять",
+           "additionalFields": {
+            "callback_data": "={{ 'sc_ok' }}"
+           }
+          },
+          {
+           "text": "🔁 Перегенерировать",
+           "additionalFields": {
+            "callback_data": "={{ 'sc_regenerate' }}"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \\\"cmd:cancel\\\" }}"
+           }
+          },
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \\\"cmd:menu\\\" }}"
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "id": "f5bee589-0dc4-4483-b90e-a8fd90ca5f43",
+    "name": "TG AVV verify",
+    "type": "n8n-nodes-base.telegram",
+    "typeVersion": 1.2,
+    "position": [
+     5220,
+     300
+    ],
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst r = $('SC OK route').first().json;\nreturn [{ json: { text: String(r.script || ''), creator: String(r.avatar_id || ''), video_length: Number(r.video_length) || 30, mode: 'video' } }];\n"
+    },
+    "id": "35bdc7a0-fd84-4b8a-9f25-64446ba50798",
+    "name": "AVV Build submit",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     5280,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "method": "POST",
+     "url": "http://localhost:5678/webhook/factory/lipsync",
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-FACTORY-TOKEN",
+        "value": "={{ $env.FACTORY_WEBHOOK_SECRET }}"
+       }
+      ]
+     },
+     "sendBody": true,
+     "contentType": "json",
+     "specifyBody": "json",
+     "jsonBody": "={{ $json }}",
+     "options": {
+      "timeout": 120000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     }
+    },
+    "id": "fca4424f-5202-487a-968f-2b09b45288de",
+    "name": "AVV HTTP submit",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     5340,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst r = $json;\nconst b = (r.body && typeof r.body === 'object') ? r.body : r;\nconst lid = String(b.lipsync_id || r.lipsync_id || '');\nif (!lid) return [{ json: { ok: false, err: String((b.error && b.error.message) || b.error || 'пустой ответ'), chat_id: $('Parser').first().json.chat_id } }];\nreturn [{ json: { ok: true, lipsync_id: lid, chat_id: $('Parser').first().json.chat_id } }];\n"
+    },
+    "id": "0549b54d-39fd-4f8d-8e96-85144fc90a69",
+    "name": "AVV Parse submit",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     5400,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst s = $('AVV Parse submit').first().json;\nreturn [{ json: { sql: \"INSERT INTO generations (client_id, script_id, request_payload, status, creatify_id) VALUES ((SELECT COALESCE(active_client_id, 1) FROM users WHERE tg_user_id = ?), 0, ?, 'pending', ?)\", params: [p.tg_user_id, JSON.stringify({ type: 'lipsync', topic: '' }), String(s.lipsync_id)] } }];\n"
+    },
+    "id": "6a3f493b-53ca-433e-abff-8322a2ffede0",
+    "name": "AVV Build generation",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     5460,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "method": "POST",
+     "url": "http://db-bridge:8787/query",
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-BRIDGE-TOKEN",
+        "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+       }
+      ]
+     },
+     "sendBody": true,
+     "contentType": "json",
+     "specifyBody": "json",
+     "jsonBody": "={{ $json }}",
+     "options": {
+      "timeout": 15000
+     }
+    },
+    "id": "19a6e728-05f7-4b74-8a01-98be9a9e62f4",
+    "name": "AVV HTTP generation",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     5520,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst g = $('AVV HTTP generation').first().json;\nreturn [{ json: { sql: \"UPDATE sessions SET state='AVATAR_VIDEO_GENERATING', generation_id=?, updated_at=datetime('now') WHERE tg_user_id=?\", params: [String(g.lastInsertRowid || ''), p.tg_user_id] } }];\n"
+    },
+    "id": "bf105c96-757d-4277-9404-478894d16b2e",
+    "name": "AVV Build link",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     5580,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "method": "POST",
+     "url": "http://db-bridge:8787/query",
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-BRIDGE-TOKEN",
+        "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+       }
+      ]
+     },
+     "sendBody": true,
+     "contentType": "json",
+     "specifyBody": "json",
+     "jsonBody": "={{ $json }}",
+     "options": {
+      "timeout": 15000
+     }
+    },
+    "id": "f9ab5c82-c628-4260-939d-d43e024a4064",
+    "name": "AVV HTTP link",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     5640,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst s = $('AVV Parse submit').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst text = '✅ Генерация запущена (id ' + esc(s.lipsync_id.slice(0, 8)) + '…). Пришлю видео сюда, как creatify ответит (обычно 1–3 мин).';\nreturn [{ json: { chat_id: p.chat_id, text: esc(text) } }];\n"
+    },
+    "id": "176a8031-5d11-45a3-aed1-1815b255d2b9",
+    "name": "AVV Format ok",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     5700,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "resource": "message",
+     "operation": "sendMessage",
+     "chatId": "={{ $('Parser').first().json.chat_id }}",
+     "text": "={{ $json.text }}",
+     "additionalFields": {
+      "appendAttribution": false
+     },
+     "replyMarkup": "inlineKeyboard",
+     "inlineKeyboard": {
+      "rows": [
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \\\"cmd:menu\\\" }}"
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "id": "6b5bcc60-1b66-4d1f-aeca-2acc6c8cdaf0",
+    "name": "TG avv ok",
+    "type": "n8n-nodes-base.telegram",
+    "typeVersion": 1.2,
+    "position": [
+     5760,
+     300
+    ],
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
    }
   ],
   "connections": {
@@ -28815,7 +29406,7 @@
      ],
      [
       {
-       "node": "DU Check state",
+       "node": "SH Dur check",
        "type": "main",
        "index": 0
       }
@@ -28907,6 +29498,13 @@
      [
       {
        "node": "Gate Build",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "AVV Start",
        "type": "main",
        "index": 0
       }
@@ -29512,6 +30110,13 @@
      ],
      [
       {
+       "node": "AVV Topic",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
        "node": "TX Save text",
        "type": "main",
        "index": 0
@@ -29873,6 +30478,13 @@
      [
       {
        "node": "SC ED answer",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "AVV Save avatar",
        "type": "main",
        "index": 0
       }
@@ -31649,57 +32261,6 @@
      ]
     ]
    },
-   "AST Build": {
-    "main": [
-     [
-      {
-       "node": "AST Switch",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "AST Switch": {
-    "main": [
-     [
-      {
-       "node": "AST HTTP",
-       "type": "main",
-       "index": 0
-      }
-     ],
-     [
-      {
-       "node": "AST Format",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "AST HTTP": {
-    "main": [
-     [
-      {
-       "node": "AST Format",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "AST Format": {
-    "main": [
-     [
-      {
-       "node": "TG asset",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
    "SHT Build": {
     "main": [
      [
@@ -31752,108 +32313,6 @@
      [
       {
        "node": "Switch SH parse",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "PRD Build": {
-    "main": [
-     [
-      {
-       "node": "PRD Switch",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "PRD Switch": {
-    "main": [
-     [
-      {
-       "node": "PRD HTTP",
-       "type": "main",
-       "index": 0
-      }
-     ],
-     [
-      {
-       "node": "PRD Format",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "PRD HTTP": {
-    "main": [
-     [
-      {
-       "node": "PRD Format",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "PRD Format": {
-    "main": [
-     [
-      {
-       "node": "TG product",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "BNR Build": {
-    "main": [
-     [
-      {
-       "node": "BNR Switch",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "BNR Switch": {
-    "main": [
-     [
-      {
-       "node": "BNR HTTP",
-       "type": "main",
-       "index": 0
-      }
-     ],
-     [
-      {
-       "node": "BNR Format",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "BNR HTTP": {
-    "main": [
-     [
-      {
-       "node": "BNR Format",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "BNR Format": {
-    "main": [
-     [
-      {
-       "node": "TG banner",
        "type": "main",
        "index": 0
       }
@@ -32879,7 +33338,7 @@
     "main": [
      [
       {
-       "node": "SH LB creatify",
+       "node": "SH Ask dur",
        "type": "main",
        "index": 0
       }
@@ -36600,7 +37059,7 @@
      ],
      [
       {
-       "node": "AST Build",
+       "node": "Premium off Format",
        "type": "main",
        "index": 0
       }
@@ -36614,14 +37073,14 @@
      ],
      [
       {
-       "node": "PRD Build",
+       "node": "Premium off Format",
        "type": "main",
        "index": 0
       }
      ],
      [
       {
-       "node": "BNR Build",
+       "node": "Premium off Format",
        "type": "main",
        "index": 0
       }
@@ -38101,6 +38560,13 @@
      ],
      [
       {
+       "node": "AVV Build submit",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
        "node": "SC Cont build",
        "type": "main",
        "index": 0
@@ -38984,6 +39450,345 @@
      [
       {
        "node": "TG du ok",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Premium off Format": {
+    "main": [
+     [
+      {
+       "node": "TG premium off",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "SH Ask dur": {
+    "main": [
+     [
+      {
+       "node": "TG sh ask dur",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "SH Dur check": {
+    "main": [
+     [
+      {
+       "node": "SH HTTP dur state",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "SH HTTP dur state": {
+    "main": [
+     [
+      {
+       "node": "SH Dur dispatch",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "SH Dur dispatch": {
+    "main": [
+     [
+      {
+       "node": "Switch SH dur",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Switch SH dur": {
+    "main": [
+     [
+      {
+       "node": "SH Dur apply",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "TG avv ask dur",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "AVV Dur apply",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "TG sh ask dur",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "DU Check state",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "SH Dur apply": {
+    "main": [
+     [
+      {
+       "node": "SH LB creatify",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV Start": {
+    "main": [
+     [
+      {
+       "node": "AVV HTTP state",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV HTTP state": {
+    "main": [
+     [
+      {
+       "node": "AVV Build avatars",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV Build avatars": {
+    "main": [
+     [
+      {
+       "node": "AVV HTTP avatars",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV HTTP avatars": {
+    "main": [
+     [
+      {
+       "node": "AVV Ask avatar",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV Ask avatar": {
+    "main": [
+     [
+      {
+       "node": "TG avv ask avatar",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "TG avv none",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV Save avatar": {
+    "main": [
+     [
+      {
+       "node": "TG avv ask topic",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV Topic": {
+    "main": [
+     [
+      {
+       "node": "TG avv ask dur",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV Dur apply": {
+    "main": [
+     [
+      {
+       "node": "AVV Build prompt",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV Build prompt": {
+    "main": [
+     [
+      {
+       "node": "AVV HTTP bridge",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV HTTP bridge": {
+    "main": [
+     [
+      {
+       "node": "AVV Parse script",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV Parse script": {
+    "main": [
+     [
+      {
+       "node": "AVV Verify format",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV Verify format": {
+    "main": [
+     [
+      {
+       "node": "TG AVV verify",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV Build submit": {
+    "main": [
+     [
+      {
+       "node": "AVV HTTP submit",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV HTTP submit": {
+    "main": [
+     [
+      {
+       "node": "AVV Parse submit",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV Parse submit": {
+    "main": [
+     [
+      {
+       "node": "AVV Build generation",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "TG avv ask topic",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV Build generation": {
+    "main": [
+     [
+      {
+       "node": "AVV HTTP generation",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV HTTP generation": {
+    "main": [
+     [
+      {
+       "node": "AVV Build link",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV Build link": {
+    "main": [
+     [
+      {
+       "node": "AVV HTTP link",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV HTTP link": {
+    "main": [
+     [
+      {
+       "node": "AVV Format ok",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV Format ok": {
+    "main": [
+     [
+      {
+       "node": "TG avv ok",
        "type": "main",
        "index": 0
       }
