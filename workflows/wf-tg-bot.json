@@ -35,7 +35,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const item = $input.first().json;\nconst TG = 941296693;\n\nfunction parseCommand(text) {\n  const t = String(text || '').toLowerCase().trim();\n  const C = {\n    'start': 'start', 'старт': 'start', '/start': 'start',\n    'help': 'help', 'помощь': 'help', '/help': 'help',\n    'status': 'status', 'статус': 'status', '/status': 'status',\n    'cancel': 'cancel', 'стоп': 'cancel', 'отмена': 'cancel', '/cancel': 'cancel',\n    'ping': 'ping', 'пинг': 'ping', '/ping': 'ping',\n    'start_cycle': 'start_cycle', 'запуск цикла': 'start_cycle', 'старт цикла': 'start_cycle', '/start_cycle': 'start_cycle',\n    'mode': 'mode', 'режим': 'mode', '/mode': 'mode',\n    'topics': 'topics', 'темы': 'topics', '/topics': 'topics',\n    'competitors': 'competitors', 'конкуренты': 'competitors', '/competitors': 'competitors',\n    'accounts': 'accounts', 'аккаунты': 'accounts', '/accounts': 'accounts',\n    'budget': 'budget', 'бюджет': 'budget', '/budget': 'budget',\n    'clients': 'clients', 'клиенты': 'clients', '/clients': 'clients',\n    'client': 'client', 'клиент': 'client', '/client': 'client',\n    'reload_skills': 'reload_skills', '/reload_skills': 'reload_skills',\n    'creators': 'creators', 'авторы': 'creators', 'поиск авторов': 'creators', '/creators': 'creators',\n    'creator': 'creator', 'автор': 'creator', '/creator': 'creator',\n    'creator_content': 'creator_content', 'creator-content': 'creator_content', 'контент автора': 'creator_content', '/creator_content': 'creator_content', '/creator-content': 'creator_content',\n    'audience': 'audience', 'аудитория': 'audience', '/audience': 'audience',\n    'transcript': 'transcript', 'транскрипт': 'transcript', '/transcript': 'transcript',\n    'comments': 'comments', 'комментарии': 'comments', '/comments': 'comments',\n    'upload_avatar': 'upload_avatar', 'upload-avatar': 'upload_avatar', 'загрузить аватар': 'upload_avatar', '/upload_avatar': 'upload_avatar', '/upload-avatar': 'upload_avatar',\n    'my_avatars': 'my_avatars', 'my-avatars': 'my_avatars', 'мои аватары': 'my_avatars', '/my_avatars': 'my_avatars', '/my-avatars': 'my_avatars',\n    'asset': 'asset', 'ассет': 'asset', '/asset': 'asset',\n    'shorts': 'shorts', 'шортсы': 'shorts', '/shorts': 'shorts',\n    'product': 'product', 'продукт': 'product', '/product': 'product',\n    'banner': 'banner', 'баннер': 'banner', '/banner': 'banner',\n    'publish_type': 'publish_type', 'publish-type': 'publish_type', 'тип публикации': 'publish_type', '/publish_type': 'publish_type', '/publish-type': 'publish_type',\n    'menu': 'menu', 'меню': 'menu', '/menu': 'menu', '/меню': 'menu',\n    'instruction': 'instruction', 'инструкция': 'instruction', 'инструкции': 'instruction', '/instruction': 'instruction', '/инструкция': 'instruction',\n    'url2video': 'url2video', 'видео из ссылки': 'url2video', '/url2video': 'url2video',\n    'gen_url2video': 'url2video', 'gen_shorts': 'shorts',\n    'text_post': 'text_post', 'текстовый пост': 'text_post', '/text_post': 'text_post', '/текстовый пост': 'text_post',\n    'durc': 'durc',\n    'add_operator': 'add_operator', 'добавить оператора': 'add_operator', '/add_operator': 'add_operator',\n    'remove_operator': 'remove_operator', 'удалить оператора': 'remove_operator', '/remove_operator': 'remove_operator', '/удалить оператора': 'remove_operator',\n    'operators': 'operators', 'операторы': 'operators', '/operators': 'operators',\n    'profile': 'profile', 'профиль': 'profile', '/profile': 'profile', '/профиль': 'profile',\n    'profiles': 'profiles', 'профили': 'profiles', '/profiles': 'profiles', '/профили': 'profiles',\n    'questions': 'questions', 'вопросы': 'questions', '/questions': 'questions', '/вопросы': 'questions',\n  };\n  const words = t.split(/\\s+/);\n  let command = 'unknown';\n  const args = { url: null, id: null, value: null, platform: null, handle: null, section: null, action: null };\n  if (t.startsWith('onboard ') || t === 'onboard' || t.startsWith('/onboard')) { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('онбординг ') || t === 'онбординг') { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('client ') || t.startsWith('клиент ') || t.startsWith('/client ')) { command = 'client'; args.id = words[1] || null; }\n  else if (t.startsWith('добавить оператора ') || t.startsWith('/add_operator ') || t.startsWith('add_operator ')) { command = 'add_operator'; const off = t.startsWith('добавить оператора ') ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('удалить оператора ') || t.startsWith('/remove_operator ') || t.startsWith('/удалить оператора ')) { command = 'remove_operator'; const off = (t.startsWith('удалить оператора ') || t.startsWith('/удалить оператора ')) ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('creator ') || t.startsWith('автор ') || t.startsWith('/creator ')) { command = 'creator'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('creator_content ') || t.startsWith('creator-content ') || t.startsWith('контент автора ') || t.startsWith('/creator_content ') || t.startsWith('/creator-content ')) { command = 'creator_content'; const off = t.startsWith('контент автора ') ? 2 : 1; args.platform = words[off] || null; args.handle = words[off + 1] || null; }\n  else if (t.startsWith('audience ') || t.startsWith('аудитория ') || t.startsWith('/audience ')) { command = 'audience'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('поиск авторов ')) { command = 'creators'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('загрузить аватар ')) { command = 'upload_avatar'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('тип публикации ')) { command = 'publish_type'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('menu_')) { command = 'menu'; args.section = t.slice(5) || null; }\n  else if (t.startsWith('dur_')) { command = 'dur'; args.value = t.slice(4) || null; }\n  else if (t.startsWith('durc_')) { command = 'durc'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('hint_')) { command = 'hint'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('видео из ссылки ')) { command = 'url2video'; args.url = words.slice(3).join(' ') || null; }\n  else if (t === 'вопросы' || t === '/вопросы' || t === 'questions' || t === '/questions') { command = 'questions'; args.action = 'list'; }\n  else if (t.startsWith('вопросы сброс') || t.startsWith('/вопросы сброс')) { command = 'questions'; args.action = 'reset'; }\n  else if (t.startsWith('вопрос ') || t.startsWith('/вопросы ')) { command = 'questions'; args.action = 'set'; const N = /^\\d+$/.test(words[1] || '') ? parseInt(words[1], 10) : null; args.n = N; args.value = words.slice(2).join(' ') || null; }\n  else if (t === 'авто' || t === '/авто' || t === 'auto' || t === '/auto') { command = 'auto'; args.action = 'toggle'; }\n  else if (t.startsWith('авто вкл') || t.startsWith('/авто вкл') || t.startsWith('auto on') || t.startsWith('/auto on')) { command = 'auto'; args.action = 'on'; }\n  else if (t.startsWith('авто выкл') || t.startsWith('/авто выкл') || t.startsWith('auto off') || t.startsWith('/auto off')) { command = 'auto'; args.action = 'off'; }\n  else if (C[t]) { command = C[t]; }\n  else if (C[words[0]]) { command = C[words[0]]; args.value = words.slice(1).join(' ') || null; }\n  if (command === 'shorts' && args.value && /^https?:\\/\\//i.test(args.value)) args.url = args.value;\n  return { command: command, args: args };\n}\n\nlet out = null;\nif (item.callback_query) {\n  const q = item.callback_query;\n  const fromId = (q.from && q.from.id) || null;\n  const chatId = (q.message && q.message.chat && q.message.chat.id) || null;\n  const msgId = (q.message && q.message.message_id) || null;\n  const data = String(q.data || '');\n  if (data.startsWith('cmd:')) {\n    const parsed = parseCommand(data.slice(4));\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: parsed.command, args: parsed.args, raw: data, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parts = data.split(':');\n    const action = parts[0] || '';\n    const entityType = parts[1] || null;\n    const entityId = parts.slice(2).join(':') || null;\n    const map = {\n      approve: { topic: 'approve_topic', script: 'approve_script', gen: 'publish_gen' },\n      edit: { topic: 'edit_topic', script: 'edit_script' },\n      reject: { topic: 'reject_topic', script: 'reject_script', gen: 'reject_gen' },\n      alt: { topic: 'alt_topic' },\n      regen: { gen: 'regen_gen' },\n      toggle: { platform: 'toggle_platform', ppm: 'toggle_ppm' },\n      publish: { gen: 'publish_gen' },\n      confirm: { publish: 'confirm_publish' },\n    };\n    let cb = 'unknown';\n    if (action === 'schedule') cb = 'schedule';\n    else if (action === 'confirm') cb = 'confirm_publish';\n    else if (action === 'publish') cb = 'publish_gen';\n    else if (action === 'tx_toggle') cb = 'tx_toggle';\n    else if (action === 'tx_publish') cb = 'tx_publish';\n    else if (action === 'ro_yes' || action === 'ro_no') cb = action;\n    else if (action === 'ppm_done') cb = 'ppm_done';\n    else if (action.startsWith('pf_')) cb = action;\n    else if (action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit') cb = action;\n    else if (action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject') cb = action;\n    else if (map[action] && map[action][entityType]) cb = map[action][entityType];\n    const isRoCb = action === 'ro_yes' || action === 'ro_no';\n    const isScCb = action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit';\n    const isVdCb = action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject';\n    out = { kind: 'callback', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: null, args: {}, raw: data, callback_action: cb,\n            entity_type: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? null : entityType,\n            entity_id: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? (parts[1] || null) : entityId };\n  }\n} else if (item.message) {\n  const m = item.message;\n  const fromId = (m.from && m.from.id) || null;\n  const chatId = (m.chat && m.chat.id) || null;\n  const text = String(m.text || '').trim();\n  if (m.document) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_doc', args: { file_id: m.document.file_id || null, file_name: m.document.file_name || null, mime: m.document.mime_type || null },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.photo && m.photo.length) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_photo', args: { file_id: m.photo[m.photo.length - 1].file_id || null, file_name: 'photo_' + (m.message_id || 'x') + '.jpg' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.video) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_video', args: { file_id: m.video.file_id || null, file_name: m.video.file_name || 'video.mp4' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parsed = parseCommand(text);\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: parsed.command, args: parsed.args, raw: text, callback_action: null, entity_type: null, entity_id: null };\n  }\n} else {\n  out = { kind: 'unknown', tg_user_id: null, chat_id: null, message_id: null, query_id: null, command: 'unknown', args: {}, raw: '', callback_action: null, entity_type: null, entity_id: null };\n}\nreturn [{ json: out }];\n"
+     "jsCode": "const item = $input.first().json;\nfunction parseCommand(text) {\n  const t = String(text || '').toLowerCase().trim();\n  const C = {\n    'start': 'start', 'старт': 'start', '/start': 'start',\n    'help': 'help', 'помощь': 'help', '/help': 'help',\n    'status': 'status', 'статус': 'status', '/status': 'status',\n    'cancel': 'cancel', 'стоп': 'cancel', 'отмена': 'cancel', '/cancel': 'cancel',\n    'ping': 'ping', 'пинг': 'ping', '/ping': 'ping',\n    'start_cycle': 'start_cycle', 'запуск цикла': 'start_cycle', 'старт цикла': 'start_cycle', '/start_cycle': 'start_cycle',\n    'mode': 'mode', 'режим': 'mode', '/mode': 'mode',\n    'topics': 'topics', 'темы': 'topics', '/topics': 'topics',\n    'competitors': 'competitors', 'конкуренты': 'competitors', '/competitors': 'competitors',\n    'accounts': 'accounts', 'аккаунты': 'accounts', '/accounts': 'accounts',\n    'budget': 'budget', 'бюджет': 'budget', '/budget': 'budget',\n    'clients': 'clients', 'клиенты': 'clients', '/clients': 'clients',\n    'client': 'client', 'клиент': 'client', '/client': 'client',\n    'reload_skills': 'reload_skills', '/reload_skills': 'reload_skills',\n    'creators': 'creators', 'авторы': 'creators', 'поиск авторов': 'creators', '/creators': 'creators',\n    'creator': 'creator', 'автор': 'creator', '/creator': 'creator',\n    'creator_content': 'creator_content', 'creator-content': 'creator_content', 'контент автора': 'creator_content', '/creator_content': 'creator_content', '/creator-content': 'creator_content',\n    'audience': 'audience', 'аудитория': 'audience', '/audience': 'audience',\n    'transcript': 'transcript', 'транскрипт': 'transcript', '/transcript': 'transcript',\n    'comments': 'comments', 'комментарии': 'comments', '/comments': 'comments',\n    'upload_avatar': 'upload_avatar', 'upload-avatar': 'upload_avatar', 'загрузить аватар': 'upload_avatar', '/upload_avatar': 'upload_avatar', '/upload-avatar': 'upload_avatar',\n    'my_avatars': 'my_avatars', 'my-avatars': 'my_avatars', 'мои аватары': 'my_avatars', '/my_avatars': 'my_avatars', '/my-avatars': 'my_avatars',\n    'asset': 'asset', 'ассет': 'asset', '/asset': 'asset',\n    'shorts': 'shorts', 'шортсы': 'shorts', '/shorts': 'shorts',\n    'product': 'product', 'продукт': 'product', '/product': 'product',\n    'banner': 'banner', 'баннер': 'banner', '/banner': 'banner',\n    'publish_type': 'publish_type', 'publish-type': 'publish_type', 'тип публикации': 'publish_type', '/publish_type': 'publish_type', '/publish-type': 'publish_type',\n    'menu': 'menu', 'меню': 'menu', '/menu': 'menu', '/меню': 'menu',\n    'instruction': 'instruction', 'инструкция': 'instruction', 'инструкции': 'instruction', '/instruction': 'instruction', '/инструкция': 'instruction',\n    'url2video': 'url2video', 'видео из ссылки': 'url2video', '/url2video': 'url2video',\n    'gen_url2video': 'url2video', 'gen_shorts': 'shorts',\n    'text_post': 'text_post', 'текстовый пост': 'text_post', '/text_post': 'text_post', '/текстовый пост': 'text_post',\n    'durc': 'durc',\n    'add_operator': 'add_operator', 'добавить оператора': 'add_operator', '/add_operator': 'add_operator',\n    'remove_operator': 'remove_operator', 'удалить оператора': 'remove_operator', '/remove_operator': 'remove_operator', '/удалить оператора': 'remove_operator',\n    'operators': 'operators', 'операторы': 'operators', '/operators': 'operators',\n    'profile': 'profile', 'профиль': 'profile', '/profile': 'profile', '/профиль': 'profile',\n    'profiles': 'profiles', 'профили': 'profiles', '/profiles': 'profiles', '/профили': 'profiles',\n    'questions': 'questions', 'вопросы': 'questions', '/questions': 'questions', '/вопросы': 'questions',\n  };\n  const words = t.split(/\\s+/);\n  let command = 'unknown';\n  const args = { url: null, id: null, value: null, platform: null, handle: null, section: null, action: null };\n  if (t.startsWith('onboard ') || t === 'onboard' || t.startsWith('/onboard')) { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('онбординг ') || t === 'онбординг') { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('client ') || t.startsWith('клиент ') || t.startsWith('/client ')) { command = 'client'; args.id = words[1] || null; }\n  else if (t.startsWith('добавить оператора ') || t.startsWith('/add_operator ') || t.startsWith('add_operator ')) { command = 'add_operator'; const off = t.startsWith('добавить оператора ') ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('удалить оператора ') || t.startsWith('/remove_operator ') || t.startsWith('/удалить оператора ')) { command = 'remove_operator'; const off = (t.startsWith('удалить оператора ') || t.startsWith('/удалить оператора ')) ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('creator ') || t.startsWith('автор ') || t.startsWith('/creator ')) { command = 'creator'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('creator_content ') || t.startsWith('creator-content ') || t.startsWith('контент автора ') || t.startsWith('/creator_content ') || t.startsWith('/creator-content ')) { command = 'creator_content'; const off = t.startsWith('контент автора ') ? 2 : 1; args.platform = words[off] || null; args.handle = words[off + 1] || null; }\n  else if (t.startsWith('audience ') || t.startsWith('аудитория ') || t.startsWith('/audience ')) { command = 'audience'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('поиск авторов ')) { command = 'creators'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('загрузить аватар ')) { command = 'upload_avatar'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('тип публикации ')) { command = 'publish_type'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('menu_')) { command = 'menu'; args.section = t.slice(5) || null; }\n  else if (t.startsWith('dur_')) { command = 'dur'; args.value = t.slice(4) || null; }\n  else if (t.startsWith('durc_')) { command = 'durc'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('hint_')) { command = 'hint'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('видео из ссылки ')) { command = 'url2video'; args.url = words.slice(3).join(' ') || null; }\n  else if (t === 'вопросы' || t === '/вопросы' || t === 'questions' || t === '/questions') { command = 'questions'; args.action = 'list'; }\n  else if (t.startsWith('вопросы сброс') || t.startsWith('/вопросы сброс')) { command = 'questions'; args.action = 'reset'; }\n  else if (t.startsWith('вопрос ') || t.startsWith('/вопросы ')) { command = 'questions'; args.action = 'set'; const N = /^\\d+$/.test(words[1] || '') ? parseInt(words[1], 10) : null; args.n = N; args.value = words.slice(2).join(' ') || null; }\n  else if (t === 'авто' || t === '/авто' || t === 'auto' || t === '/auto') { command = 'auto'; args.action = 'toggle'; }\n  else if (t.startsWith('авто вкл') || t.startsWith('/авто вкл') || t.startsWith('auto on') || t.startsWith('/auto on')) { command = 'auto'; args.action = 'on'; }\n  else if (t.startsWith('авто выкл') || t.startsWith('/авто выкл') || t.startsWith('auto off') || t.startsWith('/auto off')) { command = 'auto'; args.action = 'off'; }\n  else if (C[t]) { command = C[t]; }\n  else if (C[words[0]]) { command = C[words[0]]; args.value = words.slice(1).join(' ') || null; }\n  if (command === 'shorts' && args.value && /^https?:\\/\\//i.test(args.value)) args.url = args.value;\n  return { command: command, args: args };\n}\n\nlet out = null;\nif (item.callback_query) {\n  const q = item.callback_query;\n  const fromId = (q.from && q.from.id) || null;\n  const chatId = (q.message && q.message.chat && q.message.chat.id) || null;\n  const msgId = (q.message && q.message.message_id) || null;\n  const data = String(q.data || '');\n  if (data.startsWith('cmd:')) {\n    const parsed = parseCommand(data.slice(4));\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: parsed.command, args: parsed.args, raw: data, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parts = data.split(':');\n    const action = parts[0] || '';\n    const entityType = parts[1] || null;\n    const entityId = parts.slice(2).join(':') || null;\n    const map = {\n      approve: { topic: 'approve_topic', script: 'approve_script', gen: 'publish_gen' },\n      edit: { topic: 'edit_topic', script: 'edit_script' },\n      reject: { topic: 'reject_topic', script: 'reject_script', gen: 'reject_gen' },\n      alt: { topic: 'alt_topic' },\n      regen: { gen: 'regen_gen' },\n      toggle: { platform: 'toggle_platform', ppm: 'toggle_ppm' },\n      publish: { gen: 'publish_gen' },\n      confirm: { publish: 'confirm_publish' },\n    };\n    let cb = 'unknown';\n    if (action === 'schedule') cb = 'schedule';\n    else if (action === 'confirm') cb = 'confirm_publish';\n    else if (action === 'publish') cb = 'publish_gen';\n    else if (action === 'tx_toggle') cb = 'tx_toggle';\n    else if (action === 'tx_publish') cb = 'tx_publish';\n    else if (action === 'ro_yes' || action === 'ro_no') cb = action;\n    else if (action === 'ppm_done') cb = 'ppm_done';\n    else if (action.startsWith('pf_')) cb = action;\n    else if (action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit') cb = action;\n    else if (action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject') cb = action;\n    else if (map[action] && map[action][entityType]) cb = map[action][entityType];\n    const isRoCb = action === 'ro_yes' || action === 'ro_no';\n    const isScCb = action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit';\n    const isVdCb = action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject';\n    out = { kind: 'callback', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: null, args: {}, raw: data, callback_action: cb,\n            entity_type: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? null : entityType,\n            entity_id: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? (parts[1] || null) : entityId };\n  }\n} else if (item.message) {\n  const m = item.message;\n  const fromId = (m.from && m.from.id) || null;\n  const chatId = (m.chat && m.chat.id) || null;\n  const text = String(m.text || '').trim();\n  if (m.document) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_doc', args: { file_id: m.document.file_id || null, file_name: m.document.file_name || null, mime: m.document.mime_type || null },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.photo && m.photo.length) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_photo', args: { file_id: m.photo[m.photo.length - 1].file_id || null, file_name: 'photo_' + (m.message_id || 'x') + '.jpg' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.video) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_video', args: { file_id: m.video.file_id || null, file_name: m.video.file_name || 'video.mp4' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parsed = parseCommand(text);\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: parsed.command, args: parsed.args, raw: text, callback_action: null, entity_type: null, entity_id: null };\n  }\n} else {\n  out = { kind: 'unknown', tg_user_id: null, chat_id: null, message_id: null, query_id: null, command: 'unknown', args: {}, raw: '', callback_action: null, entity_type: null, entity_id: null };\n}\nreturn [{ json: out }];\n"
     },
     "id": "8a103f8b-937b-4265-989e-b51bcad58551",
     "name": "Parser",
@@ -1160,13 +1160,13 @@
           {
            "text": "🔗 URL→видео",
            "additionalFields": {
-            "callback_data": "cmd:gen_url2video"
+            "callback_data": "={{ \"cmd:gen_url2video\" }}"
            }
           },
           {
            "text": "🎬 AI Shorts",
            "additionalFields": {
-            "callback_data": "cmd:gen_shorts"
+            "callback_data": "={{ \"cmd:gen_shorts\" }}"
            }
           }
          ]
@@ -1178,13 +1178,13 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           },
           {
            "text": "📊 Статус",
            "additionalFields": {
-            "callback_data": "cmd:status"
+            "callback_data": "={{ \"cmd:status\" }}"
            }
           }
          ]
@@ -1196,7 +1196,7 @@
           {
            "text": "👤 Профиль",
            "additionalFields": {
-            "callback_data": "cmd:profile"
+            "callback_data": "={{ \"cmd:profile\" }}"
            }
           }
          ]
@@ -1237,7 +1237,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -1279,7 +1279,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -1472,7 +1472,7 @@
           {
            "text": "▶️ Запустить новый",
            "additionalFields": {
-            "callback_data": "cmd:start_cycle"
+            "callback_data": "={{ \"cmd:start_cycle\" }}"
            }
           }
          ]
@@ -1484,13 +1484,13 @@
           {
            "text": "💰 Бюджет",
            "additionalFields": {
-            "callback_data": "cmd:budget"
+            "callback_data": "={{ \"cmd:budget\" }}"
            }
           },
           {
            "text": "📋 Темы",
            "additionalFields": {
-            "callback_data": "cmd:topics"
+            "callback_data": "={{ \"cmd:topics\" }}"
            }
           }
          ]
@@ -1502,7 +1502,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -1588,7 +1588,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -1730,7 +1730,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -1958,7 +1958,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -2142,7 +2142,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -2369,7 +2369,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -2561,7 +2561,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -2903,7 +2903,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -3081,7 +3081,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -4201,7 +4201,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -4379,7 +4379,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -4589,7 +4589,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -4773,7 +4773,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -4928,13 +4928,13 @@
           {
            "text": "🔄 Запустить цикл",
            "additionalFields": {
-            "callback_data": "cmd:start_cycle"
+            "callback_data": "={{ \"cmd:start_cycle\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -5103,6 +5103,21 @@
         "neverError": true
        }
       }
+     },
+     "authentication": "none",
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-API-ID",
+        "value": "={{ $env.CREATIFY_API_ID }}"
+       },
+       {
+        "name": "X-API-KEY",
+        "value": "={{ $env.CREATIFY_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "e582f7db-bfc4-4121-be7b-74bb96a1cca4",
@@ -5276,7 +5291,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -5331,6 +5346,21 @@
         "neverError": true
        }
       }
+     },
+     "authentication": "none",
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-API-ID",
+        "value": "={{ $env.CREATIFY_API_ID }}"
+       },
+       {
+        "name": "X-API-KEY",
+        "value": "={{ $env.CREATIFY_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "13fce5bc-5542-40c3-9102-575579753913",
@@ -5359,13 +5389,13 @@
           {
            "text": "🧹 Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -5476,7 +5506,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -5632,13 +5662,13 @@
           {
            "text": "🔄 Запустить цикл",
            "additionalFields": {
-            "callback_data": "cmd:start_cycle"
+            "callback_data": "={{ \"cmd:start_cycle\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -5765,13 +5795,13 @@
           {
            "text": "☑️ Instagram",
            "additionalFields": {
-            "callback_data": "toggle:platform:instagram"
+            "callback_data": "={{ \"toggle:platform:instagram\" }}"
            }
           },
           {
            "text": "☑️ YouTube",
            "additionalFields": {
-            "callback_data": "toggle:platform:youtube"
+            "callback_data": "={{ \"toggle:platform:youtube\" }}"
            }
           }
          ]
@@ -5783,13 +5813,13 @@
           {
            "text": "☑️ TikTok",
            "additionalFields": {
-            "callback_data": "toggle:platform:tiktok"
+            "callback_data": "={{ \"toggle:platform:tiktok\" }}"
            }
           },
           {
            "text": "☑️ Telegram",
            "additionalFields": {
-            "callback_data": "toggle:platform:telegram"
+            "callback_data": "={{ \"toggle:platform:telegram\" }}"
            }
           }
          ]
@@ -5801,13 +5831,13 @@
           {
            "text": "☑️ Threads",
            "additionalFields": {
-            "callback_data": "toggle:platform:threads"
+            "callback_data": "={{ \"toggle:platform:threads\" }}"
            }
           },
           {
            "text": "☑️ X",
            "additionalFields": {
-            "callback_data": "toggle:platform:x"
+            "callback_data": "={{ \"toggle:platform:x\" }}"
            }
           }
          ]
@@ -5819,19 +5849,19 @@
           {
            "text": "⏰ Сейчас",
            "additionalFields": {
-            "callback_data": "schedule:now"
+            "callback_data": "={{ \"schedule:now\" }}"
            }
           },
           {
            "text": "+2 часа",
            "additionalFields": {
-            "callback_data": "schedule:2h"
+            "callback_data": "={{ \"schedule:2h\" }}"
            }
           },
           {
            "text": "Завтра 12:00",
            "additionalFields": {
-            "callback_data": "schedule:tomorrow_12"
+            "callback_data": "={{ \"schedule:tomorrow_12\" }}"
            }
           }
          ]
@@ -5843,7 +5873,7 @@
           {
            "text": "📤 Запланировать",
            "additionalFields": {
-            "callback_data": "confirm:publish"
+            "callback_data": "={{ \"confirm:publish\" }}"
            }
           }
          ]
@@ -5855,7 +5885,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -5920,7 +5950,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -6076,19 +6106,19 @@
           {
            "text": "⚡ URL→видео",
            "additionalFields": {
-            "callback_data": "cmd:gen_url2video"
+            "callback_data": "={{ \"cmd:gen_url2video\" }}"
            }
           },
           {
            "text": "🎬 AI Shorts",
            "additionalFields": {
-            "callback_data": "cmd:gen_shorts"
+            "callback_data": "={{ \"cmd:gen_shorts\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -6275,13 +6305,13 @@
           {
            "text": "☑️ Instagram",
            "additionalFields": {
-            "callback_data": "toggle:platform:instagram"
+            "callback_data": "={{ \"toggle:platform:instagram\" }}"
            }
           },
           {
            "text": "☑️ YouTube",
            "additionalFields": {
-            "callback_data": "toggle:platform:youtube"
+            "callback_data": "={{ \"toggle:platform:youtube\" }}"
            }
           }
          ]
@@ -6293,13 +6323,13 @@
           {
            "text": "☑️ TikTok",
            "additionalFields": {
-            "callback_data": "toggle:platform:tiktok"
+            "callback_data": "={{ \"toggle:platform:tiktok\" }}"
            }
           },
           {
            "text": "☑️ Telegram",
            "additionalFields": {
-            "callback_data": "toggle:platform:telegram"
+            "callback_data": "={{ \"toggle:platform:telegram\" }}"
            }
           }
          ]
@@ -6311,13 +6341,13 @@
           {
            "text": "☑️ Threads",
            "additionalFields": {
-            "callback_data": "toggle:platform:threads"
+            "callback_data": "={{ \"toggle:platform:threads\" }}"
            }
           },
           {
            "text": "☑️ X",
            "additionalFields": {
-            "callback_data": "toggle:platform:x"
+            "callback_data": "={{ \"toggle:platform:x\" }}"
            }
           }
          ]
@@ -6329,19 +6359,19 @@
           {
            "text": "⏰ Сейчас",
            "additionalFields": {
-            "callback_data": "schedule:now"
+            "callback_data": "={{ \"schedule:now\" }}"
            }
           },
           {
            "text": "+2 часа",
            "additionalFields": {
-            "callback_data": "schedule:2h"
+            "callback_data": "={{ \"schedule:2h\" }}"
            }
           },
           {
            "text": "Завтра 12:00",
            "additionalFields": {
-            "callback_data": "schedule:tomorrow_12"
+            "callback_data": "={{ \"schedule:tomorrow_12\" }}"
            }
           }
          ]
@@ -6353,7 +6383,7 @@
           {
            "text": "📤 Запланировать",
            "additionalFields": {
-            "callback_data": "confirm:publish"
+            "callback_data": "={{ \"confirm:publish\" }}"
            }
           }
          ]
@@ -6365,7 +6395,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -6551,13 +6581,13 @@
           {
            "text": "☑️ Instagram",
            "additionalFields": {
-            "callback_data": "toggle:platform:instagram"
+            "callback_data": "={{ \"toggle:platform:instagram\" }}"
            }
           },
           {
            "text": "☑️ YouTube",
            "additionalFields": {
-            "callback_data": "toggle:platform:youtube"
+            "callback_data": "={{ \"toggle:platform:youtube\" }}"
            }
           }
          ]
@@ -6569,13 +6599,13 @@
           {
            "text": "☑️ TikTok",
            "additionalFields": {
-            "callback_data": "toggle:platform:tiktok"
+            "callback_data": "={{ \"toggle:platform:tiktok\" }}"
            }
           },
           {
            "text": "☑️ Telegram",
            "additionalFields": {
-            "callback_data": "toggle:platform:telegram"
+            "callback_data": "={{ \"toggle:platform:telegram\" }}"
            }
           }
          ]
@@ -6587,13 +6617,13 @@
           {
            "text": "☑️ Threads",
            "additionalFields": {
-            "callback_data": "toggle:platform:threads"
+            "callback_data": "={{ \"toggle:platform:threads\" }}"
            }
           },
           {
            "text": "☑️ X",
            "additionalFields": {
-            "callback_data": "toggle:platform:x"
+            "callback_data": "={{ \"toggle:platform:x\" }}"
            }
           }
          ]
@@ -6605,19 +6635,19 @@
           {
            "text": "⏰ Сейчас",
            "additionalFields": {
-            "callback_data": "schedule:now"
+            "callback_data": "={{ \"schedule:now\" }}"
            }
           },
           {
            "text": "+2 часа",
            "additionalFields": {
-            "callback_data": "schedule:2h"
+            "callback_data": "={{ \"schedule:2h\" }}"
            }
           },
           {
            "text": "Завтра 12:00",
            "additionalFields": {
-            "callback_data": "schedule:tomorrow_12"
+            "callback_data": "={{ \"schedule:tomorrow_12\" }}"
            }
           }
          ]
@@ -6629,7 +6659,7 @@
           {
            "text": "📤 Запланировать",
            "additionalFields": {
-            "callback_data": "confirm:publish"
+            "callback_data": "={{ \"confirm:publish\" }}"
            }
           }
          ]
@@ -6641,7 +6671,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -6806,7 +6836,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -6934,19 +6964,19 @@
           {
            "text": "⚡ URL→видео",
            "additionalFields": {
-            "callback_data": "cmd:gen_url2video"
+            "callback_data": "={{ \"cmd:gen_url2video\" }}"
            }
           },
           {
            "text": "🎬 AI Shorts",
            "additionalFields": {
-            "callback_data": "cmd:gen_shorts"
+            "callback_data": "={{ \"cmd:gen_shorts\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -7079,7 +7109,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -7181,7 +7211,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -7283,7 +7313,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -7385,7 +7415,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -7487,7 +7517,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -7689,7 +7719,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -7731,7 +7761,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -7833,7 +7863,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -7875,7 +7905,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -8020,7 +8050,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -8158,7 +8188,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -8296,7 +8326,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -8434,7 +8464,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -8572,7 +8602,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -8710,7 +8740,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -8848,7 +8878,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -8986,7 +9016,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -9124,7 +9154,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -9282,7 +9312,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -9420,7 +9450,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -9558,7 +9588,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -9660,7 +9690,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -10254,13 +10284,13 @@
           {
            "text": "⚡ Генерация",
            "additionalFields": {
-            "callback_data": "cmd:menu_gen"
+            "callback_data": "={{ \"cmd:menu_gen\" }}"
            }
           },
           {
            "text": "📊 Аналитика",
            "additionalFields": {
-            "callback_data": "cmd:menu_analytics"
+            "callback_data": "={{ \"cmd:menu_analytics\" }}"
            }
           }
          ]
@@ -10272,13 +10302,13 @@
           {
            "text": "📤 Публикация",
            "additionalFields": {
-            "callback_data": "cmd:menu_publish"
+            "callback_data": "={{ \"cmd:menu_publish\" }}"
            }
           },
           {
            "text": "⚙️ Система",
            "additionalFields": {
-            "callback_data": "cmd:menu_system"
+            "callback_data": "={{ \"cmd:menu_system\" }}"
            }
           }
          ]
@@ -10290,7 +10320,7 @@
           {
            "text": "📖 Инструкция",
            "additionalFields": {
-            "callback_data": "cmd:menu_help"
+            "callback_data": "={{ \"cmd:menu_help\" }}"
            }
           }
          ]
@@ -10347,13 +10377,13 @@
           {
            "text": "🔗 URL→видео",
            "additionalFields": {
-            "callback_data": "cmd:gen_url2video"
+            "callback_data": "={{ \"cmd:gen_url2video\" }}"
            }
           },
           {
            "text": "🎬 AI Shorts",
            "additionalFields": {
-            "callback_data": "cmd:gen_shorts"
+            "callback_data": "={{ \"cmd:gen_shorts\" }}"
            }
           }
          ]
@@ -10365,7 +10395,7 @@
           {
            "text": "🔄 Запустить цикл",
            "additionalFields": {
-            "callback_data": "cmd:start_cycle"
+            "callback_data": "={{ \"cmd:start_cycle\" }}"
            }
           }
          ]
@@ -10377,13 +10407,13 @@
           {
            "text": "👤 Аватар",
            "additionalFields": {
-            "callback_data": "cmd:hint_upload_avatar"
+            "callback_data": "={{ \"cmd:hint_upload_avatar\" }}"
            }
           },
           {
            "text": "🖼️ Ассет",
            "additionalFields": {
-            "callback_data": "cmd:hint_asset"
+            "callback_data": "={{ \"cmd:hint_asset\" }}"
            }
           }
          ]
@@ -10395,13 +10425,13 @@
           {
            "text": "📦 Product",
            "additionalFields": {
-            "callback_data": "cmd:hint_product"
+            "callback_data": "={{ \"cmd:hint_product\" }}"
            }
           },
           {
            "text": "🪧 Баннеры",
            "additionalFields": {
-            "callback_data": "cmd:hint_banner"
+            "callback_data": "={{ \"cmd:hint_banner\" }}"
            }
           }
          ]
@@ -10413,7 +10443,7 @@
           {
            "text": "👥 Мои аватары",
            "additionalFields": {
-            "callback_data": "cmd:my_avatars"
+            "callback_data": "={{ \"cmd:my_avatars\" }}"
            }
           }
          ]
@@ -10425,7 +10455,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -10482,13 +10512,13 @@
           {
            "text": "🔎 Авторы",
            "additionalFields": {
-            "callback_data": "cmd:hint_creators"
+            "callback_data": "={{ \"cmd:hint_creators\" }}"
            }
           },
           {
            "text": "👤 Профиль",
            "additionalFields": {
-            "callback_data": "cmd:hint_creator"
+            "callback_data": "={{ \"cmd:hint_creator\" }}"
            }
           }
          ]
@@ -10500,13 +10530,13 @@
           {
            "text": "📈 Посты",
            "additionalFields": {
-            "callback_data": "cmd:hint_creator_content"
+            "callback_data": "={{ \"cmd:hint_creator_content\" }}"
            }
           },
           {
            "text": "🌍 Аудитория",
            "additionalFields": {
-            "callback_data": "cmd:hint_audience"
+            "callback_data": "={{ \"cmd:hint_audience\" }}"
            }
           }
          ]
@@ -10518,13 +10548,13 @@
           {
            "text": "📝 Транскрипт",
            "additionalFields": {
-            "callback_data": "cmd:hint_transcript"
+            "callback_data": "={{ \"cmd:hint_transcript\" }}"
            }
           },
           {
            "text": "💬 Комментарии",
            "additionalFields": {
-            "callback_data": "cmd:hint_comments"
+            "callback_data": "={{ \"cmd:hint_comments\" }}"
            }
           }
          ]
@@ -10536,13 +10566,13 @@
           {
            "text": "📌 Темы",
            "additionalFields": {
-            "callback_data": "cmd:topics"
+            "callback_data": "={{ \"cmd:topics\" }}"
            }
           },
           {
            "text": "🏁 Конкуренты",
            "additionalFields": {
-            "callback_data": "cmd:competitors"
+            "callback_data": "={{ \"cmd:competitors\" }}"
            }
           }
          ]
@@ -10554,7 +10584,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -10611,13 +10641,13 @@
           {
            "text": "🔗 Аккаунты",
            "additionalFields": {
-            "callback_data": "cmd:accounts"
+            "callback_data": "={{ \"cmd:accounts\" }}"
            }
           },
           {
            "text": "📱 Тип публикации",
            "additionalFields": {
-            "callback_data": "cmd:hint_publish_type"
+            "callback_data": "={{ \"cmd:hint_publish_type\" }}"
            }
           }
          ]
@@ -10629,7 +10659,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -10686,13 +10716,13 @@
           {
            "text": "📊 Статус",
            "additionalFields": {
-            "callback_data": "cmd:status"
+            "callback_data": "={{ \"cmd:status\" }}"
            }
           },
           {
            "text": "💰 Бюджет",
            "additionalFields": {
-            "callback_data": "cmd:budget"
+            "callback_data": "={{ \"cmd:budget\" }}"
            }
           }
          ]
@@ -10704,13 +10734,13 @@
           {
            "text": "🔁 Режим",
            "additionalFields": {
-            "callback_data": "cmd:hint_mode"
+            "callback_data": "={{ \"cmd:hint_mode\" }}"
            }
           },
           {
            "text": "🏢 Клиенты",
            "additionalFields": {
-            "callback_data": "cmd:clients"
+            "callback_data": "={{ \"cmd:clients\" }}"
            }
           }
          ]
@@ -10722,13 +10752,13 @@
           {
            "text": "🩺 Пинг",
            "additionalFields": {
-            "callback_data": "cmd:ping"
+            "callback_data": "={{ \"cmd:ping\" }}"
            }
           },
           {
            "text": "🧹 Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -10740,7 +10770,7 @@
           {
            "text": "👤 Профиль",
            "additionalFields": {
-            "callback_data": "cmd:profile"
+            "callback_data": "={{ \"cmd:profile\" }}"
            }
           }
          ]
@@ -10752,7 +10782,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -10854,7 +10884,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -10971,7 +11001,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -11300,19 +11330,19 @@
           {
            "text": "⏱ 30 сек",
            "additionalFields": {
-            "callback_data": "cmd:dur_30"
+            "callback_data": "={{ \"cmd:dur_30\" }}"
            }
           },
           {
            "text": "⏱ 60 сек",
            "additionalFields": {
-            "callback_data": "cmd:dur_60"
+            "callback_data": "={{ \"cmd:dur_60\" }}"
            }
           },
           {
            "text": "⏱ 90 сек",
            "additionalFields": {
-            "callback_data": "cmd:dur_90"
+            "callback_data": "={{ \"cmd:dur_90\" }}"
            }
           }
          ]
@@ -11324,13 +11354,13 @@
           {
            "text": "🧹 Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -11432,13 +11462,13 @@
           {
            "text": "🧹 Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -11495,13 +11525,13 @@
           {
            "text": "🧹 Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -11558,13 +11588,13 @@
           {
            "text": "🧹 Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -11621,7 +11651,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -11678,7 +11708,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -11915,7 +11945,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -12099,13 +12129,13 @@
           {
            "text": "🧹 Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -12162,13 +12192,13 @@
           {
            "text": "💰 Бюджет",
            "additionalFields": {
-            "callback_data": "cmd:budget"
+            "callback_data": "={{ \"cmd:budget\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -12225,7 +12255,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -12414,6 +12444,21 @@
         "neverError": true
        }
       }
+     },
+     "authentication": "none",
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-API-ID",
+        "value": "={{ $env.CREATIFY_API_ID }}"
+       },
+       {
+        "name": "X-API-KEY",
+        "value": "={{ $env.CREATIFY_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "3996c851-df8e-4bb4-9cae-f49a1c4d96f9",
@@ -12510,6 +12555,21 @@
         "neverError": true
        }
       }
+     },
+     "authentication": "none",
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-API-ID",
+        "value": "={{ $env.CREATIFY_API_ID }}"
+       },
+       {
+        "name": "X-API-KEY",
+        "value": "={{ $env.CREATIFY_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "d7938c32-ce59-4202-a9b0-ff29013e800c",
@@ -12609,7 +12669,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -12666,7 +12726,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -12910,13 +12970,13 @@
           {
            "text": "🧹 Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -13018,13 +13078,13 @@
           {
            "text": "💰 Бюджет",
            "additionalFields": {
-            "callback_data": "cmd:budget"
+            "callback_data": "={{ \"cmd:budget\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -13081,7 +13141,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -13183,7 +13243,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -13403,7 +13463,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -13445,13 +13505,13 @@
           {
            "text": "🧹 Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -13726,13 +13786,13 @@
           {
            "text": "🧹 Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -13834,13 +13894,13 @@
           {
            "text": "☐ Threads",
            "additionalFields": {
-            "callback_data": "tx_toggle:platform:threads"
+            "callback_data": "={{ \"tx_toggle:platform:threads\" }}"
            }
           },
           {
            "text": "☐ X",
            "additionalFields": {
-            "callback_data": "tx_toggle:platform:x"
+            "callback_data": "={{ \"tx_toggle:platform:x\" }}"
            }
           }
          ]
@@ -13852,13 +13912,13 @@
           {
            "text": "☐ VK",
            "additionalFields": {
-            "callback_data": "tx_toggle:platform:vk"
+            "callback_data": "={{ \"tx_toggle:platform:vk\" }}"
            }
           },
           {
            "text": "☐ Telegram",
            "additionalFields": {
-            "callback_data": "tx_toggle:platform:telegram"
+            "callback_data": "={{ \"tx_toggle:platform:telegram\" }}"
            }
           }
          ]
@@ -13870,7 +13930,7 @@
           {
            "text": "✅ Опубликовать",
            "additionalFields": {
-            "callback_data": "tx_publish"
+            "callback_data": "={{ \"tx_publish\" }}"
            }
           }
          ]
@@ -13882,13 +13942,13 @@
           {
            "text": "🧹 Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -14269,13 +14329,13 @@
           {
            "text": "📝 Новый пост",
            "additionalFields": {
-            "callback_data": "cmd:text_post"
+            "callback_data": "={{ \"cmd:text_post\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -14332,7 +14392,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -15466,7 +15526,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -16540,19 +16600,19 @@
           {
            "text": "⏱ 30 сек",
            "additionalFields": {
-            "callback_data": "cmd:durc_30"
+            "callback_data": "={{ \"cmd:durc_30\" }}"
            }
           },
           {
            "text": "⏱ 60 сек",
            "additionalFields": {
-            "callback_data": "cmd:durc_60"
+            "callback_data": "={{ \"cmd:durc_60\" }}"
            }
           },
           {
            "text": "⏱ 90 сек",
            "additionalFields": {
-            "callback_data": "cmd:durc_90"
+            "callback_data": "={{ \"cmd:durc_90\" }}"
            }
           }
          ]
@@ -16564,7 +16624,7 @@
           {
            "text": "🔢 Своя (напиши число)",
            "additionalFields": {
-            "callback_data": "cmd:durc_custom"
+            "callback_data": "={{ \"cmd:durc_custom\" }}"
            }
           }
          ]
@@ -16576,13 +16636,13 @@
           {
            "text": "🧹 Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -16824,13 +16884,13 @@
           {
            "text": "🧹 Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -16887,19 +16947,19 @@
           {
            "text": "⏱ 30 сек",
            "additionalFields": {
-            "callback_data": "cmd:durc_30"
+            "callback_data": "={{ \"cmd:durc_30\" }}"
            }
           },
           {
            "text": "⏱ 60 сек",
            "additionalFields": {
-            "callback_data": "cmd:durc_60"
+            "callback_data": "={{ \"cmd:durc_60\" }}"
            }
           },
           {
            "text": "⏱ 90 сек",
            "additionalFields": {
-            "callback_data": "cmd:durc_90"
+            "callback_data": "={{ \"cmd:durc_90\" }}"
            }
           }
          ]
@@ -16911,7 +16971,7 @@
           {
            "text": "🔢 Своя (напиши число)",
            "additionalFields": {
-            "callback_data": "cmd:durc_custom"
+            "callback_data": "={{ \"cmd:durc_custom\" }}"
            }
           }
          ]
@@ -16923,13 +16983,13 @@
           {
            "text": "🧹 Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -17302,7 +17362,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -17359,7 +17419,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -17461,7 +17521,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -17518,13 +17578,13 @@
           {
            "text": "➕ Создать профиль",
            "additionalFields": {
-            "callback_data": "pf_new"
+            "callback_data": "={{ \"pf_new\" }}"
            }
           },
           {
            "text": "📁 Выбрать профиль",
            "additionalFields": {
-            "callback_data": "pf_list"
+            "callback_data": "={{ \"pf_list\" }}"
            }
           }
          ]
@@ -17536,13 +17596,13 @@
           {
            "text": "✏️ Изменить",
            "additionalFields": {
-            "callback_data": "pf_edit"
+            "callback_data": "={{ \"pf_edit\" }}"
            }
           },
           {
            "text": "🔗 Добавить ссылку",
            "additionalFields": {
-            "callback_data": "pf_add_link"
+            "callback_data": "={{ \"pf_add_link\" }}"
            }
           }
          ]
@@ -17554,13 +17614,13 @@
           {
            "text": "📄 Добавить документ",
            "additionalFields": {
-            "callback_data": "pf_add_doc"
+            "callback_data": "={{ \"pf_add_doc\" }}"
            }
           },
           {
            "text": "🚪 Выйти из профиля",
            "additionalFields": {
-            "callback_data": "pf_exit"
+            "callback_data": "={{ \"pf_exit\" }}"
            }
           }
          ]
@@ -17572,7 +17632,7 @@
           {
            "text": "📱 Платформы",
            "additionalFields": {
-            "callback_data": "pf_platforms"
+            "callback_data": "={{ \"pf_platforms\" }}"
            }
           }
          ]
@@ -17584,7 +17644,7 @@
           {
            "text": "🗑 Удалить",
            "additionalFields": {
-            "callback_data": "pf_del"
+            "callback_data": "={{ \"pf_del\" }}"
            }
           }
          ]
@@ -17596,7 +17656,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -17665,7 +17725,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -18069,13 +18129,13 @@
           {
            "text": "👤 Профиль",
            "additionalFields": {
-            "callback_data": "cmd:profile"
+            "callback_data": "={{ \"cmd:profile\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -18291,13 +18351,13 @@
           {
            "text": "👤 Профиль",
            "additionalFields": {
-            "callback_data": "cmd:profile"
+            "callback_data": "={{ \"cmd:profile\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -18387,13 +18447,13 @@
           {
            "text": "Пропустить",
            "additionalFields": {
-            "callback_data": "pf_skip"
+            "callback_data": "={{ \"pf_skip\" }}"
            }
           },
           {
            "text": "Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -18459,13 +18519,13 @@
           {
            "text": "👤 Профиль",
            "additionalFields": {
-            "callback_data": "cmd:profile"
+            "callback_data": "={{ \"cmd:profile\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -18531,13 +18591,13 @@
           {
            "text": "Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -18603,13 +18663,13 @@
           {
            "text": "Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -18996,19 +19056,19 @@
           {
            "text": "Пропустить",
            "additionalFields": {
-            "callback_data": "pf_skip"
+            "callback_data": "={{ \"pf_skip\" }}"
            }
           },
           {
            "text": "Готово",
            "additionalFields": {
-            "callback_data": "pf_done"
+            "callback_data": "={{ \"pf_done\" }}"
            }
           },
           {
            "text": "Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -19345,13 +19405,13 @@
           {
            "text": "👤 Профиль",
            "additionalFields": {
-            "callback_data": "cmd:profile"
+            "callback_data": "={{ \"cmd:profile\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -19937,19 +19997,19 @@
           {
            "text": "Готово",
            "additionalFields": {
-            "callback_data": "pf_done"
+            "callback_data": "={{ \"pf_done\" }}"
            }
           },
           {
            "text": "Пропустить",
            "additionalFields": {
-            "callback_data": "pf_skip"
+            "callback_data": "={{ \"pf_skip\" }}"
            }
           },
           {
            "text": "Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -19991,19 +20051,19 @@
           {
            "text": "Готово",
            "additionalFields": {
-            "callback_data": "pf_done"
+            "callback_data": "={{ \"pf_done\" }}"
            }
           },
           {
            "text": "Пропустить",
            "additionalFields": {
-            "callback_data": "pf_skip"
+            "callback_data": "={{ \"pf_skip\" }}"
            }
           },
           {
            "text": "Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -20075,7 +20135,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -20497,13 +20557,13 @@
           {
            "text": "👤 Профиль",
            "additionalFields": {
-            "callback_data": "cmd:profile"
+            "callback_data": "={{ \"cmd:profile\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -20720,13 +20780,13 @@
           {
            "text": "👤 Профиль",
            "additionalFields": {
-            "callback_data": "cmd:profile"
+            "callback_data": "={{ \"cmd:profile\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -20928,13 +20988,13 @@
           {
            "text": "Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -20991,13 +21051,13 @@
           {
            "text": "Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -21199,13 +21259,13 @@
           {
            "text": "Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -21262,13 +21322,13 @@
           {
            "text": "Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -21955,13 +22015,13 @@
           {
            "text": "👤 Профиль",
            "additionalFields": {
-            "callback_data": "cmd:profile"
+            "callback_data": "={{ \"cmd:profile\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -22393,19 +22453,19 @@
           {
            "text": "Готово",
            "additionalFields": {
-            "callback_data": "pf_done"
+            "callback_data": "={{ \"pf_done\" }}"
            }
           },
           {
            "text": "Пропустить",
            "additionalFields": {
-            "callback_data": "pf_skip"
+            "callback_data": "={{ \"pf_skip\" }}"
            }
           },
           {
            "text": "Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -22462,19 +22522,19 @@
           {
            "text": "Готово",
            "additionalFields": {
-            "callback_data": "pf_done"
+            "callback_data": "={{ \"pf_done\" }}"
            }
           },
           {
            "text": "Пропустить",
            "additionalFields": {
-            "callback_data": "pf_skip"
+            "callback_data": "={{ \"pf_skip\" }}"
            }
           },
           {
            "text": "Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -22531,7 +22591,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -22588,7 +22648,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -22675,13 +22735,13 @@
           {
            "text": "Отмена",
            "additionalFields": {
-            "callback_data": "cmd:cancel"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -22738,7 +22798,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -22791,7 +22851,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT c.id, c.name FROM clients c WHERE c.id = (SELECT SELECT COALESCE((SELECT c.id FROM clients c WHERE c.status='active' AND c.id = COALESCE((SELECT u.active_client_id FROM users u WHERE u.tg_user_id = ?), (SELECT CAST(value AS INTEGER) FROM settings WHERE key='active_client_id'))), (SELECT c2.id FROM clients c2 WHERE c2.status='active' ORDER BY c2.id LIMIT 1), 0))\", params: [p.tg_user_id] } }];"
+     "jsCode": "const p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT c.id, c.name FROM clients c WHERE c.id = (SELECT COALESCE((SELECT c.id FROM clients c WHERE c.status='active' AND c.id = COALESCE((SELECT u.active_client_id FROM users u WHERE u.tg_user_id = ?), (SELECT CAST(value AS INTEGER) FROM settings WHERE key='active_client_id'))), (SELECT c2.id FROM clients c2 WHERE c2.status='active' ORDER BY c2.id LIMIT 1), 0))\", params: [p.tg_user_id] } }];"
     },
     "id": "fe7cae91-daa2-4fba-b3e1-bc84b50e5739",
     "name": "PDL Build",
@@ -22940,7 +23000,7 @@
           {
            "text": "↩️ Нет",
            "additionalFields": {
-            "callback_data": "pf_del_no"
+            "callback_data": "={{ \"pf_del_no\" }}"
            }
           }
          ]
@@ -22952,7 +23012,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -22994,13 +23054,13 @@
           {
            "text": "👤 Профиль",
            "additionalFields": {
-            "callback_data": "cmd:profile"
+            "callback_data": "={{ \"cmd:profile\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -23231,13 +23291,13 @@
           {
            "text": "👤 Профиль",
            "additionalFields": {
-            "callback_data": "cmd:profile"
+            "callback_data": "={{ \"cmd:profile\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -23318,13 +23378,13 @@
           {
            "text": "👤 Профиль",
            "additionalFields": {
-            "callback_data": "cmd:profile"
+            "callback_data": "={{ \"cmd:profile\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -23460,7 +23520,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*\\[\\]`])/g, '\\\\$1');\nreturn [{ json: { chat_id: p.chat_id, text: esc('⛔ Только владелец может удалять операторов') } }];"
+     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nreturn [{ json: { chat_id: p.chat_id, text: esc('⛔ Только владелец может удалять операторов') } }];"
     },
     "id": "5636f5a3-a181-417c-8adc-df041b90efe9"
    },
@@ -23488,7 +23548,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -23637,7 +23697,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst chk = $('RO Check target').first().json;\nconst esc = s => String(s ?? '').replace(/([_*\\[\\]`])/g, '\\\\$1');\nreturn [{ json: { chat_id: p.chat_id, text: esc('🗑 Удалить оператора ' + chk.id + '? Он потеряет доступ к боту'), id: chk.id } }];"
+     "jsCode": "const p = $('Parser').first().json;\nconst chk = $('RO Check target').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nreturn [{ json: { chat_id: p.chat_id, text: esc('🗑 Удалить оператора ' + chk.id + '? Он потеряет доступ к боту'), id: chk.id } }];"
     },
     "id": "7a36ead1-a97e-495b-86e8-3d3bc2683997"
    },
@@ -23671,7 +23731,7 @@
           {
            "text": "↩️ Нет",
            "additionalFields": {
-            "callback_data": "ro_no"
+            "callback_data": "={{ \"ro_no\" }}"
            }
           }
          ]
@@ -23683,7 +23743,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -23725,7 +23785,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -23767,7 +23827,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -23865,7 +23925,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*\\[\\]`])/g, '\\\\$1');\nreturn [{ json: { chat_id: p.chat_id, text: esc('✅ Оператор ' + p.entity_id + ' удалён') } }];"
+     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nreturn [{ json: { chat_id: p.chat_id, text: esc('✅ Оператор ' + p.entity_id + ' удалён') } }];"
     },
     "id": "77f9f1af-e958-49d1-a62d-bf71cfb09f7d"
    },
@@ -23893,7 +23953,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -23946,7 +24006,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*\\[\\]`])/g, '\\\\$1');\nreturn [{ json: { chat_id: p.chat_id, text: esc('↩️ Отменено') } }];"
+     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nreturn [{ json: { chat_id: p.chat_id, text: esc('↩️ Отменено') } }];"
     },
     "id": "f45a8242-f368-47fe-8e68-1a9c5ce9386d"
    },
@@ -23974,7 +24034,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -24223,7 +24283,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*\\[\\]`])/g, '\\\\$1');\nreturn [{ json: { chat_id: p.chat_id, text: esc($('QS Parse').first().json.text) } }];"
+     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nreturn [{ json: { chat_id: p.chat_id, text: esc($('QS Parse').first().json.text) } }];"
     },
     "id": "898a45ce-5815-45a2-98be-14132b50ff8b"
    },
@@ -24251,7 +24311,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -24280,7 +24340,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*\\[\\]`])/g, '\\\\$1');\nconst qs = $('QS Parse').first().json.questions || [];\nconst lines = qs.map((q, i) => (i + 1) + '. ' + q);\nconst text = '📋 Вопросы интервью (' + qs.length + '):\\n' + lines.join('\\n') + '\\n\\nИзменить: вопрос N <текст>\\nСброс: вопросы сброс';\nreturn [{ json: { chat_id: p.chat_id, text: esc(text) } }];"
+     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst qs = $('QS Parse').first().json.questions || [];\nconst lines = qs.map((q, i) => (i + 1) + '. ' + q);\nconst text = '📋 Вопросы интервью (' + qs.length + '):\\n' + lines.join('\\n') + '\\n\\nИзменить: вопрос N <текст>\\nСброс: вопросы сброс';\nreturn [{ json: { chat_id: p.chat_id, text: esc(text) } }];"
     },
     "id": "8a0b687f-f384-4c89-ae70-a1e13f5d1309"
    },
@@ -24308,7 +24368,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -24382,7 +24442,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*\\[\\]`])/g, '\\\\$1');\nconst qs = $('QS Parse').first().json;\nconst text = qs.mode === 'set' ? ('✅ Вопрос ' + qs.n + ' обновлён: ' + qs.value) : '✅ Вопросы сброшены к дефолту';\nreturn [{ json: { chat_id: p.chat_id, text: esc(text) } }];"
+     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst qs = $('QS Parse').first().json;\nconst text = qs.mode === 'set' ? ('✅ Вопрос ' + qs.n + ' обновлён: ' + qs.value) : '✅ Вопросы сброшены к дефолту';\nreturn [{ json: { chat_id: p.chat_id, text: esc(text) } }];"
     },
     "id": "cfcca260-83e0-414e-9f17-9fcc39f2b6d0"
    },
@@ -24410,7 +24470,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -24439,7 +24499,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*\\[\\]`])/g, '\\\\$1');\nreturn [{ json: { chat_id: p.chat_id, text: esc('⛔ Только владелец может редактировать вопросы') } }];"
+     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nreturn [{ json: { chat_id: p.chat_id, text: esc('⛔ Только владелец может редактировать вопросы') } }];"
     },
     "id": "959b859a-1769-4252-8c56-a17aa6848a20"
    },
@@ -24467,7 +24527,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -24562,13 +24622,13 @@
           {
            "text": "▶️ Продолжить",
            "additionalFields": {
-            "callback_data": "pf_resume"
+            "callback_data": "={{ \"pf_resume\" }}"
            }
           },
           {
            "text": "🔄 Начать заново",
            "additionalFields": {
-            "callback_data": "pf_restart"
+            "callback_data": "={{ \"pf_restart\" }}"
            }
           }
          ]
@@ -24580,7 +24640,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -24777,7 +24837,7 @@
           {
            "text": "📝 Продолжить интервью",
            "additionalFields": {
-            "callback_data": "pf_resume"
+            "callback_data": "={{ \"pf_resume\" }}"
            }
           }
          ]
@@ -24789,13 +24849,13 @@
           {
            "text": "➕ Создать профиль",
            "additionalFields": {
-            "callback_data": "pf_new"
+            "callback_data": "={{ \"pf_new\" }}"
            }
           },
           {
            "text": "📁 Выбрать профиль",
            "additionalFields": {
-            "callback_data": "pf_list"
+            "callback_data": "={{ \"pf_list\" }}"
            }
           }
          ]
@@ -24807,13 +24867,13 @@
           {
            "text": "✏️ Изменить",
            "additionalFields": {
-            "callback_data": "pf_edit"
+            "callback_data": "={{ \"pf_edit\" }}"
            }
           },
           {
            "text": "🔗 Добавить ссылку",
            "additionalFields": {
-            "callback_data": "pf_add_link"
+            "callback_data": "={{ \"pf_add_link\" }}"
            }
           }
          ]
@@ -24825,13 +24885,13 @@
           {
            "text": "📄 Добавить документ",
            "additionalFields": {
-            "callback_data": "pf_add_doc"
+            "callback_data": "={{ \"pf_add_doc\" }}"
            }
           },
           {
            "text": "🚪 Выйти из профиля",
            "additionalFields": {
-            "callback_data": "pf_exit"
+            "callback_data": "={{ \"pf_exit\" }}"
            }
           }
          ]
@@ -24843,7 +24903,7 @@
           {
            "text": "🗑 Удалить",
            "additionalFields": {
-            "callback_data": "pf_del"
+            "callback_data": "={{ \"pf_del\" }}"
            }
           }
          ]
@@ -24855,7 +24915,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -25005,13 +25065,13 @@
           {
            "text": "👤 Профиль",
            "additionalFields": {
-            "callback_data": "cmd:profile"
+            "callback_data": "={{ \"cmd:profile\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -25122,7 +25182,7 @@
           {
            "text": "✅ Готово",
            "additionalFields": {
-            "callback_data": "ppm_done"
+            "callback_data": "={{ \"ppm_done\" }}"
            }
           }
          ]
@@ -25134,7 +25194,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -25359,13 +25419,13 @@
           {
            "text": "👤 Профиль",
            "additionalFields": {
-            "callback_data": "cmd:profile"
+            "callback_data": "={{ \"cmd:profile\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -25439,7 +25499,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT c.id, c.name, c.publish_platforms FROM clients c WHERE c.id = SELECT COALESCE((SELECT c.id FROM clients c WHERE c.status='active' AND c.id = COALESCE((SELECT u.active_client_id FROM users u WHERE u.tg_user_id = ?), (SELECT CAST(value AS INTEGER) FROM settings WHERE key='active_client_id'))), (SELECT c2.id FROM clients c2 WHERE c2.status='active' ORDER BY c2.id LIMIT 1), 0))\", params: [p.tg_user_id] } }];"
+     "jsCode": "const p = $('Parser').first().json;\nreturn [{ json: { sql: \"SELECT c.id, c.name, c.publish_platforms FROM clients c WHERE c.id = (SELECT COALESCE((SELECT c.id FROM clients c WHERE c.status='active' AND c.id = COALESCE((SELECT u.active_client_id FROM users u WHERE u.tg_user_id = ?), (SELECT CAST(value AS INTEGER) FROM settings WHERE key='active_client_id'))), (SELECT c2.id FROM clients c2 WHERE c2.status='active' ORDER BY c2.id LIMIT 1), 0))\", params: [p.tg_user_id] } }];"
     },
     "id": "7a05af8e-f0b8-4f57-bc1c-5712c9be2808",
     "name": "PPM Build done",
@@ -25751,7 +25811,7 @@
    },
    {
     "parameters": {
-     "jsCode": "const p = $('Parser').first().json;\nconst f = $('SHT Format').first().json;\nconst esc = s => String(s ?? '').replace(/([_*\\\\[\\\\]`])/g, '\\\\$1');\nconst text = '⏳ Шортс генерируется (id ' + esc(f.shorts_id) + '). Пришлю видео, как creatify ответит.';\nreturn [{ json: { chat_id: p.chat_id, text: text } }];"
+     "jsCode": "const p = $('Parser').first().json;\nconst f = $('SHT Format').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst text = '⏳ Шортс генерируется (id ' + esc(f.shorts_id) + '). Пришлю видео, как creatify ответит.';\nreturn [{ json: { chat_id: p.chat_id, text: text } }];"
     },
     "id": "1b577aaa-aca1-45bd-8416-1a64de408be7",
     "name": "SH Text async",
@@ -26435,7 +26495,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -26781,7 +26841,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -27042,7 +27102,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -27099,7 +27159,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -27345,7 +27405,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -27402,7 +27462,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -27575,7 +27635,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*\\[\\]`])/g, '\\\\$1');\nconst next = Number($('AUT Build update').first().json.next) || 0;\nconst text = '⚙️ Авто-режим: ' + (next ? 'вкл' : 'выкл');\nreturn [{ json: { chat_id: p.chat_id, text: esc(text) } }];"
+     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst next = Number($('AUT Build update').first().json.next) || 0;\nconst text = '⚙️ Авто-режим: ' + (next ? 'вкл' : 'выкл');\nreturn [{ json: { chat_id: p.chat_id, text: esc(text) } }];"
     },
     "name": "AUT Format",
     "type": "n8n-nodes-base.code",
@@ -27603,7 +27663,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -27632,7 +27692,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*\\[\\]`])/g, '\\\\$1');\nreturn [{ json: { chat_id: p.chat_id, text: esc('⛔ Только владелец может управлять авто-режимом') } }];"
+     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nreturn [{ json: { chat_id: p.chat_id, text: esc('⛔ Только владелец может управлять авто-режимом') } }];"
     },
     "name": "AUT Format denied",
     "type": "n8n-nodes-base.code",
@@ -27660,7 +27720,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]

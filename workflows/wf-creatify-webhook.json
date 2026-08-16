@@ -488,7 +488,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -560,7 +560,7 @@
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "cmd:menu"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -744,6 +744,72 @@
       "name": "telegram"
      }
     }
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const r = ($json.rows && $json.rows[0]) || {};\nconst status = String($('Webhook').first().json.body.status || 'unknown');\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst alert_text = 'Генерация #' + String(r.id) + ': неизвестный статус вебхука creatify «' + esc(status) + '». Видео не отправлено — проверь вручную.';\nreturn [{ json: {\n  sql: \"UPDATE generations SET webhook_received=1 WHERE id=?\",\n  params: [String(r.id)],\n  alert_text: alert_text\n} }];"
+    },
+    "id": "1451f5f0-2da1-430e-8f44-208ceb526873",
+    "name": "Build update unknown",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     680,
+     700
+    ]
+   },
+   {
+    "parameters": {
+     "method": "POST",
+     "url": "http://localhost:5678/webhook/factory/tg-alert",
+     "sendBody": true,
+     "contentType": "json",
+     "specifyBody": "json",
+     "jsonBody": "={{ {chat_id: (($('HTTP SELECT').first().json.rows || [{}])[0] || {}).tg_user_id || 941296693, text: $('Build update unknown').first().json.alert_text} }}",
+     "options": {
+      "timeout": 15000
+     }
+    },
+    "id": "2e9adef3-c385-4b38-8f9d-98c5507e412e",
+    "name": "HTTP tg-alert unknown",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     400,
+     380
+    ]
+   },
+   {
+    "parameters": {
+     "method": "POST",
+     "url": "http://db-bridge:8787/query",
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-BRIDGE-TOKEN",
+        "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+       }
+      ]
+     },
+     "sendBody": true,
+     "contentType": "json",
+     "specifyBody": "json",
+     "jsonBody": "={{ $json }}",
+     "options": {
+      "timeout": 15000
+     }
+    },
+    "id": "1bb41009-ccaf-4d9c-b632-140c6936dc40",
+    "name": "HTTP UPDATE unknown",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     1040,
+     700
+    ]
    }
   ],
   "connections": {
@@ -852,7 +918,7 @@
      ],
      [
       {
-       "node": "Respond unknown",
+       "node": "Build update unknown",
        "type": "main",
        "index": 0
       }
@@ -1043,6 +1109,39 @@
      [
       {
        "node": "Respond done",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Build update unknown": {
+    "main": [
+     [
+      {
+       "node": "HTTP UPDATE unknown",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "HTTP tg-alert unknown": {
+    "main": [
+     [
+      {
+       "node": "Respond unknown",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "HTTP UPDATE unknown": {
+    "main": [
+     [
+      {
+       "node": "HTTP tg-alert unknown",
        "type": "main",
        "index": 0
       }

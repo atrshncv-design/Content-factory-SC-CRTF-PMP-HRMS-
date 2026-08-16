@@ -154,17 +154,26 @@
     "parameters": {
      "method": "GET",
      "url": "https://api.scrapecreators.com/v1/account/credit-balance",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "options": {
-      "timeout": 30000
+      "timeout": 15000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
      },
-     "contentType": "json"
-    },
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
+     "contentType": "json",
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "12345678-1111-2222-3333-555555555557",
@@ -180,7 +189,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "// GET /v1/account/credit-balance -> {creditCount: N} (бесплатный, 0 кредитов).\n// Универсальный парсер: ответ может прийти объектом ($json.body / $json) или строкой ($json.data).\nconst raw = ($json && typeof $json === 'object' && !Array.isArray($json)) ? $json : {};\nlet balance = 0;\n// вариант 1: $json.body — объект\nconst body = (raw.body && typeof raw.body === 'object' && !Array.isArray(raw.body)) ? raw.body : null;\nif (body && body.creditCount != null) {\n  balance = Number(body.creditCount);\n} else if (raw.creditCount != null) {\n  // вариант 2: $json напрямую\n  balance = Number(raw.creditCount);\n} else if (typeof raw.data === 'string') {\n  // вариант 3: $json.data — JSON-строка (Content-Type не парсится n8n)\n  try {\n    const parsed = JSON.parse(raw.data);\n    balance = Number(parsed && parsed.creditCount != null ? parsed.creditCount : 0);\n  } catch (err) {\n    balance = 0;\n  }\n}\nreturn [{ json: { balance: balance, creditCount: balance } }];"
+     "jsCode": "// GET /v1/account/credit-balance -> {creditCount: N} (бесплатный, 0 кредитов).\n// Универсальный парсер: body(объект) -> raw -> JSON.parse(data); creditCount в разных местах.\n// balance_unavailable (401/502/сеть/не-JSON) -> гейт ПРОПУСКАЕТ платную ветку (не блокирует цепочку).\nconst raw = ($json && typeof $json === 'object' && !Array.isArray($json)) ? $json : {};\nconst src = (() => { try { return $('Code validate').first().json; } catch (e) { return {}; } })();\nconst pass = (src && typeof src === 'object' && !Array.isArray(src)) ? src : {};\nconst body = (raw.body && typeof raw.body === 'object' && !Array.isArray(raw.body)) ? raw.body : null;\nlet balance = null;\ntry {\n  if (body && body.creditCount != null) {\n    balance = Number(body.creditCount);\n  } else if (raw.creditCount != null) {\n    balance = Number(raw.creditCount);\n  } else if (typeof raw.data === 'string') {\n    balance = Number(JSON.parse(raw.data).creditCount);\n  }\n} catch (err) {\n  balance = null;\n}\nif (balance == null || !Number.isFinite(balance)) {\n  return [{ json: Object.assign({}, pass, { balance: -1, creditCount: -1, balance_unavailable: true }) }];\n}\nreturn [{ json: Object.assign({}, pass, { balance: balance, creditCount: balance, balance_unavailable: false }) }];\n"
     },
     "id": "12345678-1111-2222-3333-555555555558",
     "name": "Code balance",
@@ -208,6 +217,14 @@
         "operator": {
          "type": "number",
          "operation": "lt"
+        }
+       },
+       {
+        "leftValue": "={{ $json.balance_unavailable }}",
+        "rightValue": false,
+        "operator": {
+         "type": "boolean",
+         "operation": "equals"
         }
        }
       ]
@@ -241,7 +258,7 @@
     "parameters": {
      "method": "GET",
      "url": "https://api.scrapecreators.com/v1/tiktok/user/audience",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "sendQuery": true,
      "queryParameters": {
@@ -255,13 +272,22 @@
      "options": {
       "retryOnFail": true,
       "maxTries": 3,
-      "timeout": 30000
-     }
-    },
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
+      "timeout": 45000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "cccccccc-1111-2222-3333-555555555551",
@@ -277,7 +303,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "// Вход: ответ GET /v1/tiktok/user/audience (26 кред/запрос). handle/platform — из Code validate\n// (HTTP-нода не прокидывает входной item -> кросс-нод-ссылка $('Code validate')).\nconst v = $('Code validate').first().json;\nconst raw = $json;\nconst pct = (s) => {\n  const n = parseFloat(String(s == null ? '' : s).replace('%', ''));\n  return Number.isFinite(n) ? n : 0;\n};\nif (!raw || raw.success === false) {\n  return [{ json: { ok: false, error: 'api_error', message: (raw && raw.message) || 'scrapecreators API error' } }];\n}\nconst top_countries = Array.isArray(raw.audienceLocations)\n  ? raw.audienceLocations.map((l) => ({ country: l.country, percent: pct(l.percentage) }))\n  : [];\nreturn [{\n  json: {\n    ok: true,\n    audience: {\n      platform: v.platform,\n      handle: v.handle,\n      gender: [],\n      age_ranges: [],\n      top_countries: top_countries\n    }\n  }\n}];\n"
+     "jsCode": "// Вход: ответ GET /v1/tiktok/user/audience (26 кред/запрос). handle/platform — из Code validate\n// (HTTP-нода не прокидывает входной item -> кросс-нод-ссылка $('Code validate')).\nconst v = $('Code validate').first().json;\nlet raw = $json;\nif (typeof raw === 'string') { try { raw = JSON.parse(raw); } catch (e) {} }\nif (raw && typeof raw === 'object' && typeof raw.data === 'string') { try { const parsed = JSON.parse(raw.data); if (parsed && typeof parsed === 'object') raw = parsed; } catch (e) {} }\nconst pct = (s) => {\n  const n = parseFloat(String(s == null ? '' : s).replace('%', ''));\n  return Number.isFinite(n) ? n : 0;\n};\nif (!raw || raw.success === false) {\n  return [{ json: { ok: false, error: 'api_error', message: (raw && raw.message) || 'scrapecreators API error' } }];\n}\nconst top_countries = Array.isArray(raw.audienceLocations)\n  ? raw.audienceLocations.map((l) => ({ country: l.country, percent: pct(l.percentage) }))\n  : [];\nreturn [{\n  json: {\n    ok: true,\n    audience: {\n      platform: v.platform,\n      handle: v.handle,\n      gender: [],\n      age_ranges: [],\n      top_countries: top_countries\n    }\n  }\n}];\n"
     },
     "id": "dddddddd-1111-2222-3333-555555555551",
     "name": "Normalize",

@@ -135,7 +135,7 @@
     "parameters": {
      "method": "GET",
      "url": "={{ $('Detect transcript').first().json.api_url }}",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "options": {
       "timeout": 45000,
@@ -144,6 +144,16 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "b571966d-8d1f-4a98-be8e-c26674e03765",
@@ -153,19 +163,13 @@
     "position": [
      600,
      60
-    ],
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
-     }
-    }
+    ]
    },
    {
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst body = ($json.body && typeof $json.body === 'object') ? $json.body : $json;\nconst url = $('Detect transcript').first().json.url;\nconst status = Number(body.statusCode) || 0;\nif (status === 402 || /out of credits/i.test(String(body.message || '') + String(body.error || ''))) {\n  return [{ json: { ok: false, error: 'low_credits', status: status || null, url, credits_remaining: body.credits_remaining } }];\n}\nif (body.success === false) {\n  return [{ json: { ok: false, error: 'api_error', status: status || null, message: body.message || '', url, credits_remaining: body.credits_remaining } }];\n}\nconst raw = typeof body.transcript === 'string' ? body.transcript : '';\nif (!raw) {\n  return [{ json: { ok: false, error: 'transcript_not_found', url, detail: body.message || '' } }];\n}\nconst lines = raw.split(/\\r?\\n/);\nconst segments = [];\nlet cur = null;\nfor (const ln of lines) {\n  const m = ln.match(/(?:(\\d{1,2}):)?(\\d{2}):(\\d{2})\\.(\\d{3})\\s*-->\\s*(?:(\\d{1,2}):)?(\\d{2}):(\\d{2})\\.(\\d{3})/);\n  if (m) {\n    if (cur) segments.push(cur);\n    const st = (+m[1] || 0) * 3600 + +m[2] * 60 + +m[3] + +m[4] / 1000;\n    const en = (+m[5] || 0) * 3600 + +m[6] * 60 + +m[7] + +m[8] / 1000;\n    cur = { start: Math.round(st * 1000) / 1000, end: Math.round(en * 1000) / 1000, text: '' };\n  } else if (cur && ln.trim() && !/^WEBVTT/i.test(ln.trim())) {\n    cur.text = (cur.text ? cur.text + ' ' : '') + ln.trim();\n  }\n}\nif (cur) segments.push(cur);\nconst text = segments.map(s => s.text).join(' ').trim();\nreturn [{ json: { ok: true, platform: 'tiktok', url, transcript: text || raw, segments, credits_charged: body.credits_charged, credits_remaining: body.credits_remaining } }];\n"
+     "jsCode": "\nlet body = ($json.body && typeof $json.body === 'object') ? $json.body : $json;\nif (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) {} }\nif (body && typeof body === 'object' && typeof body.data === 'string') { try { const parsed = JSON.parse(body.data); if (parsed && typeof parsed === 'object') body = parsed; } catch (e) {} }\nconst url = $('Detect transcript').first().json.url;\nconst status = Number(body.statusCode) || 0;\nif (status === 402 || /out of credits/i.test(String(body.message || '') + String(body.error || ''))) {\n  return [{ json: { ok: false, error: 'low_credits', status: status || null, url, credits_remaining: body.credits_remaining } }];\n}\nif (body.success === false) {\n  return [{ json: { ok: false, error: 'api_error', status: status || null, message: body.message || '', url, credits_remaining: body.credits_remaining } }];\n}\nconst raw = typeof body.transcript === 'string' ? body.transcript : '';\nif (!raw) {\n  return [{ json: { ok: false, error: 'transcript_not_found', url, detail: body.message || '' } }];\n}\nconst lines = raw.split(/\\r?\\n/);\nconst segments = [];\nlet cur = null;\nfor (const ln of lines) {\n  const m = ln.match(/(?:(\\d{1,2}):)?(\\d{2}):(\\d{2})\\.(\\d{3})\\s*-->\\s*(?:(\\d{1,2}):)?(\\d{2}):(\\d{2})\\.(\\d{3})/);\n  if (m) {\n    if (cur) segments.push(cur);\n    const st = (+m[1] || 0) * 3600 + +m[2] * 60 + +m[3] + +m[4] / 1000;\n    const en = (+m[5] || 0) * 3600 + +m[6] * 60 + +m[7] + +m[8] / 1000;\n    cur = { start: Math.round(st * 1000) / 1000, end: Math.round(en * 1000) / 1000, text: '' };\n  } else if (cur && ln.trim() && !/^WEBVTT/i.test(ln.trim())) {\n    cur.text = (cur.text ? cur.text + ' ' : '') + ln.trim();\n  }\n}\nif (cur) segments.push(cur);\nconst text = segments.map(s => s.text).join(' ').trim();\nreturn [{ json: { ok: true, platform: 'tiktok', url, transcript: text || raw, segments, credits_charged: body.credits_charged, credits_remaining: body.credits_remaining } }];\n"
     },
     "id": "e3e61d66-dc5f-4b2c-ad1e-5f8f33e4ba20",
     "name": "Normalize TikTok transcript",
@@ -194,7 +198,7 @@
     "parameters": {
      "method": "GET",
      "url": "={{ $('Detect transcript').first().json.api_url }}",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "options": {
       "timeout": 45000,
@@ -203,6 +207,16 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "6a4f9186-9b5b-40c4-a012-2233eb6217fd",
@@ -212,19 +226,13 @@
     "position": [
      1080,
      60
-    ],
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
-     }
-    }
+    ]
    },
    {
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst body = ($json.body && typeof $json.body === 'object') ? $json.body : $json;\nconst url = $('Detect transcript').first().json.url;\nconst status = Number(body.statusCode) || 0;\nif (status === 402 || /out of credits/i.test(String(body.message || '') + String(body.error || ''))) {\n  return [{ json: { ok: false, error: 'low_credits', status: status || null, url, credits_remaining: body.credits_remaining } }];\n}\nif (body.success === false) {\n  return [{ json: { ok: false, error: 'api_error', status: status || null, message: body.message || '', url, credits_remaining: body.credits_remaining } }];\n}\nconst arr = Array.isArray(body.transcript) ? body.transcript : [];\nconst segments = arr\n  .map(s => ({ start: Math.round(Number(s.startMs) / 10) / 100, end: Math.round(Number(s.endMs) / 10) / 100, text: (s.text || '').trim() }))\n  .filter(s => Number.isFinite(s.start) && s.text);\nconst text = (typeof body.transcript_only_text === 'string' && body.transcript_only_text.trim())\n  ? body.transcript_only_text.trim()\n  : segments.map(s => s.text).join(' ');\nif (!segments.length && !text) {\n  return [{ json: { ok: false, error: 'transcript_not_found', url } }];\n}\nreturn [{ json: { ok: true, platform: 'youtube', url, transcript: text, segments, language: body.language || null, credits_charged: body.credits_charged, credits_remaining: body.credits_remaining } }];\n"
+     "jsCode": "\nlet body = ($json.body && typeof $json.body === 'object') ? $json.body : $json;\nif (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) {} }\nif (body && typeof body === 'object' && typeof body.data === 'string') { try { const parsed = JSON.parse(body.data); if (parsed && typeof parsed === 'object') body = parsed; } catch (e) {} }\nconst url = $('Detect transcript').first().json.url;\nconst status = Number(body.statusCode) || 0;\nif (status === 402 || /out of credits/i.test(String(body.message || '') + String(body.error || ''))) {\n  return [{ json: { ok: false, error: 'low_credits', status: status || null, url, credits_remaining: body.credits_remaining } }];\n}\nif (body.success === false) {\n  return [{ json: { ok: false, error: 'api_error', status: status || null, message: body.message || '', url, credits_remaining: body.credits_remaining } }];\n}\nconst arr = Array.isArray(body.transcript) ? body.transcript : [];\nconst segments = arr\n  .map(s => ({ start: Math.round(Number(s.startMs) / 10) / 100, end: Math.round(Number(s.endMs) / 10) / 100, text: (s.text || '').trim() }))\n  .filter(s => Number.isFinite(s.start) && s.text);\nconst text = (typeof body.transcript_only_text === 'string' && body.transcript_only_text.trim())\n  ? body.transcript_only_text.trim()\n  : segments.map(s => s.text).join(' ');\nif (!segments.length && !text) {\n  return [{ json: { ok: false, error: 'transcript_not_found', url } }];\n}\nreturn [{ json: { ok: true, platform: 'youtube', url, transcript: text, segments, language: body.language || null, credits_charged: body.credits_charged, credits_remaining: body.credits_remaining } }];\n"
     },
     "id": "471bd06d-bac6-4eb3-9041-d1a6a5b84486",
     "name": "Normalize YouTube transcript",
@@ -434,7 +442,7 @@
     "parameters": {
      "method": "GET",
      "url": "={{ $('Detect comments').first().json.api_url }}",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "options": {
       "timeout": 45000,
@@ -443,6 +451,16 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "57d0f85c-f0db-45b6-96df-33fa202f28e2",
@@ -452,19 +470,13 @@
     "position": [
      2200,
      60
-    ],
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
-     }
-    }
+    ]
    },
    {
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst PLATFORM = 'tiktok';\nconst body = ($json.body && typeof $json.body === 'object') ? $json.body : $json;\nconst d = $('Detect comments').first().json;\nconst url = d.url;\nconst limit = d.limit;\nconst status = Number(body.statusCode) || 0;\nif (status === 402 || /out of credits/i.test(String(body.message || '') + String(body.error || ''))) {\n  return [{ json: { ok: false, error: 'low_credits', status: status || null, url, credits_remaining: body.credits_remaining } }];\n}\nif (body.success === false) {\n  return [{ json: { ok: false, error: 'api_error', status: status || null, message: body.message || '', url, credits_remaining: body.credits_remaining } }];\n}\nconst raw = Array.isArray(body.comments) ? body.comments : [];\nconst comments = [];\nfor (const c of raw) {\n  if (!c || typeof c !== 'object') continue;\n  const user = c.user || {};\n  const eng = c.engagement || {};\n  const id = c.cid || c.id;\n  if (id === null || id === undefined) continue;\n  const username = user.unique_id || user.nickname || user.username || (c.author && c.author.name) || null;\n  const text = c.text || c.content || '';\n  let likes = 0;\n  if (typeof c.digg_count === 'number') likes = c.digg_count;\n  else if (typeof eng.likes === 'number') likes = eng.likes;\n  else if (typeof c.comment_like_count === 'number') likes = c.comment_like_count;\n  let replies = 0;\n  if (typeof c.reply_comment_total === 'number') replies = c.reply_comment_total;\n  else if (typeof eng.replies === 'number') replies = eng.replies;\n  else if (typeof c.child_comment_count === 'number') replies = c.child_comment_count;\n  let created_at = c.publishedTime || c.created_at || null;\n  if (!created_at && typeof c.create_time === 'number') created_at = new Date(c.create_time * 1000).toISOString();\n  comments.push({ id: String(id), username, text, likes, replies_count: replies, created_at });\n}\ncomments.sort((a, b) => (b.likes || 0) - (a.likes || 0));\nconst top = comments.slice(0, limit);\nconst total = typeof body.total === 'number' ? body.total : comments.length;\nreturn [{ json: { ok: true, platform: PLATFORM, url, count: top.length, total_available: total, comments: top, credits_charged: body.credits_charged, credits_remaining: body.credits_remaining } }];\n"
+     "jsCode": "\nconst PLATFORM = 'tiktok';\nlet body = ($json.body && typeof $json.body === 'object') ? $json.body : $json;\nif (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) {} }\nif (body && typeof body === 'object' && typeof body.data === 'string') { try { const parsed = JSON.parse(body.data); if (parsed && typeof parsed === 'object') body = parsed; } catch (e) {} }\nconst d = $('Detect comments').first().json;\nconst url = d.url;\nconst limit = d.limit;\nconst status = Number(body.statusCode) || 0;\nif (status === 402 || /out of credits/i.test(String(body.message || '') + String(body.error || ''))) {\n  return [{ json: { ok: false, error: 'low_credits', status: status || null, url, credits_remaining: body.credits_remaining } }];\n}\nif (body.success === false) {\n  return [{ json: { ok: false, error: 'api_error', status: status || null, message: body.message || '', url, credits_remaining: body.credits_remaining } }];\n}\nconst raw = Array.isArray(body.comments) ? body.comments : [];\nconst comments = [];\nfor (const c of raw) {\n  if (!c || typeof c !== 'object') continue;\n  const user = c.user || {};\n  const eng = c.engagement || {};\n  const id = c.cid || c.id;\n  if (id === null || id === undefined) continue;\n  const username = user.unique_id || user.nickname || user.username || (c.author && c.author.name) || null;\n  const text = c.text || c.content || '';\n  let likes = 0;\n  if (typeof c.digg_count === 'number') likes = c.digg_count;\n  else if (typeof eng.likes === 'number') likes = eng.likes;\n  else if (typeof c.comment_like_count === 'number') likes = c.comment_like_count;\n  let replies = 0;\n  if (typeof c.reply_comment_total === 'number') replies = c.reply_comment_total;\n  else if (typeof eng.replies === 'number') replies = eng.replies;\n  else if (typeof c.child_comment_count === 'number') replies = c.child_comment_count;\n  let created_at = c.publishedTime || c.created_at || null;\n  if (!created_at && typeof c.create_time === 'number') created_at = new Date(c.create_time * 1000).toISOString();\n  comments.push({ id: String(id), username, text, likes, replies_count: replies, created_at });\n}\ncomments.sort((a, b) => (b.likes || 0) - (a.likes || 0));\nconst top = comments.slice(0, limit);\nconst total = typeof body.total === 'number' ? body.total : comments.length;\nreturn [{ json: { ok: true, platform: PLATFORM, url, count: top.length, total_available: total, comments: top, credits_charged: body.credits_charged, credits_remaining: body.credits_remaining } }];\n"
     },
     "id": "1ba68bbd-2e49-4971-b0e6-f5c0886ea84e",
     "name": "Normalize TikTok comments",
@@ -493,7 +505,7 @@
     "parameters": {
      "method": "GET",
      "url": "={{ $('Detect comments').first().json.api_url }}",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "options": {
       "timeout": 45000,
@@ -502,6 +514,16 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "76886bad-32e2-468b-8bc3-e74f96d94ff5",
@@ -511,19 +533,13 @@
     "position": [
      2680,
      60
-    ],
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
-     }
-    }
+    ]
    },
    {
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst PLATFORM = 'youtube';\nconst body = ($json.body && typeof $json.body === 'object') ? $json.body : $json;\nconst d = $('Detect comments').first().json;\nconst url = d.url;\nconst limit = d.limit;\nconst status = Number(body.statusCode) || 0;\nif (status === 402 || /out of credits/i.test(String(body.message || '') + String(body.error || ''))) {\n  return [{ json: { ok: false, error: 'low_credits', status: status || null, url, credits_remaining: body.credits_remaining } }];\n}\nif (body.success === false) {\n  return [{ json: { ok: false, error: 'api_error', status: status || null, message: body.message || '', url, credits_remaining: body.credits_remaining } }];\n}\nconst raw = Array.isArray(body.comments) ? body.comments : [];\nconst comments = [];\nfor (const c of raw) {\n  if (!c || typeof c !== 'object') continue;\n  const user = c.user || {};\n  const eng = c.engagement || {};\n  const id = c.cid || c.id;\n  if (id === null || id === undefined) continue;\n  const username = user.unique_id || user.nickname || user.username || (c.author && c.author.name) || null;\n  const text = c.text || c.content || '';\n  let likes = 0;\n  if (typeof c.digg_count === 'number') likes = c.digg_count;\n  else if (typeof eng.likes === 'number') likes = eng.likes;\n  else if (typeof c.comment_like_count === 'number') likes = c.comment_like_count;\n  let replies = 0;\n  if (typeof c.reply_comment_total === 'number') replies = c.reply_comment_total;\n  else if (typeof eng.replies === 'number') replies = eng.replies;\n  else if (typeof c.child_comment_count === 'number') replies = c.child_comment_count;\n  let created_at = c.publishedTime || c.created_at || null;\n  if (!created_at && typeof c.create_time === 'number') created_at = new Date(c.create_time * 1000).toISOString();\n  comments.push({ id: String(id), username, text, likes, replies_count: replies, created_at });\n}\ncomments.sort((a, b) => (b.likes || 0) - (a.likes || 0));\nconst top = comments.slice(0, limit);\nconst total = typeof body.total === 'number' ? body.total : comments.length;\nreturn [{ json: { ok: true, platform: PLATFORM, url, count: top.length, total_available: total, comments: top, credits_charged: body.credits_charged, credits_remaining: body.credits_remaining } }];\n"
+     "jsCode": "\nconst PLATFORM = 'youtube';\nlet body = ($json.body && typeof $json.body === 'object') ? $json.body : $json;\nif (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) {} }\nif (body && typeof body === 'object' && typeof body.data === 'string') { try { const parsed = JSON.parse(body.data); if (parsed && typeof parsed === 'object') body = parsed; } catch (e) {} }\nconst d = $('Detect comments').first().json;\nconst url = d.url;\nconst limit = d.limit;\nconst status = Number(body.statusCode) || 0;\nif (status === 402 || /out of credits/i.test(String(body.message || '') + String(body.error || ''))) {\n  return [{ json: { ok: false, error: 'low_credits', status: status || null, url, credits_remaining: body.credits_remaining } }];\n}\nif (body.success === false) {\n  return [{ json: { ok: false, error: 'api_error', status: status || null, message: body.message || '', url, credits_remaining: body.credits_remaining } }];\n}\nconst raw = Array.isArray(body.comments) ? body.comments : [];\nconst comments = [];\nfor (const c of raw) {\n  if (!c || typeof c !== 'object') continue;\n  const user = c.user || {};\n  const eng = c.engagement || {};\n  const id = c.cid || c.id;\n  if (id === null || id === undefined) continue;\n  const username = user.unique_id || user.nickname || user.username || (c.author && c.author.name) || null;\n  const text = c.text || c.content || '';\n  let likes = 0;\n  if (typeof c.digg_count === 'number') likes = c.digg_count;\n  else if (typeof eng.likes === 'number') likes = eng.likes;\n  else if (typeof c.comment_like_count === 'number') likes = c.comment_like_count;\n  let replies = 0;\n  if (typeof c.reply_comment_total === 'number') replies = c.reply_comment_total;\n  else if (typeof eng.replies === 'number') replies = eng.replies;\n  else if (typeof c.child_comment_count === 'number') replies = c.child_comment_count;\n  let created_at = c.publishedTime || c.created_at || null;\n  if (!created_at && typeof c.create_time === 'number') created_at = new Date(c.create_time * 1000).toISOString();\n  comments.push({ id: String(id), username, text, likes, replies_count: replies, created_at });\n}\ncomments.sort((a, b) => (b.likes || 0) - (a.likes || 0));\nconst top = comments.slice(0, limit);\nconst total = typeof body.total === 'number' ? body.total : comments.length;\nreturn [{ json: { ok: true, platform: PLATFORM, url, count: top.length, total_available: total, comments: top, credits_charged: body.credits_charged, credits_remaining: body.credits_remaining } }];\n"
     },
     "id": "7ae21fd1-f53e-4288-82f8-57bff94cc1af",
     "name": "Normalize YouTube comments",
@@ -552,7 +568,7 @@
     "parameters": {
      "method": "GET",
      "url": "={{ $('Detect comments').first().json.api_url }}",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "options": {
       "timeout": 45000,
@@ -561,6 +577,16 @@
         "neverError": true
        }
       }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "9f6e63c5-a683-4c89-8bc0-8a0a2cb3200d",
@@ -570,19 +596,13 @@
     "position": [
      2200,
      700
-    ],
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
-     }
-    }
+    ]
    },
    {
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst PLATFORM = 'instagram';\nconst body = ($json.body && typeof $json.body === 'object') ? $json.body : $json;\nconst d = $('Detect comments').first().json;\nconst url = d.url;\nconst limit = d.limit;\nconst status = Number(body.statusCode) || 0;\nif (status === 402 || /out of credits/i.test(String(body.message || '') + String(body.error || ''))) {\n  return [{ json: { ok: false, error: 'low_credits', status: status || null, url, credits_remaining: body.credits_remaining } }];\n}\nif (body.success === false) {\n  return [{ json: { ok: false, error: 'api_error', status: status || null, message: body.message || '', url, credits_remaining: body.credits_remaining } }];\n}\nconst raw = Array.isArray(body.comments) ? body.comments : [];\nconst comments = [];\nfor (const c of raw) {\n  if (!c || typeof c !== 'object') continue;\n  const user = c.user || {};\n  const eng = c.engagement || {};\n  const id = c.cid || c.id;\n  if (id === null || id === undefined) continue;\n  const username = user.unique_id || user.nickname || user.username || (c.author && c.author.name) || null;\n  const text = c.text || c.content || '';\n  let likes = 0;\n  if (typeof c.digg_count === 'number') likes = c.digg_count;\n  else if (typeof eng.likes === 'number') likes = eng.likes;\n  else if (typeof c.comment_like_count === 'number') likes = c.comment_like_count;\n  let replies = 0;\n  if (typeof c.reply_comment_total === 'number') replies = c.reply_comment_total;\n  else if (typeof eng.replies === 'number') replies = eng.replies;\n  else if (typeof c.child_comment_count === 'number') replies = c.child_comment_count;\n  let created_at = c.publishedTime || c.created_at || null;\n  if (!created_at && typeof c.create_time === 'number') created_at = new Date(c.create_time * 1000).toISOString();\n  comments.push({ id: String(id), username, text, likes, replies_count: replies, created_at });\n}\ncomments.sort((a, b) => (b.likes || 0) - (a.likes || 0));\nconst top = comments.slice(0, limit);\nconst total = typeof body.total === 'number' ? body.total : comments.length;\nreturn [{ json: { ok: true, platform: PLATFORM, url, count: top.length, total_available: total, comments: top, credits_charged: body.credits_charged, credits_remaining: body.credits_remaining } }];\n"
+     "jsCode": "\nconst PLATFORM = 'instagram';\nlet body = ($json.body && typeof $json.body === 'object') ? $json.body : $json;\nif (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) {} }\nif (body && typeof body === 'object' && typeof body.data === 'string') { try { const parsed = JSON.parse(body.data); if (parsed && typeof parsed === 'object') body = parsed; } catch (e) {} }\nconst d = $('Detect comments').first().json;\nconst url = d.url;\nconst limit = d.limit;\nconst status = Number(body.statusCode) || 0;\nif (status === 402 || /out of credits/i.test(String(body.message || '') + String(body.error || ''))) {\n  return [{ json: { ok: false, error: 'low_credits', status: status || null, url, credits_remaining: body.credits_remaining } }];\n}\nif (body.success === false) {\n  return [{ json: { ok: false, error: 'api_error', status: status || null, message: body.message || '', url, credits_remaining: body.credits_remaining } }];\n}\nconst raw = Array.isArray(body.comments) ? body.comments : [];\nconst comments = [];\nfor (const c of raw) {\n  if (!c || typeof c !== 'object') continue;\n  const user = c.user || {};\n  const eng = c.engagement || {};\n  const id = c.cid || c.id;\n  if (id === null || id === undefined) continue;\n  const username = user.unique_id || user.nickname || user.username || (c.author && c.author.name) || null;\n  const text = c.text || c.content || '';\n  let likes = 0;\n  if (typeof c.digg_count === 'number') likes = c.digg_count;\n  else if (typeof eng.likes === 'number') likes = eng.likes;\n  else if (typeof c.comment_like_count === 'number') likes = c.comment_like_count;\n  let replies = 0;\n  if (typeof c.reply_comment_total === 'number') replies = c.reply_comment_total;\n  else if (typeof eng.replies === 'number') replies = eng.replies;\n  else if (typeof c.child_comment_count === 'number') replies = c.child_comment_count;\n  let created_at = c.publishedTime || c.created_at || null;\n  if (!created_at && typeof c.create_time === 'number') created_at = new Date(c.create_time * 1000).toISOString();\n  comments.push({ id: String(id), username, text, likes, replies_count: replies, created_at });\n}\ncomments.sort((a, b) => (b.likes || 0) - (a.likes || 0));\nconst top = comments.slice(0, limit);\nconst total = typeof body.total === 'number' ? body.total : comments.length;\nreturn [{ json: { ok: true, platform: PLATFORM, url, count: top.length, total_available: total, comments: top, credits_charged: body.credits_charged, credits_remaining: body.credits_remaining } }];\n"
     },
     "id": "b0763a1f-0fed-467d-955f-bf47e7d5a146",
     "name": "Normalize Instagram comments",
@@ -976,7 +996,7 @@
    {
     "parameters": {
      "respondWith": "json",
-     "responseBody": "={ {ok: false, error: 'low_credits', balance: $('Code balance transcript').first().json.balance} }",
+     "responseBody": "={{ {ok: false, error: 'low_credits', balance: $('Code balance transcript').first().json.balance} }}",
      "options": {}
     },
     "id": "1d1403a3-034c-4064-9f5b-5f97bec38fd4",
@@ -1078,7 +1098,7 @@
    {
     "parameters": {
      "respondWith": "json",
-     "responseBody": "={ {ok: false, error: 'low_credits', balance: $('Code balance comments').first().json.balance} }",
+     "responseBody": "={{ {ok: false, error: 'low_credits', balance: $('Code balance comments').first().json.balance} }}",
      "options": {}
     },
     "id": "2b753970-650c-4b02-bdd4-b43dadefaa68",

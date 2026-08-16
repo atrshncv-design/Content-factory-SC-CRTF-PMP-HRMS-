@@ -149,7 +149,7 @@
     "parameters": {
      "method": "GET",
      "url": "https://api.scrapecreators.com/v1/instagram/search/profiles",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "sendQuery": true,
      "queryParameters": {
@@ -166,7 +166,23 @@
      },
      "options": {
       "retryOnFail": true,
-      "maxTries": 3
+      "maxTries": 3,
+      "timeout": 45000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "8c5ac3e2-f824-4d37-b534-9029bb91e870",
@@ -176,19 +192,13 @@
     "position": [
      -1000,
      -280
-    ],
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
-     }
-    }
+    ]
    },
    {
     "parameters": {
      "method": "GET",
      "url": "https://api.scrapecreators.com/v1/youtube/search",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "sendQuery": true,
      "queryParameters": {
@@ -205,7 +215,23 @@
      },
      "options": {
       "retryOnFail": true,
-      "maxTries": 3
+      "maxTries": 3,
+      "timeout": 45000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "0bea9e1b-0439-4b0c-842f-b569d4511c10",
@@ -215,19 +241,13 @@
     "position": [
      -1000,
      0
-    ],
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
-     }
-    }
+    ]
    },
    {
     "parameters": {
      "method": "GET",
      "url": "https://api.scrapecreators.com/v1/tiktok/search/users",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "sendQuery": true,
      "queryParameters": {
@@ -244,7 +264,23 @@
      },
      "options": {
       "retryOnFail": true,
-      "maxTries": 3
+      "maxTries": 3,
+      "timeout": 45000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "3611d187-8884-432b-b80c-af63765e78cb",
@@ -254,19 +290,13 @@
     "position": [
      -1000,
      280
-    ],
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
-     }
-    }
+    ]
    },
    {
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const input = $input.all()[0] ? $input.all()[0].json : {};\nif (input && input.success === false) {\n  const status = Number(input.statusCode) || 0;\n  return [{ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status: status || null, platform: 'instagram', message: input.message || input.error || '' } }];\n}\nif (input && input.account_deactivated) {\n  return [{ json: { ok: false, error: 'account_deactivated', platform: 'instagram', message: input.message || '' } }];\n}\nconst items = (input && Array.isArray(input.profiles)) ? input.profiles : [];\nconst out = [];\nfor (const p of items) {\n  if (!p) continue;\n  out.push({ json: {\n    handle: String(p.username || ''),\n    platform: 'instagram',\n    followers: Number(p.follower_count) || 0,\n    nickname: String(p.full_name || p.username || ''),\n    bio: String(p.biography || ''),\n    category: p.category_name || null,\n    avatar_url: String(p.profile_pic_url || ''),\n    profile_url: String(p.url || '')\n  }});\n}\nreturn out;"
+     "jsCode": "let input = $input.all()[0] ? $input.all()[0].json : {};\nif (typeof input === 'string') { try { input = JSON.parse(input); } catch (e) {} }\nif (input && typeof input === 'object' && typeof input.data === 'string') { try { const parsed = JSON.parse(input.data); if (parsed && typeof parsed === 'object') input = parsed; } catch (e) {} }\nif (!input) input = {};\nif (input && input.success === false) {\n  const status = Number(input.statusCode) || 0;\n  return [{ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status: status || null, platform: 'instagram', message: input.message || input.error || '' } }];\n}\nif (input && input.account_deactivated) {\n  return [{ json: { ok: false, error: 'account_deactivated', platform: 'instagram', message: input.message || '' } }];\n}\nconst items = (input && Array.isArray(input.profiles)) ? input.profiles : [];\nconst out = [];\nfor (const p of items) {\n  if (!p) continue;\n  out.push({ json: {\n    handle: String(p.username || ''),\n    platform: 'instagram',\n    followers: Number(p.follower_count) || 0,\n    nickname: String(p.full_name || p.username || ''),\n    bio: String(p.biography || ''),\n    category: p.category_name || null,\n    avatar_url: String(p.profile_pic_url || ''),\n    profile_url: String(p.url || '')\n  }});\n}\nreturn out;"
     },
     "id": "2e973a53-9e3e-443d-bd9b-18dea6ed8127",
     "name": "Normalize IG",
@@ -281,7 +311,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const input = $input.all()[0] ? $input.all()[0].json : {};\nif (input && input.success === false) {\n  const status = Number(input.statusCode) || 0;\n  return [{ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status: status || null, platform: 'youtube', message: input.message || input.error || '' } }];\n}\nif (input && input.account_deactivated) {\n  return [{ json: { ok: false, error: 'account_deactivated', platform: 'youtube', message: input.message || '' } }];\n}\nconst items = (input && Array.isArray(input.channels)) ? input.channels : [];\nconst out = [];\nfor (const p of items) {\n  if (!p) continue;\n  out.push({ json: {\n    handle: String(c.handle || ''),\n    platform: 'youtube',\n    followers: Number(c.subscriberCountInt) || 0,\n    nickname: String(c.channelName || c.handle || ''),\n    bio: String(c.description || ''),\n    category: null,\n    avatar_url: String(c.thumbnail || ''),\n    profile_url: c.id ? 'https://www.youtube.com/channel/' + c.id : ''\n  }});\n}\nreturn out;"
+     "jsCode": "let input = $input.all()[0] ? $input.all()[0].json : {};\nif (typeof input === 'string') { try { input = JSON.parse(input); } catch (e) {} }\nif (input && typeof input === 'object' && typeof input.data === 'string') { try { const parsed = JSON.parse(input.data); if (parsed && typeof parsed === 'object') input = parsed; } catch (e) {} }\nif (!input) input = {};\nif (input && input.success === false) {\n  const status = Number(input.statusCode) || 0;\n  return [{ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status: status || null, platform: 'youtube', message: input.message || input.error || '' } }];\n}\nif (input && input.account_deactivated) {\n  return [{ json: { ok: false, error: 'account_deactivated', platform: 'youtube', message: input.message || '' } }];\n}\nconst items = (input && Array.isArray(input.channels)) ? input.channels : [];\nconst out = [];\nfor (const p of items) {\n  if (!p) continue;\n  out.push({ json: {\n    handle: String(p.handle || ''),\n    platform: 'youtube',\n    followers: Number(p.subscriberCountInt) || 0,\n    nickname: String(p.channelName || p.handle || ''),\n    bio: String(p.description || ''),\n    category: null,\n    avatar_url: String(p.thumbnail || ''),\n    profile_url: p.id ? 'https://www.youtube.com/channel/' + p.id : ''\n  }});\n}\nreturn out;"
     },
     "id": "97328cf2-a8c5-448b-bef2-a6cde1357f30",
     "name": "Normalize YouTube",
@@ -296,7 +326,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const input = $input.all()[0] ? $input.all()[0].json : {};\nif (input && input.success === false) {\n  const status = Number(input.statusCode) || 0;\n  return [{ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status: status || null, platform: 'tiktok', message: input.message || input.error || '' } }];\n}\nif (input && input.account_deactivated) {\n  return [{ json: { ok: false, error: 'account_deactivated', platform: 'tiktok', message: input.message || '' } }];\n}\nconst items = (input && Array.isArray(input.users)) ? input.users : [];\nconst out = [];\nfor (const p of items) {\n  if (!p) continue;\n  const av = (p.avatar_medium && Array.isArray(p.avatar_medium.url_list) && p.avatar_medium.url_list.length)\n    ? p.avatar_medium.url_list[0] : '';\n  out.push({ json: {\n    handle: String(p.unique_id || ''),\n    platform: 'tiktok',\n    followers: Number(p.follower_count) || 0,\n    nickname: String(p.nickname || p.unique_id || ''),\n    bio: '',\n    category: null,\n    avatar_url: av,\n    profile_url: p.unique_id ? 'https://www.tiktok.com/@' + p.unique_id : ''\n  }});\n}\nreturn out;"
+     "jsCode": "let input = $input.all()[0] ? $input.all()[0].json : {};\nif (typeof input === 'string') { try { input = JSON.parse(input); } catch (e) {} }\nif (input && typeof input === 'object' && typeof input.data === 'string') { try { const parsed = JSON.parse(input.data); if (parsed && typeof parsed === 'object') input = parsed; } catch (e) {} }\nif (!input) input = {};\nif (input && input.success === false) {\n  const status = Number(input.statusCode) || 0;\n  return [{ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status: status || null, platform: 'tiktok', message: input.message || input.error || '' } }];\n}\nif (input && input.account_deactivated) {\n  return [{ json: { ok: false, error: 'account_deactivated', platform: 'tiktok', message: input.message || '' } }];\n}\nconst items = (input && Array.isArray(input.users)) ? input.users : [];\nconst out = [];\nfor (const p of items) {\n  if (!p) continue;\n  const av = (p.avatar_medium && Array.isArray(p.avatar_medium.url_list) && p.avatar_medium.url_list.length)\n    ? p.avatar_medium.url_list[0] : '';\n  out.push({ json: {\n    handle: String(p.unique_id || ''),\n    platform: 'tiktok',\n    followers: Number(p.follower_count) || 0,\n    nickname: String(p.nickname || p.unique_id || ''),\n    bio: '',\n    category: null,\n    avatar_url: av,\n    profile_url: p.unique_id ? 'https://www.tiktok.com/@' + p.unique_id : ''\n  }});\n}\nreturn out;"
     },
     "id": "bc9391c1-3751-4fa8-b6c2-abc8a6cb0eec",
     "name": "Normalize TikTok",
@@ -702,7 +732,7 @@
    {
     "parameters": {
      "respondWith": "json",
-     "responseBody": "={ {ok: false, error: 'low_credits', balance: $('Code balance').first().json.balance} }",
+     "responseBody": "={{ {ok: false, error: 'low_credits', balance: $('Code balance').first().json.balance} }}",
      "options": {}
     },
     "id": "e6bcce99-86e4-4383-aff6-3e7536ccbcba",

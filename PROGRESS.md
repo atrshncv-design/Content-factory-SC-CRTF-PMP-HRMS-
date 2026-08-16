@@ -162,3 +162,8 @@
 | 31 | Верификация видео в чате | ✅ done (верифицировано) | |
 | 32 | Авто-режим (команда «авто») | ✅ done (live: флаг 0->1->0) | |
 | 33 | Верификация волны 5 + деплой + миграция v3 | ✅ done (деплой 3 воркфлоу, миграция v3, smoke) |
+| 34 | Release-readiness волна 1: TG-кнопки/видео (01) | ✅ done (16.08: 35/35 команд, callback_data, sendVideo v1.2, unknown-статусы, валидатор 0 issues) |
+| 35 | Release-readiness волна 1: промпты скиллов (04) | ✅ done (16.08: test-04 6/6, нет хардкода Robotec) |
+| 36 | Release-readiness волна 1: SC-кластер (05) | ✅ done (16.08: аудит 0 issues по 6 воркфлоу, sim 38/38, гейты low_credits) |
+| 37 | Release-readiness волна 1: профили/bridge (07) | ✅ done (16.08: pytest 15/15, миграции v1-v3 в репо) |
+| 38 | Release-readiness волна 1: системное/инфра (08) | ✅ done (16.08: DEPLOYMENT сверен, register-диспетчер, .env.example полный, compose актуален) |

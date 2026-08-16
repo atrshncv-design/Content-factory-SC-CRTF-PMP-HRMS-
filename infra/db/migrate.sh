@@ -19,7 +19,7 @@ if [ ! -f "$DB_PATH" ]; then
   echo "→ Создаю новую БД..."
 fi
 
-# Применяем миграции по порядку
+# Применяем SQL-миграции по порядку
 for sql in "$MIGRATIONS_DIR"/[0-9][0-9][0-9]_*.sql; do
   [ -f "$sql" ] || continue
   ver=$(basename "$sql" | grep -oE '^[0-9]+' | sed 's/^0*//')
@@ -29,13 +29,24 @@ for sql in "$MIGRATIONS_DIR"/[0-9][0-9][0-9]_*.sql; do
     "SELECT COUNT(*) FROM schema_version WHERE version=$ver;" 2>/dev/null || echo 0)
 
   if [ "$applied" -gt 0 ]; then
-    echo "  ✓ миграция $ver уже применена"
+    echo "  ✓ SQL-миграция $ver уже применена"
     continue
   fi
 
-  echo "  → применяю миграцию $ver ($(basename "$sql"))..."
+  echo "  → применяю SQL-миграцию $ver ($(basename "$sql"))..."
   sqlite3 "$DB_PATH" < "$sql"
-  echo "  ✓ миграция $ver применена"
+  echo "  ✓ SQL-миграция $ver применена"
+done
+
+# Применяем Python-миграции профилей клиентов в фиксированном порядке
+for py in \
+  "$MIGRATIONS_DIR"/migrate-client-profiles.py \
+  "$MIGRATIONS_DIR"/migrate-client-profiles-v2.py \
+  "$MIGRATIONS_DIR"/migrate-client-profiles-v3.py; do
+  [ -f "$py" ] || continue
+  echo "  → применяю Python-миграцию $(basename "$py")..."
+  python3 "$py" "$DB_PATH" --apply
+  echo "  ✓ Python-миграция $(basename "$py") применена"
 done
 
 echo "→ Готово. Версия схемы:"

@@ -27,126 +27,6 @@
    },
    {
     "parameters": {
-     "mode": "rules",
-     "rules": {
-      "values": [
-       {
-        "conditions": {
-         "options": {
-          "caseSensitive": true,
-          "leftValue": "",
-          "typeValidation": "strict"
-         },
-         "conditions": [
-          {
-           "leftValue": "={{ $env.SCRAPECREATORS_API_KEY }}",
-           "rightValue": "PLACEHOLDER_UNTIL_TOMORROW",
-           "operator": {
-            "type": "string",
-            "operation": "equals"
-           }
-          }
-         ],
-         "combinator": "and"
-        }
-       }
-      ]
-     },
-     "options": {
-      "fallbackOutput": "extra"
-     }
-    },
-    "id": "30000000-0000-4000-8000-000000000002",
-    "name": "Switch IG",
-    "type": "n8n-nodes-base.switch",
-    "typeVersion": 3.4,
-    "position": [
-     -560,
-     -220
-    ]
-   },
-   {
-    "parameters": {
-     "mode": "rules",
-     "rules": {
-      "values": [
-       {
-        "conditions": {
-         "options": {
-          "caseSensitive": true,
-          "leftValue": "",
-          "typeValidation": "strict"
-         },
-         "conditions": [
-          {
-           "leftValue": "={{ $env.SCRAPECREATORS_API_KEY }}",
-           "rightValue": "PLACEHOLDER_UNTIL_TOMORROW",
-           "operator": {
-            "type": "string",
-            "operation": "equals"
-           }
-          }
-         ],
-         "combinator": "and"
-        }
-       }
-      ]
-     },
-     "options": {
-      "fallbackOutput": "extra"
-     }
-    },
-    "id": "30000000-0000-4000-8000-000000000003",
-    "name": "Switch TikTok",
-    "type": "n8n-nodes-base.switch",
-    "typeVersion": 3.4,
-    "position": [
-     -560,
-     0
-    ]
-   },
-   {
-    "parameters": {
-     "mode": "rules",
-     "rules": {
-      "values": [
-       {
-        "conditions": {
-         "options": {
-          "caseSensitive": true,
-          "leftValue": "",
-          "typeValidation": "strict"
-         },
-         "conditions": [
-          {
-           "leftValue": "={{ $env.SCRAPECREATORS_API_KEY }}",
-           "rightValue": "PLACEHOLDER_UNTIL_TOMORROW",
-           "operator": {
-            "type": "string",
-            "operation": "equals"
-           }
-          }
-         ],
-         "combinator": "and"
-        }
-       }
-      ]
-     },
-     "options": {
-      "fallbackOutput": "extra"
-     }
-    },
-    "id": "30000000-0000-4000-8000-000000000004",
-    "name": "Switch YouTube",
-    "type": "n8n-nodes-base.switch",
-    "typeVersion": 3.4,
-    "position": [
-     -560,
-     220
-    ]
-   },
-   {
-    "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
      "jsCode": "const now = Math.floor(Date.now() / 1000);\nconst H = 3600;\nreturn [\n  { json: {\n      title: 'KUKA welding robot perfect arc on car body',\n      source_platform: 'instagram',\n      source_url: 'https://www.instagram.com/reel/CxKUKA01/',\n      author: '@robotwelding.pro',\n      metrics: { views: 120000, likes: 8000, shares: 1500, comments: 300 },\n      ts_unix: now - 26 * H,\n      transcript_excerpt: 'KUKA KR16 welding cell with seamless arc control',\n      feasibility_hint: 'high'\n  }},\n  { json: {\n      title: 'Palletizer robot loads 40 boxes per minute',\n      source_platform: 'instagram',\n      source_url: 'https://www.instagram.com/reel/CxPALL02/',\n      author: '@palletrobot',\n      metrics: { views: 34000, likes: 2100, shares: 600, comments: 90 },\n      ts_unix: now - 5 * H,\n      transcript_excerpt: 'Fanuc M-410 palletizing line in a beverage plant',\n      feasibility_hint: 'medium'\n  }},\n  { json: {\n      title: 'Cobot picks and places tiny electronics parts',\n      source_platform: 'instagram',\n      source_url: 'https://www.instagram.com/reel/CxCOBOT03/',\n      author: '@cobotlab',\n      metrics: { views: 45000, likes: 3200, shares: 400, comments: 120 },\n      ts_unix: now - 50 * H,\n      transcript_excerpt: 'UR10e with adaptive gripper on SMD assembly line',\n      feasibility_hint: 'high'\n  }},\n  { json: {\n      title: 'Six-axis arm sorts parcels in warehouse',\n      source_platform: 'instagram',\n      source_url: 'https://www.instagram.com/reel/CxARM04/',\n      author: '@warehouserobots',\n      metrics: { views: 28000, likes: 1500, shares: 250, comments: 60 },\n      ts_unix: now - 100 * H,\n      transcript_excerpt: 'Auto-pickup robot arm with vision system',\n      feasibility_hint: 'medium'\n  }}\n];"
@@ -194,7 +74,7 @@
     "parameters": {
      "method": "GET",
      "url": "https://api.scrapecreators.com/v2/instagram/reels/search",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "sendQuery": true,
      "queryParameters": {
@@ -213,7 +93,24 @@
        }
       ]
      },
-     "options": {}
+     "options": {
+      "timeout": 45000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
+     }
     },
     "id": "30000000-0000-4000-8000-000000000008",
     "name": "HTTP IG",
@@ -222,19 +119,13 @@
     "position": [
      -340,
      -140
-    ],
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
-     }
-    }
+    ]
    },
    {
     "parameters": {
      "method": "GET",
      "url": "https://api.scrapecreators.com/v1/tiktok/search/keyword",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "sendQuery": true,
      "queryParameters": {
@@ -253,7 +144,24 @@
        }
       ]
      },
-     "options": {}
+     "options": {
+      "timeout": 45000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
+     }
     },
     "id": "30000000-0000-4000-8000-000000000009",
     "name": "HTTP TikTok",
@@ -262,19 +170,13 @@
     "position": [
      -340,
      80
-    ],
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
-     }
-    }
+    ]
    },
    {
     "parameters": {
      "method": "GET",
      "url": "https://api.scrapecreators.com/v1/youtube/search",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "sendQuery": true,
      "queryParameters": {
@@ -301,7 +203,24 @@
        }
       ]
      },
-     "options": {}
+     "options": {
+      "timeout": 45000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
+     }
     },
     "id": "30000000-0000-4000-8000-00000000000a",
     "name": "HTTP YouTube",
@@ -310,13 +229,7 @@
     "position": [
      -340,
      300
-    ],
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
-     }
-    }
+    ]
    },
    {
     "parameters": {
@@ -367,7 +280,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const input = $input.all()[0] ? $input.all()[0].json : {};\nconst items = (input && Array.isArray(input.reels)) ? input.reels : [];\nconst out = [];\nfor (const r of items) {\n  if (!r) continue;\n  let ts = 0;\n  if (typeof r.taken_at === 'number') ts = r.taken_at;\n  else if (r.taken_at) ts = Math.floor(Date.parse(r.taken_at) / 1000);\n  if (!ts) continue;\n  const caption = String(r.caption || '');\n  out.push({ json: {\n    title: caption,\n    source_platform: 'instagram',\n    source_url: String(r.url || (r.shortcode ? 'https://www.instagram.com/reel/' + r.shortcode + '/' : '')),\n    author: String((r.owner && r.owner.username) || ''),\n    metrics: {\n      views: Number(r.video_view_count || r.video_play_count || 0),\n      likes: Number(r.like_count || 0),\n      shares: 0,\n      comments: Number(r.comment_count || 0)\n    },\n    ts_unix: ts,\n    transcript_excerpt: caption.slice(0, 200),\n    feasibility_hint: 'medium'\n  }});\n}\nreturn out;"
+     "jsCode": "let input = $input.all()[0] ? $input.all()[0].json : {};\nif (typeof input === 'string') { try { input = JSON.parse(input); } catch (e) {} }\nif (input && typeof input === 'object' && typeof input.data === 'string') { try { const parsed = JSON.parse(input.data); if (parsed && typeof parsed === 'object') input = parsed; } catch (e) {} }\nif (!input) input = {};\nconst items = (input && Array.isArray(input.reels)) ? input.reels : [];\nconst out = [];\nfor (const r of items) {\n  if (!r) continue;\n  let ts = 0;\n  if (typeof r.taken_at === 'number') ts = r.taken_at;\n  else if (r.taken_at) ts = Math.floor(Date.parse(r.taken_at) / 1000);\n  if (!ts) continue;\n  const caption = String(r.caption || '');\n  out.push({ json: {\n    title: caption,\n    source_platform: 'instagram',\n    source_url: String(r.url || (r.shortcode ? 'https://www.instagram.com/reel/' + r.shortcode + '/' : '')),\n    author: String((r.owner && r.owner.username) || ''),\n    metrics: {\n      views: Number(r.video_view_count || r.video_play_count || 0),\n      likes: Number(r.like_count || 0),\n      shares: 0,\n      comments: Number(r.comment_count || 0)\n    },\n    ts_unix: ts,\n    transcript_excerpt: caption.slice(0, 200),\n    feasibility_hint: 'medium'\n  }});\n}\nreturn out;"
     },
     "id": "30000000-0000-4000-8000-00000000000e",
     "name": "Normalize IG",
@@ -382,7 +295,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const input = $input.all()[0] ? $input.all()[0].json : {};\nconst items = (input && Array.isArray(input.search_item_list)) ? input.search_item_list : [];\nconst out = [];\nfor (const t of items) {\n  if (!t) continue;\n  const st = t.statistics || t.stats || {};\n  let ts = 0;\n  if (typeof t.create_time === 'number') ts = t.create_time;\n  else if (t.create_time) ts = Math.floor(Date.parse(t.create_time) / 1000);\n  if (!ts) continue;\n  const desc = String(t.desc || '');\n  const au = t.author || {};\n  out.push({ json: {\n    title: desc,\n    source_platform: 'tiktok',\n    source_url: String(t.url || (t.aweme_id ? 'https://www.tiktok.com/video/' + t.aweme_id : '')),\n    author: String(au.unique_id || au.nickname || ''),\n    metrics: {\n      views: Number(st.play_count || 0),\n      likes: Number(st.digg_count || 0),\n      shares: Number(st.share_count || 0),\n      comments: Number(st.comment_count || 0)\n    },\n    ts_unix: ts,\n    transcript_excerpt: desc.slice(0, 200),\n    feasibility_hint: 'medium'\n  }});\n}\nreturn out;"
+     "jsCode": "let input = $input.all()[0] ? $input.all()[0].json : {};\nif (typeof input === 'string') { try { input = JSON.parse(input); } catch (e) {} }\nif (input && typeof input === 'object' && typeof input.data === 'string') { try { const parsed = JSON.parse(input.data); if (parsed && typeof parsed === 'object') input = parsed; } catch (e) {} }\nif (!input) input = {};\nconst items = (input && Array.isArray(input.search_item_list)) ? input.search_item_list : [];\nconst out = [];\nfor (const t of items) {\n  if (!t) continue;\n  const st = t.statistics || t.stats || {};\n  let ts = 0;\n  if (typeof t.create_time === 'number') ts = t.create_time;\n  else if (t.create_time) ts = Math.floor(Date.parse(t.create_time) / 1000);\n  if (!ts) continue;\n  const desc = String(t.desc || '');\n  const au = t.author || {};\n  out.push({ json: {\n    title: desc,\n    source_platform: 'tiktok',\n    source_url: String(t.url || (t.aweme_id ? 'https://www.tiktok.com/video/' + t.aweme_id : '')),\n    author: String(au.unique_id || au.nickname || ''),\n    metrics: {\n      views: Number(st.play_count || 0),\n      likes: Number(st.digg_count || 0),\n      shares: Number(st.share_count || 0),\n      comments: Number(st.comment_count || 0)\n    },\n    ts_unix: ts,\n    transcript_excerpt: desc.slice(0, 200),\n    feasibility_hint: 'medium'\n  }});\n}\nreturn out;"
     },
     "id": "30000000-0000-4000-8000-00000000000f",
     "name": "Normalize TikTok",
@@ -397,7 +310,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const input = $input.all()[0] ? $input.all()[0].json : {};\nconst items = (input && Array.isArray(input.videos)) ? input.videos : [];\nconst out = [];\nfor (const v of items) {\n  if (!v) continue;\n  let ts = 0;\n  if (typeof v.publishedTime === 'number') ts = v.publishedTime;\n  else if (v.publishedTime) ts = Math.floor(Date.parse(v.publishedTime) / 1000);\n  else if (typeof v.publishedAt === 'number') ts = v.publishedAt;\n  else if (v.publishedAt) ts = Math.floor(Date.parse(v.publishedAt) / 1000);\n  if (!ts) continue;\n  const title = String(v.title || '');\n  const ch = v.channel || {};\n  out.push({ json: {\n    title: title,\n    source_platform: 'youtube',\n    source_url: String(v.url || ''),\n    author: String(ch.title || ch.name || v.channelTitle || ''),\n    metrics: {\n      views: Number(v.viewCountInt || v.viewCount || v.view_count || 0),\n      likes: Number(v.likeCount || v.like_count || 0),\n      shares: 0,\n      comments: 0\n    },\n    ts_unix: ts,\n    transcript_excerpt: title.slice(0, 200),\n    feasibility_hint: 'medium'\n  }});\n}\nreturn out;"
+     "jsCode": "let input = $input.all()[0] ? $input.all()[0].json : {};\nif (typeof input === 'string') { try { input = JSON.parse(input); } catch (e) {} }\nif (input && typeof input === 'object' && typeof input.data === 'string') { try { const parsed = JSON.parse(input.data); if (parsed && typeof parsed === 'object') input = parsed; } catch (e) {} }\nif (!input) input = {};\nconst items = (input && Array.isArray(input.videos)) ? input.videos : [];\nconst out = [];\nfor (const v of items) {\n  if (!v) continue;\n  let ts = 0;\n  if (typeof v.publishedTime === 'number') ts = v.publishedTime;\n  else if (v.publishedTime) ts = Math.floor(Date.parse(v.publishedTime) / 1000);\n  else if (typeof v.publishedAt === 'number') ts = v.publishedAt;\n  else if (v.publishedAt) ts = Math.floor(Date.parse(v.publishedAt) / 1000);\n  if (!ts) continue;\n  const title = String(v.title || '');\n  const ch = v.channel || {};\n  out.push({ json: {\n    title: title,\n    source_platform: 'youtube',\n    source_url: String(v.url || ''),\n    author: String(ch.title || ch.name || v.channelTitle || ''),\n    metrics: {\n      views: Number(v.viewCountInt || v.viewCount || v.view_count || 0),\n      likes: Number(v.likeCount || v.like_count || 0),\n      shares: 0,\n      comments: 0\n    },\n    ts_unix: ts,\n    transcript_excerpt: title.slice(0, 200),\n    feasibility_hint: 'medium'\n  }});\n}\nreturn out;"
     },
     "id": "30000000-0000-4000-8000-000000000010",
     "name": "Normalize YouTube",
@@ -407,6 +320,148 @@
      200,
      224
     ]
+   },
+   {
+    "parameters": {
+     "mode": "rules",
+     "rules": {
+      "values": [
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $env.SCRAPECREATORS_API_KEY }}",
+           "rightValue": "PLACEHOLDER_UNTIL_TOMORROW",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       }
+      ]
+     },
+     "options": {
+      "fallbackOutput": "extra"
+     }
+    },
+    "id": "switch-mock-7fa2138c-9bba-4388-b266-",
+    "name": "Switch mock",
+    "type": "n8n-nodes-base.switch",
+    "typeVersion": 3.4,
+    "position": [
+     -560,
+     0
+    ]
+   },
+   {
+    "parameters": {
+     "method": "GET",
+     "url": "https://api.scrapecreators.com/v1/account/credit-balance",
+     "authentication": "none",
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
+     },
+     "options": {
+      "timeout": 15000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     }
+    },
+    "id": "http-balance-841d9f43-5887-468e-ac53",
+    "name": "HTTP Credit Balance",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     -340,
+     160
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const raw = ($json && typeof $json === 'object' && !Array.isArray($json)) ? $json : {};\nconst body = (raw.body && typeof raw.body === 'object' && !Array.isArray(raw.body)) ? raw.body : null;\nlet balance = null;\ntry {\n  if (body && body.creditCount != null) {\n    balance = Number(body.creditCount);\n  } else if (raw.creditCount != null) {\n    balance = Number(raw.creditCount);\n  } else if (typeof raw.data === 'string') {\n    balance = Number(JSON.parse(raw.data).creditCount);\n  }\n} catch (err) {\n  balance = null;\n}\nif (balance == null || !Number.isFinite(balance)) {\n  return [{ json: { balance: -1, creditCount: -1, balance_unavailable: true } }];\n}\nreturn [{ json: { balance: balance, creditCount: balance, balance_unavailable: false } }];"
+    },
+    "id": "code-balance-fe6d593c-517a-410a-993c",
+    "name": "Code balance",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     -140,
+     160
+    ]
+   },
+   {
+    "parameters": {
+     "conditions": {
+      "combinator": "and",
+      "options": {
+       "caseSensitive": true,
+       "leftValue": "",
+       "typeValidation": "strict",
+       "version": 3
+      },
+      "conditions": [
+       {
+        "leftValue": "={{ $json.balance }}",
+        "rightValue": 5,
+        "operator": {
+         "type": "number",
+         "operation": "lt"
+        }
+       },
+       {
+        "leftValue": "={{ $json.balance_unavailable }}",
+        "rightValue": false,
+        "operator": {
+         "type": "boolean",
+         "operation": "equals"
+        }
+       }
+      ]
+     }
+    },
+    "id": "if-low-fe834515-e53f-46a2-a629-882b2",
+    "name": "IF low credits",
+    "type": "n8n-nodes-base.if",
+    "typeVersion": 2.3,
+    "position": [
+     60,
+     160
+    ]
+   },
+   {
+    "parameters": {
+     "respondWith": "json",
+     "responseBody": "={{ {ok: false, error: 'low_credits', balance: $('Code balance').first().json.balance} }}",
+     "options": {}
+    },
+    "id": "respond-low-08b9cd04-5dda-47af-997d-",
+    "name": "Respond low credits",
+    "type": "n8n-nodes-base.respondToWebhook",
+    "typeVersion": 1.5,
+    "position": [
+     300,
+     320
+    ]
    }
   ],
   "connections": {
@@ -414,71 +469,7 @@
     "main": [
      [
       {
-       "node": "Switch IG",
-       "type": "main",
-       "index": 0
-      },
-      {
-       "node": "Switch TikTok",
-       "type": "main",
-       "index": 0
-      },
-      {
-       "node": "Switch YouTube",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "Switch IG": {
-    "main": [
-     [
-      {
-       "node": "Mock IG",
-       "type": "main",
-       "index": 0
-      }
-     ],
-     [
-      {
-       "node": "HTTP IG",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "Switch TikTok": {
-    "main": [
-     [
-      {
-       "node": "Mock TikTok",
-       "type": "main",
-       "index": 0
-      }
-     ],
-     [
-      {
-       "node": "HTTP TikTok",
-       "type": "main",
-       "index": 0
-      }
-     ]
-    ]
-   },
-   "Switch YouTube": {
-    "main": [
-     [
-      {
-       "node": "Mock YouTube",
-       "type": "main",
-       "index": 0
-      }
-     ],
-     [
-      {
-       "node": "HTTP YouTube",
+       "node": "Switch mock",
        "type": "main",
        "index": 0
       }
@@ -602,6 +593,84 @@
        "node": "Merge",
        "type": "main",
        "index": 2
+      }
+     ]
+    ]
+   },
+   "Switch mock": {
+    "main": [
+     [
+      {
+       "node": "Mock IG",
+       "type": "main",
+       "index": 0
+      },
+      {
+       "node": "Mock TikTok",
+       "type": "main",
+       "index": 0
+      },
+      {
+       "node": "Mock YouTube",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "HTTP Credit Balance",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "HTTP Credit Balance": {
+    "main": [
+     [
+      {
+       "node": "Code balance",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Code balance": {
+    "main": [
+     [
+      {
+       "node": "IF low credits",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "IF low credits": {
+    "main": [
+     [
+      {
+       "node": "Respond low credits",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "HTTP IG",
+       "type": "main",
+       "index": 0
+      },
+      {
+       "node": "HTTP TikTok",
+       "type": "main",
+       "index": 0
+      },
+      {
+       "node": "HTTP YouTube",
+       "type": "main",
+       "index": 0
       }
      ]
     ]

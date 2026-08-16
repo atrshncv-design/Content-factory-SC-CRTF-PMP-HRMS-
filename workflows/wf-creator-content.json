@@ -129,7 +129,7 @@
     "parameters": {
      "method": "GET",
      "url": "https://api.scrapecreators.com/v1/instagram/user/reels",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "sendQuery": true,
      "queryParameters": {
@@ -145,13 +145,22 @@
       ]
      },
      "options": {
-      "timeout": 45000
-     }
-    },
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
+      "timeout": 45000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "c3a00000-0000-4000-8000-000000000010",
@@ -167,7 +176,7 @@
     "parameters": {
      "method": "GET",
      "url": "https://api.scrapecreators.com/v3/tiktok/profile/videos",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "sendQuery": true,
      "queryParameters": {
@@ -187,13 +196,22 @@
       ]
      },
      "options": {
-      "timeout": 45000
-     }
-    },
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
+      "timeout": 45000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "c3a00000-0000-4000-8000-000000000011",
@@ -209,7 +227,7 @@
     "parameters": {
      "method": "GET",
      "url": "https://api.scrapecreators.com/v1/youtube/channel-videos",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "sendQuery": true,
      "queryParameters": {
@@ -225,13 +243,22 @@
       ]
      },
      "options": {
-      "timeout": 45000
-     }
-    },
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
+      "timeout": 45000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "c3a00000-0000-4000-8000-000000000012",
@@ -247,7 +274,7 @@
     "parameters": {
      "method": "GET",
      "url": "https://api.scrapecreators.com/v1/twitter/user-tweets",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "sendQuery": true,
      "queryParameters": {
@@ -263,13 +290,22 @@
       ]
      },
      "options": {
-      "timeout": 45000
-     }
-    },
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
+      "timeout": 45000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "c3a00000-0000-4000-8000-000000000013",
@@ -285,7 +321,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const v = $('Code validate').first().json;\nconst handle = String(v.handle || '');\nconst limit = v.limit || 10;\nconst num = (v) => { const n = Number(v); return (isNaN(n) || v === null || v === undefined) ? 0 : n; };\nconst iso = (t) => {\n  if (t === undefined || t === null || t === '') return null;\n  const n = typeof t === 'number' ? t * 1000 : Date.parse(t);\n  return isNaN(n) ? null : new Date(n).toISOString();\n};\nconst resp = $input.first().json;\nconst status = Number(resp && resp.statusCode) || 0;\nif (resp && resp.account_deactivated) {\n  return [{ json: { ok: false, error: 'account_deactivated', platform: 'instagram', handle, message: resp.message || \"Account doesn't exist\" } }];\n}\nif (resp && (resp.success === false || status === 402)) {\n  return [{ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status: status || null, platform: 'instagram', handle, message: resp.message || resp.error || '' } }];\n}\n\nconst raw = (resp && Array.isArray(resp.items)) ? resp.items : [];\nconst posts = raw.map((it) => {\n  const cap = (it.caption && typeof it.caption === 'object') ? (it.caption.text || '') : (it.caption || '');\n  return {\n    id: String(it.id || it.code || ''),\n    url: it.url || (it.code ? 'https://www.instagram.com/reel/' + it.code + '/' : ''),\n    views: num(it.play_count),\n    likes: num(it.like_count),\n    comments: num(it.comment_count),\n    shares: 0,\n    posted_at: iso(it.taken_at),\n    thumb_url: it.display_uri || null,\n    duration: null\n  };\n}).filter((p) => p.id !== '');\nposts.forEach((p) => {\n  p.er = p.views > 0 ? Math.round(((p.likes + p.comments * 3 + p.shares * 5) / p.views) * 10000) / 10000 : 0;\n});\nposts.sort((a, b) => b.er - a.er);\nconst top = posts.slice(0, limit);\nreturn [{ json: { ok: true, count: top.length, platform: 'instagram', handle: handle, posts: top } }];\n"
+     "jsCode": "const v = $('Code validate').first().json;\nconst handle = String(v.handle || '');\nconst limit = v.limit || 10;\nconst num = (v) => { const n = Number(v); return (isNaN(n) || v === null || v === undefined) ? 0 : n; };\nconst iso = (t) => {\n  if (t === undefined || t === null || t === '') return null;\n  const n = typeof t === 'number' ? t * 1000 : Date.parse(t);\n  return isNaN(n) ? null : new Date(n).toISOString();\n};\nlet resp = $input.first().json;\nif (typeof resp === 'string') { try { resp = JSON.parse(resp); } catch (e) {} }\nif (resp && typeof resp === 'object' && typeof resp.data === 'string') { try { const parsed = JSON.parse(resp.data); if (parsed && typeof parsed === 'object') resp = parsed; } catch (e) {} }\nconst status = Number(resp && resp.statusCode) || 0;\nif (resp && resp.account_deactivated) {\n  return [{ json: { ok: false, error: 'account_deactivated', platform: 'instagram', handle, message: resp.message || \"Account doesn't exist\" } }];\n}\nif (resp && (resp.success === false || status === 402)) {\n  return [{ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status: status || null, platform: 'instagram', handle, message: resp.message || resp.error || '' } }];\n}\n\nconst raw = (resp && Array.isArray(resp.items)) ? resp.items : [];\nconst posts = raw.map((it) => {\n  const cap = (it.caption && typeof it.caption === 'object') ? (it.caption.text || '') : (it.caption || '');\n  return {\n    id: String(it.id || it.code || ''),\n    url: it.url || (it.code ? 'https://www.instagram.com/reel/' + it.code + '/' : ''),\n    views: num(it.play_count),\n    likes: num(it.like_count),\n    comments: num(it.comment_count),\n    shares: 0,\n    posted_at: iso(it.taken_at),\n    thumb_url: it.display_uri || null,\n    duration: null\n  };\n}).filter((p) => p.id !== '');\nposts.forEach((p) => {\n  p.er = p.views > 0 ? Math.round(((p.likes + p.comments * 3 + p.shares * 5) / p.views) * 10000) / 10000 : 0;\n});\nposts.sort((a, b) => b.er - a.er);\nconst top = posts.slice(0, limit);\nreturn [{ json: { ok: true, count: top.length, platform: 'instagram', handle: handle, posts: top } }];\n"
     },
     "id": "c3a00000-0000-4000-8000-000000000020",
     "name": "Normalize IG",
@@ -300,7 +336,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const v = $('Code validate').first().json;\nconst handle = String(v.handle || '');\nconst limit = v.limit || 10;\nconst num = (v) => { const n = Number(v); return (isNaN(n) || v === null || v === undefined) ? 0 : n; };\nconst iso = (t) => {\n  if (t === undefined || t === null || t === '') return null;\n  const n = typeof t === 'number' ? t * 1000 : Date.parse(t);\n  return isNaN(n) ? null : new Date(n).toISOString();\n};\nconst resp = $input.first().json;\nconst status = Number(resp && resp.statusCode) || 0;\nif (resp && resp.account_deactivated) {\n  return [{ json: { ok: false, error: 'account_deactivated', platform: 'tiktok', handle, message: resp.message || \"Account doesn't exist\" } }];\n}\nif (resp && (resp.success === false || status === 402)) {\n  return [{ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status: status || null, platform: 'tiktok', handle, message: resp.message || resp.error || '' } }];\n}\n\nconst raw = (resp && Array.isArray(resp.aweme_list)) ? resp.aweme_list : [];\nconst posts = raw.map((it) => {\n  const st = it.statistics || {};\n  const cover = (it.video && it.video.cover) || null;\n  return {\n    id: String(it.aweme_id || ''),\n    url: it.url || '',\n    views: num(st.play_count),\n    likes: num(st.digg_count),\n    comments: num(st.comment_count),\n    shares: num(st.share_count),\n    posted_at: iso(it.create_time),\n    thumb_url: (cover && Array.isArray(cover.url_list) && cover.url_list[0]) || (cover && cover.url) || null,\n    duration: (it.video && it.video.duration) ? Math.round(it.video.duration / 1000) : null\n  };\n}).filter((p) => p.id !== '');\nposts.forEach((p) => {\n  p.er = p.views > 0 ? Math.round(((p.likes + p.comments * 3 + p.shares * 5) / p.views) * 10000) / 10000 : 0;\n});\nposts.sort((a, b) => b.er - a.er);\nconst top = posts.slice(0, limit);\nreturn [{ json: { ok: true, count: top.length, platform: 'tiktok', handle: handle, posts: top } }];\n"
+     "jsCode": "const v = $('Code validate').first().json;\nconst handle = String(v.handle || '');\nconst limit = v.limit || 10;\nconst num = (v) => { const n = Number(v); return (isNaN(n) || v === null || v === undefined) ? 0 : n; };\nconst iso = (t) => {\n  if (t === undefined || t === null || t === '') return null;\n  const n = typeof t === 'number' ? t * 1000 : Date.parse(t);\n  return isNaN(n) ? null : new Date(n).toISOString();\n};\nlet resp = $input.first().json;\nif (typeof resp === 'string') { try { resp = JSON.parse(resp); } catch (e) {} }\nif (resp && typeof resp === 'object' && typeof resp.data === 'string') { try { const parsed = JSON.parse(resp.data); if (parsed && typeof parsed === 'object') resp = parsed; } catch (e) {} }\nconst status = Number(resp && resp.statusCode) || 0;\nif (resp && resp.account_deactivated) {\n  return [{ json: { ok: false, error: 'account_deactivated', platform: 'tiktok', handle, message: resp.message || \"Account doesn't exist\" } }];\n}\nif (resp && (resp.success === false || status === 402)) {\n  return [{ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status: status || null, platform: 'tiktok', handle, message: resp.message || resp.error || '' } }];\n}\n\nconst raw = (resp && Array.isArray(resp.aweme_list)) ? resp.aweme_list : [];\nconst posts = raw.map((it) => {\n  const st = it.statistics || {};\n  const cover = (it.video && it.video.cover) || null;\n  return {\n    id: String(it.aweme_id || ''),\n    url: it.url || '',\n    views: num(st.play_count),\n    likes: num(st.digg_count),\n    comments: num(st.comment_count),\n    shares: num(st.share_count),\n    posted_at: iso(it.create_time),\n    thumb_url: (cover && Array.isArray(cover.url_list) && cover.url_list[0]) || (cover && cover.url) || null,\n    duration: (it.video && it.video.duration) ? Math.round(it.video.duration / 1000) : null\n  };\n}).filter((p) => p.id !== '');\nposts.forEach((p) => {\n  p.er = p.views > 0 ? Math.round(((p.likes + p.comments * 3 + p.shares * 5) / p.views) * 10000) / 10000 : 0;\n});\nposts.sort((a, b) => b.er - a.er);\nconst top = posts.slice(0, limit);\nreturn [{ json: { ok: true, count: top.length, platform: 'tiktok', handle: handle, posts: top } }];\n"
     },
     "id": "c3a00000-0000-4000-8000-000000000021",
     "name": "Normalize TikTok",
@@ -315,7 +351,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const v = $('Code validate').first().json;\nconst handle = String(v.handle || '');\nconst limit = v.limit || 10;\nconst num = (v) => { const n = Number(v); return (isNaN(n) || v === null || v === undefined) ? 0 : n; };\nconst iso = (t) => {\n  if (t === undefined || t === null || t === '') return null;\n  const n = typeof t === 'number' ? t * 1000 : Date.parse(t);\n  return isNaN(n) ? null : new Date(n).toISOString();\n};\nconst resp = $input.first().json;\nconst status = Number(resp && resp.statusCode) || 0;\nif (resp && resp.account_deactivated) {\n  return [{ json: { ok: false, error: 'account_deactivated', platform: 'youtube', handle, message: resp.message || \"Account doesn't exist\" } }];\n}\nif (resp && (resp.success === false || status === 402)) {\n  return [{ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status: status || null, platform: 'youtube', handle, message: resp.message || resp.error || '' } }];\n}\n\nconst raw = (resp && Array.isArray(resp.videos)) ? resp.videos : [];\nconst posts = raw.map((it) => ({\n  id: String(it.id || ''),\n  url: it.url || '',\n  views: num(it.viewCountInt),\n  likes: num(it.likeCountInt),\n  comments: num(it.commentCountInt),\n  shares: 0,\n  posted_at: iso(it.publishedTime || it.publishDate),\n  thumb_url: it.thumbnail || null,\n  duration: it.lengthSeconds ? num(it.lengthSeconds) : null\n})).filter((p) => p.id !== '');\nposts.forEach((p) => {\n  p.er = p.views > 0 ? Math.round(((p.likes + p.comments * 3 + p.shares * 5) / p.views) * 10000) / 10000 : 0;\n});\nposts.sort((a, b) => b.er - a.er);\nconst top = posts.slice(0, limit);\nreturn [{ json: { ok: true, count: top.length, platform: 'youtube', handle: handle, posts: top } }];\n"
+     "jsCode": "const v = $('Code validate').first().json;\nconst handle = String(v.handle || '');\nconst limit = v.limit || 10;\nconst num = (v) => { const n = Number(v); return (isNaN(n) || v === null || v === undefined) ? 0 : n; };\nconst iso = (t) => {\n  if (t === undefined || t === null || t === '') return null;\n  const n = typeof t === 'number' ? t * 1000 : Date.parse(t);\n  return isNaN(n) ? null : new Date(n).toISOString();\n};\nlet resp = $input.first().json;\nif (typeof resp === 'string') { try { resp = JSON.parse(resp); } catch (e) {} }\nif (resp && typeof resp === 'object' && typeof resp.data === 'string') { try { const parsed = JSON.parse(resp.data); if (parsed && typeof parsed === 'object') resp = parsed; } catch (e) {} }\nconst status = Number(resp && resp.statusCode) || 0;\nif (resp && resp.account_deactivated) {\n  return [{ json: { ok: false, error: 'account_deactivated', platform: 'youtube', handle, message: resp.message || \"Account doesn't exist\" } }];\n}\nif (resp && (resp.success === false || status === 402)) {\n  return [{ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status: status || null, platform: 'youtube', handle, message: resp.message || resp.error || '' } }];\n}\n\nconst raw = (resp && Array.isArray(resp.videos)) ? resp.videos : [];\nconst posts = raw.map((it) => ({\n  id: String(it.id || ''),\n  url: it.url || '',\n  views: num(it.viewCountInt),\n  likes: num(it.likeCountInt),\n  comments: num(it.commentCountInt),\n  shares: 0,\n  posted_at: iso(it.publishedTime || it.publishDate),\n  thumb_url: it.thumbnail || null,\n  duration: it.lengthSeconds ? num(it.lengthSeconds) : null\n})).filter((p) => p.id !== '');\nposts.forEach((p) => {\n  p.er = p.views > 0 ? Math.round(((p.likes + p.comments * 3 + p.shares * 5) / p.views) * 10000) / 10000 : 0;\n});\nposts.sort((a, b) => b.er - a.er);\nconst top = posts.slice(0, limit);\nreturn [{ json: { ok: true, count: top.length, platform: 'youtube', handle: handle, posts: top } }];\n"
     },
     "id": "c3a00000-0000-4000-8000-000000000022",
     "name": "Normalize YouTube",
@@ -330,7 +366,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const v = $('Code validate').first().json;\nconst handle = String(v.handle || '');\nconst limit = v.limit || 10;\nconst num = (v) => { const n = Number(v); return (isNaN(n) || v === null || v === undefined) ? 0 : n; };\nconst iso = (t) => {\n  if (t === undefined || t === null || t === '') return null;\n  const n = typeof t === 'number' ? t * 1000 : Date.parse(t);\n  return isNaN(n) ? null : new Date(n).toISOString();\n};\nconst resp = $input.first().json;\nconst status = Number(resp && resp.statusCode) || 0;\nif (resp && resp.account_deactivated) {\n  return [{ json: { ok: false, error: 'account_deactivated', platform: 'twitter', handle, message: resp.message || \"Account doesn't exist\" } }];\n}\nif (resp && (resp.success === false || status === 402)) {\n  return [{ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status: status || null, platform: 'twitter', handle, message: resp.message || resp.error || '' } }];\n}\n\nconst raw = (resp && Array.isArray(resp.tweets)) ? resp.tweets : (resp && Array.isArray(resp.data)) ? resp.data : (resp && Array.isArray(resp.items)) ? resp.items : [];\nconst posts = raw.map((it) => {\n  const rid = it.rest_id || it.id_str || it.id;\n  const media = it.media || (it.extended_entities && it.extended_entities.media) || [];\n  const m0 = media[0] || {};\n  return {\n    id: String(rid || ''),\n    url: it.url || (rid ? 'https://twitter.com/' + handle + '/status/' + rid : ''),\n    views: num(it.views || it.view_count),\n    likes: num(it.favorite_count),\n    comments: num(it.reply_count),\n    shares: num(it.retweet_count),\n    posted_at: iso(it.created_at),\n    thumb_url: m0.media_url_https || m0.media_url || null,\n    duration: null\n  };\n}).filter((p) => p.id !== '');\nposts.forEach((p) => {\n  p.er = p.views > 0 ? Math.round(((p.likes + p.comments * 3 + p.shares * 5) / p.views) * 10000) / 10000 : 0;\n});\nposts.sort((a, b) => b.er - a.er);\nconst top = posts.slice(0, limit);\nreturn [{ json: { ok: true, count: top.length, platform: 'twitter', handle: handle, posts: top } }];\n"
+     "jsCode": "const v = $('Code validate').first().json;\nconst handle = String(v.handle || '');\nconst limit = v.limit || 10;\nconst num = (v) => { const n = Number(v); return (isNaN(n) || v === null || v === undefined) ? 0 : n; };\nconst iso = (t) => {\n  if (t === undefined || t === null || t === '') return null;\n  const n = typeof t === 'number' ? t * 1000 : Date.parse(t);\n  return isNaN(n) ? null : new Date(n).toISOString();\n};\nlet resp = $input.first().json;\nif (typeof resp === 'string') { try { resp = JSON.parse(resp); } catch (e) {} }\nif (resp && typeof resp === 'object' && typeof resp.data === 'string') { try { const parsed = JSON.parse(resp.data); if (parsed && typeof parsed === 'object') resp = parsed; } catch (e) {} }\nconst status = Number(resp && resp.statusCode) || 0;\nif (resp && resp.account_deactivated) {\n  return [{ json: { ok: false, error: 'account_deactivated', platform: 'twitter', handle, message: resp.message || \"Account doesn't exist\" } }];\n}\nif (resp && (resp.success === false || status === 402)) {\n  return [{ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status: status || null, platform: 'twitter', handle, message: resp.message || resp.error || '' } }];\n}\n\nconst raw = (resp && Array.isArray(resp.tweets)) ? resp.tweets : (resp && Array.isArray(resp.data)) ? resp.data : (resp && Array.isArray(resp.items)) ? resp.items : [];\nconst posts = raw.map((it) => {\n  const rid = it.rest_id || it.id_str || it.id;\n  const media = it.media || (it.extended_entities && it.extended_entities.media) || [];\n  const m0 = media[0] || {};\n  return {\n    id: String(rid || ''),\n    url: it.url || (rid ? 'https://twitter.com/' + handle + '/status/' + rid : ''),\n    views: num(it.views || it.view_count),\n    likes: num(it.favorite_count),\n    comments: num(it.reply_count),\n    shares: num(it.retweet_count),\n    posted_at: iso(it.created_at),\n    thumb_url: m0.media_url_https || m0.media_url || null,\n    duration: null\n  };\n}).filter((p) => p.id !== '');\nposts.forEach((p) => {\n  p.er = p.views > 0 ? Math.round(((p.likes + p.comments * 3 + p.shares * 5) / p.views) * 10000) / 10000 : 0;\n});\nposts.sort((a, b) => b.er - a.er);\nconst top = posts.slice(0, limit);\nreturn [{ json: { ok: true, count: top.length, platform: 'twitter', handle: handle, posts: top } }];\n"
     },
     "id": "c3a00000-0000-4000-8000-000000000023",
     "name": "Normalize Twitter",
@@ -600,7 +636,7 @@
    {
     "parameters": {
      "respondWith": "json",
-     "responseBody": "={ {ok: false, error: 'low_credits', balance: $('Code balance').first().json.balance} }",
+     "responseBody": "={{ {ok: false, error: 'low_credits', balance: $('Code balance').first().json.balance} }}",
      "options": {}
     },
     "id": "0358b9ab-2924-436d-b8bf-4cd9b5f10862",

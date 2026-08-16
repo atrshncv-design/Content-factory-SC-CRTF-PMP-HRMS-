@@ -1,22 +1,42 @@
 #!/usr/bin/env bash
 # =============================================================================
-# register-tg-commands.sh — регистрирует 28 команд контент-завода в Telegram
-# боте через setMyCommands (спека 12, разд. 3).
+# register-tg-commands.sh — регистрация команд контент-завода в Telegram через
+# setMyCommands (спека 12, разд. 3).
+#
+# ⚠️ БЕЗОПАСНОЕ ПОВЕДЕНИЕ (защита от затирания 35-командного меню):
+# скрипт является ДИСПЕТЧЕРОМ — он находит НОВЕЙШИЙ payload tg-commands-*.json
+# на сервере (35 → 31 → 25 → 15) и делегирует соответствующему скрипту
+# register-tg-commands-<NN>.sh. Это гарантирует, что повторный запуск старого
+# скрипта НИКОГДА не перезапишет 35-командное меню 28-командным.
+# Собственная 28-командная логика (tg-commands-25.json) выполняется ТОЛЬКО
+# если на сервере нет более новых payload'ов.
 #
 # Зачем: Hermes gateway при каждом подключении к Telegram сам перерегистрирует
 # ~60 системных команд (setMyCommands в post-connect housekeeping,
 # plugins/platforms/telegram/adapter.py), затирая наши команды. Конфиг-флага
-# для отключения авторегистрации в Hermes НЕТ (только command_menu
-# max_commands/priority — не кастомный список).
+# для отключения авторегистрации в Hermes НЕТ.
 #
-# Автозапуск: ExecStartPost в /etc/systemd/system/hermes.service (после старта
-# gateway). Также можно запускать вручную:  ~/factory/register-tg-commands.sh
+# Автозапуск: исторически ExecStartPost в /etc/systemd/system/hermes.service
+# (с 12.08 убран — Hermes-gateway остановлен, см. DEPLOYMENT §13). Можно
+# запускать вручную: ~/factory/register-tg-commands.sh
 # Скрипт идемпотентен, не фатален (exit 0 всегда — чтобы systemd не считал
 # юнит упавшим и не крутил restart-loop).
 # =============================================================================
 set -u
 
 FACTORY_DIR="/home/ubuntu/factory"
+
+log() { echo "[register-tg-commands] $*"; }
+
+# --- Диспетчер: делегируем новейшему payload/скрипту (защита от даунгрейда меню) ---
+for ver in 35 31; do
+  if [ -f "$FACTORY_DIR/tg-commands-$ver.json" ] && [ -f "$FACTORY_DIR/register-tg-commands-$ver.sh" ]; then
+    log "найден новейший payload tg-commands-$ver.json — делегирую register-tg-commands-$ver.sh"
+    exec bash "$FACTORY_DIR/register-tg-commands-$ver.sh"
+  fi
+done
+log "новых payload'ов (35/31) нет — регистрирую 28 команд из tg-commands-25.json"
+
 FACTORY_ENV="$FACTORY_DIR/.env"
 PAYLOAD="$FACTORY_DIR/tg-commands-25.json"
 LOG_TAG="register-tg-commands"

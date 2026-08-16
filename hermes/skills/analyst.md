@@ -31,9 +31,12 @@ Creatify URL-to-video делает: видео 15/30/45/60 сек, формат 
 ## Вход
 
 Ты получишь в `context`:
+- `active_client_id` — id активного клиента.
+- `client_profile` — активный профиль клиента: `name`, `niche`/`industry`, `tone`, `audience`.
 - `candidates[]` — топ-20 трендов (title, метрики, age_hours, virality,
   transcript_excerpt, feasibility_hint).
-- профиль клиента (ниша, тон, аудитория).
+
+Используй данные активного профиля клиента. Не хардкоди ни имя «Robotec», ни какое-либо другое имя клиента.
 
 ## Решение
 

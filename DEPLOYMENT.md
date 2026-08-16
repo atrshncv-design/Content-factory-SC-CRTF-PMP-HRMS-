@@ -7,6 +7,10 @@
 
 ---
 
+> ⚠️ **История репо переписана 13.08.2026** (`git filter-repo`, режим redact-значений: сырой пароль n8n owner и LLM-ключ OPENCODE_ZEN_API_KEY вычищены из всей истории; `--replace-text`, файлы не удалялись). До ротации секретов на сервере НЕ коммитить пароли/ключи (репо публичный). В документации — только имена переменных (значения живут в `~/factory/.env` / `~/.hermes/.env`, права 600). Подробности: скилл `content-factory-development` → `references/git-sync-repo.md` и `references/security-audit-offline-13aug.md`.
+>
+> ℹ️ **Текущая архитектура (с 12.08) — §13**: n8n = оркестратор TG-бота (webhook), Hermes = LLM-движок только через hermes-bridge (host, :8642); Hermes-gateway ОСТАНОВЛЕН. Разделы §1–§12 — исторический срез Фазы 1 (11–12.08). Актуальное состояние: 24 воркфлоу активны, схема БД v5 (миграции v1+v2+v3 воспроизводимы из репо: `python3 -m pytest tests/test_migrations.py`), 35 TG-команд (tg-commands-35.json).
+
 ## 1. Статус Фазы 1: ✅ ЗАВЕРШЕНА (кроме финальных проверок с живым TG)
 
 | Компонент | Статус | Где |
@@ -141,7 +145,7 @@ CYCLE_VIDEO_PENDING, CYCLE_PUBLISH_PENDING, AUTO_CYCLE_RUNNING).
 Правила работы со STATE — в orchestrator/SKILL.md (раздел «ПРАВИЛА РАБОТЫ СО STATE»):
 перед каждым ответом читать MEMORY.md, после перехода — обновлять первую строку.
 
-**Slash-команды (ядро — 15; всего зарегистрировано 31 через setMyCommands, см. §27)**:
+**Slash-команды (ядро — 15; актуально зарегистрировано 35 через setMyCommands — tg-commands-35.json / register-tg-commands-35.sh, см. §27 и «§ Профили клиентов»)**:
 start, help, status, mode, onboard, start_cycle, cancel, topics, competitors,
 accounts, budget, client, clients, reload_skills, ping.
 Автокомплит в чате при вводе "/" — работает.

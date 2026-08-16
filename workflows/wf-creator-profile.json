@@ -129,7 +129,7 @@
     "parameters": {
      "method": "GET",
      "url": "https://api.scrapecreators.com/v1/instagram/profile",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "sendQuery": true,
      "queryParameters": {
@@ -144,12 +144,23 @@
        }
       ]
      },
-     "options": {}
-    },
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
+     "options": {
+      "timeout": 45000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "cccccccc-1111-2222-3333-444444444461",
@@ -165,7 +176,7 @@
     "parameters": {
      "method": "GET",
      "url": "https://api.scrapecreators.com/v1/tiktok/profile",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "sendQuery": true,
      "queryParameters": {
@@ -180,12 +191,23 @@
        }
       ]
      },
-     "options": {}
-    },
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
+     "options": {
+      "timeout": 45000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "cccccccc-1111-2222-3333-444444444462",
@@ -201,7 +223,7 @@
     "parameters": {
      "method": "GET",
      "url": "https://api.scrapecreators.com/v1/youtube/channel",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "sendQuery": true,
      "queryParameters": {
@@ -212,12 +234,23 @@
        }
       ]
      },
-     "options": {}
-    },
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
+     "options": {
+      "timeout": 45000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "cccccccc-1111-2222-3333-444444444463",
@@ -233,7 +266,7 @@
     "parameters": {
      "method": "GET",
      "url": "https://api.scrapecreators.com/v1/twitter/profile",
-     "authentication": "genericCredentialType",
+     "authentication": "none",
      "genericAuthType": "httpHeaderAuth",
      "sendQuery": true,
      "queryParameters": {
@@ -244,12 +277,23 @@
        }
       ]
      },
-     "options": {}
-    },
-    "credentials": {
-     "httpHeaderAuth": {
-      "id": "10000000-0000-4000-8000-000000000001",
-      "name": "scrapecreators"
+     "options": {
+      "timeout": 45000,
+      "response": {
+       "response": {
+        "neverError": true
+       }
+      }
+     },
+     "sendHeaders": true,
+     "specifyHeaders": "keypair",
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "x-api-key",
+        "value": "={{ $env.SCRAPECREATORS_API_KEY }}"
+       }
+      ]
      }
     },
     "id": "cccccccc-1111-2222-3333-444444444464",
@@ -340,7 +384,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const items = $input.all();\n\nfunction num(v) {\n  if (v === null || v === undefined || v === '') return null;\n  const n = Number(v);\n  return Number.isFinite(n) ? n : null;\n}\nfunction boolOrNull(v) { return (v === true || v === false) ? v : null; }\n\nfunction build(p, h, raw) {\n  const profile = { platform: p, handle: h, nickname: null, follower_count: null,\n    following_count: null, post_count: null, avg_engagement: null, bio: null,\n    is_verified: null, category: null, profile_image_url: null };\n  try {\n    if (p === 'instagram') {\n      const u = (raw.data && raw.data.user) || raw.user || {};\n      profile.nickname = u.full_name || u.username || null;\n      profile.follower_count = num(u.edge_followed_by && u.edge_followed_by.count);\n      profile.following_count = num(u.edge_follow && u.edge_follow.count);\n      profile.post_count = num(u.edge_owner_to_timeline_media && u.edge_owner_to_timeline_media.count);\n      if (profile.post_count === null) profile.post_count = num(u.edge_felix_video_timeline && u.edge_felix_video_timeline.count);\n      profile.bio = u.biography || null;\n      profile.is_verified = boolOrNull(u.is_verified);\n      profile.category = u.category_name || null;\n      profile.profile_image_url = u.profile_pic_url_hd || u.profile_pic_url || null;\n      const edges = (u.edge_felix_video_timeline && u.edge_felix_video_timeline.edges) || [];\n      const likes = edges.map(e => {\n        const n = e && e.node;\n        return num(n && ((n.edge_media_preview_like && n.edge_media_preview_like.count) || (n.edge_liked_by && n.edge_liked_by.count)));\n      }).filter(x => x !== null && x > 0);\n      if (likes.length > 0) profile.avg_engagement = Math.round(likes.reduce((a, b) => a + b, 0) / likes.length);\n    } else if (p === 'tiktok') {\n      const u = raw.user || {};\n      const st = raw.statsV2 || raw.stats || {};\n      profile.nickname = u.nickname || u.uniqueId || null;\n      profile.follower_count = num(st.followerCount);\n      profile.following_count = num(st.followingCount);\n      profile.post_count = num(st.videoCount);\n      profile.bio = u.signature || null;\n      profile.is_verified = boolOrNull(u.verified);\n      profile.profile_image_url = u.avatarLarger || u.avatarMedium || null;\n      const vc = profile.post_count;\n      const heart = num(st.heart) || num(st.heartCount);\n      if (vc && heart) profile.avg_engagement = Math.round(heart / vc);\n    } else if (p === 'youtube') {\n      const c = raw.channel || raw.data || raw;\n      profile.nickname = c.title || c.name || null;\n      profile.follower_count = num(c.subscriberCount) || num(c.subscriber_count);\n      profile.post_count = num(c.videoCount) || num(c.video_count);\n      profile.bio = c.description || null;\n      profile.is_verified = boolOrNull(c.isVerified);\n      profile.category = c.category || c.categoryName || null;\n      const th = (c.thumbnails && c.thumbnails[0] && c.thumbnails[0].url) || c.thumbnail || null;\n      profile.profile_image_url = th;\n    } else if (p === 'twitter') {\n      const c = raw.profile || (raw.data && raw.data.user) || raw.data || raw;\n      profile.nickname = c.name || c.full_name || null;\n      profile.follower_count = num(c.followers_count) || num(c.followersCount);\n      profile.following_count = num(c.friends_count) || num(c.following_count);\n      profile.post_count = num(c.statuses_count) || num(c.tweet_count);\n      profile.bio = c.description || null;\n      profile.is_verified = boolOrNull(c.verified);\n      profile.category = c.category || null;\n      profile.profile_image_url = c.profile_image_url_https || c.profile_image_url || c.avatar || null;\n    }\n  } catch (e) { /* keep nulls */ }\n  return profile;\n}\n\nconst out = [];\nfor (const it of items) {\n  const raw = it.json.raw || {};\n  const platform = it.json.platform;\n  const handle = it.json.handle;\n  const meta = { platform, credits_charged: num(raw.credits_charged), credits_remaining: num(raw.credits_remaining) };\n  if (raw.account_deactivated) {\n    out.push({ json: { ok: false, error: 'account_deactivated', message: raw.message || \"Account doesn't exist\", profile: null, meta } });\n  } else if (raw.success === false || num(raw.statusCode) === 402) {\n    const status = num(raw.statusCode);\n    out.push({ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status, message: raw.message || 'API error', profile: null, meta } });\n  } else {\n    out.push({ json: { ok: true, profile: build(platform, handle, raw), meta } });\n  }\n}\nreturn out;"
+     "jsCode": "const items = $input.all();\n\nfunction num(v) {\n  if (v === null || v === undefined || v === '') return null;\n  const n = Number(v);\n  return Number.isFinite(n) ? n : null;\n}\nfunction boolOrNull(v) { return (v === true || v === false) ? v : null; }\n\nfunction build(p, h, raw) {\n  if (typeof raw === 'string') { try { raw = JSON.parse(raw); } catch (e) { raw = {}; } }\n  if (raw && typeof raw === 'object' && typeof raw.data === 'string') { try { const parsed = JSON.parse(raw.data); if (parsed && typeof parsed === 'object') raw = parsed; } catch (e) {} }\n  const profile = { platform: p, handle: h, nickname: null, follower_count: null,\n    following_count: null, post_count: null, avg_engagement: null, bio: null,\n    is_verified: null, category: null, profile_image_url: null };\n  try {\n    if (p === 'instagram') {\n      const u = (raw.data && raw.data.user) || raw.user || {};\n      profile.nickname = u.full_name || u.username || null;\n      profile.follower_count = num(u.edge_followed_by && u.edge_followed_by.count);\n      profile.following_count = num(u.edge_follow && u.edge_follow.count);\n      profile.post_count = num(u.edge_owner_to_timeline_media && u.edge_owner_to_timeline_media.count);\n      if (profile.post_count === null) profile.post_count = num(u.edge_felix_video_timeline && u.edge_felix_video_timeline.count);\n      profile.bio = u.biography || null;\n      profile.is_verified = boolOrNull(u.is_verified);\n      profile.category = u.category_name || null;\n      profile.profile_image_url = u.profile_pic_url_hd || u.profile_pic_url || null;\n      const edges = (u.edge_felix_video_timeline && u.edge_felix_video_timeline.edges) || [];\n      const likes = edges.map(e => {\n        const n = e && e.node;\n        return num(n && ((n.edge_media_preview_like && n.edge_media_preview_like.count) || (n.edge_liked_by && n.edge_liked_by.count)));\n      }).filter(x => x !== null && x > 0);\n      if (likes.length > 0) profile.avg_engagement = Math.round(likes.reduce((a, b) => a + b, 0) / likes.length);\n    } else if (p === 'tiktok') {\n      const u = raw.user || {};\n      const st = raw.statsV2 || raw.stats || {};\n      profile.nickname = u.nickname || u.uniqueId || null;\n      profile.follower_count = num(st.followerCount);\n      profile.following_count = num(st.followingCount);\n      profile.post_count = num(st.videoCount);\n      profile.bio = u.signature || null;\n      profile.is_verified = boolOrNull(u.verified);\n      profile.profile_image_url = u.avatarLarger || u.avatarMedium || null;\n      const vc = profile.post_count;\n      const heart = num(st.heart) || num(st.heartCount);\n      if (vc && heart) profile.avg_engagement = Math.round(heart / vc);\n    } else if (p === 'youtube') {\n      const c = raw.channel || raw.data || raw;\n      profile.nickname = c.title || c.name || null;\n      profile.follower_count = num(c.subscriberCount) || num(c.subscriber_count);\n      profile.post_count = num(c.videoCount) || num(c.video_count);\n      profile.bio = c.description || null;\n      profile.is_verified = boolOrNull(c.isVerified);\n      profile.category = c.category || c.categoryName || null;\n      const th = (c.thumbnails && c.thumbnails[0] && c.thumbnails[0].url) || c.thumbnail || null;\n      profile.profile_image_url = th;\n    } else if (p === 'twitter') {\n      const c = raw.profile || (raw.data && raw.data.user) || raw.data || raw;\n      profile.nickname = c.name || c.full_name || null;\n      profile.follower_count = num(c.followers_count) || num(c.followersCount);\n      profile.following_count = num(c.friends_count) || num(c.following_count);\n      profile.post_count = num(c.statuses_count) || num(c.tweet_count);\n      profile.bio = c.description || null;\n      profile.is_verified = boolOrNull(c.verified);\n      profile.category = c.category || null;\n      profile.profile_image_url = c.profile_image_url_https || c.profile_image_url || c.avatar || null;\n    }\n  } catch (e) { /* keep nulls */ }\n  return profile;\n}\n\nconst out = [];\nfor (const it of items) {\n  const raw = it.json.raw || {};\n  const platform = it.json.platform;\n  const handle = it.json.handle;\n  const meta = { platform, credits_charged: num(raw.credits_charged), credits_remaining: num(raw.credits_remaining) };\n  if (raw.account_deactivated) {\n    out.push({ json: { ok: false, error: 'account_deactivated', message: raw.message || \"Account doesn't exist\", profile: null, meta } });\n  } else if (raw.success === false || num(raw.statusCode) === 402) {\n    const status = num(raw.statusCode);\n    out.push({ json: { ok: false, error: status === 402 ? 'low_credits' : 'api_error', status, message: raw.message || 'API error', profile: null, meta } });\n  } else {\n    out.push({ json: { ok: true, profile: build(platform, handle, raw), meta } });\n  }\n}\nreturn out;"
     },
     "id": "ffffffff-1111-2222-3333-444444444461",
     "name": "Normalize",
@@ -611,7 +655,7 @@
    {
     "parameters": {
      "respondWith": "json",
-     "responseBody": "={ {ok: false, error: 'low_credits', balance: $('Code balance').first().json.balance} }",
+     "responseBody": "={{ {ok: false, error: 'low_credits', balance: $('Code balance').first().json.balance} }}",
      "options": {}
     },
     "id": "b5d0fa44-9a23-4180-b39c-161aa3b808c7",
