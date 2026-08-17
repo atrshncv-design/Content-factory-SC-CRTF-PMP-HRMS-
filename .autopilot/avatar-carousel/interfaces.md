@@ -25,6 +25,14 @@
 Контракт данных карусели ( Consumed тикетом 02, produced тикетом 01):
 `avatars-20.json`: массив 20 объектов `{id: UUID, name, gender: 'm'|'f', age_label, niche, img}` в порядке показа: чередование m/f, элемент [0] — мужчина.
 
+## Из таска 03 — аудит маршрутизации + alerts
+
+- `tests/test_tg_callback_routing.py` — таблица «префикс → обработчик» (~80 семейств): ROUTED (все маршрутизируются), TASK2_PENDING (avv_next/avv_select/avv_my_avatars — sentinel/xfail до таска 02), EXTERNAL_UNROUTED (пуст), KNOWN_BROKEN_NODES (5 мёртвых кнопок — чинит таск 02, новые вне списка = красный тест), ALERTS_MENU_EXCEPTIONS (пуст).
+- wf-tg-alerts.json: исходящие несут «📋 Меню» (cmd:menu); alerts-бот = ТОТ ЖЕ токен, вебхук → tg-trigger, callback обрабатывается Switch cmd (паттерн vd_* из wf-creatify-webhook).
+- Мёртвые кнопки (зона 02): TG avv ask topic, TG AVV verify, TG avv ok — литералы `'={{ \"cmd:cancel\" }}'` с лже-слешем (незакрытая JS-строка).
+- Вне зоны: wf-creatify-webhook «Telegram stage3 auto» — sendVideo без клавиатуры (проверит таск 02).
+- Мутационная проверка: мёртвая кнопка / потеря правила → тест красный.
+
 ## Из таска 01 — данные аватаров
 
 - `avatars-20.json` — финальные 20 (10М+10Ж, чередование, [0]=М Sam); все id из дампа, фото CDN проверены (HEAD 200). Возраст — оценка «≈NN» (в API полей возраста нет, только adult/senior).

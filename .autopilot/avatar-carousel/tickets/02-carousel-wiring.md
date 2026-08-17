@@ -1,10 +1,17 @@
 # 02 — Карусель аватаров в wf-tg-bot.json
 
 **Требования:** R02, R04, R05, R06, R07, A01 (частично R01.1, R01.3)
-**Blocked by:** 01, 03
-**Зона:** `workflows/wf-tg-bot.json` + `tests/`
+**Blocked by:** 01, 03 (готовы)
+**Зона:** `workflows/wf-tg-bot.json` + `workflows/wf-creatify-webhook.json` (только нода Telegram stage3 auto) + `tests/`
 **Волна:** 2
 **Status:** ready
+
+## От таска 03 (обязательно)
+
+1. Починить 5 мёртвых кнопок из KNOWN_BROKEN_NODES (tests/test_tg_callback_routing.py): TG avv ask topic, TG AVV verify, TG avv ok — литералы `'={{ \"cmd:cancel\" }}'` с лже-слешем (незакрытая JS-строка) → корректные `={{ "cmd:cancel" }}` / `={{ "cmd:menu" }}`. Список KNOWN_BROKEN_NODES в тесте очистить (остаться должен пустым или с обоснованием).
+2. Снять sentinel/xfail-метки с avv_next/avv_select/avv_my_avatars в TASK2_PENDING: после твоей маршрутизации тесты маршрутизации должны проходить без xfail. Если используешь ТОЛЬКО существующие префиксы (avv_sel и cmd:*) — удали лишние sentinel-строки; новых видов callback не плодить.
+3. wf-creatify-webhook.json, нода «Telegram stage3 auto» (sendVideo без клавиатуры): сравнить с соседней stage3 (ручная) — если у ручной есть клавиатура, а у auto нет, выровнять (ту же клавиатуру). Другие ноды файла не трогать.
+
 
 ## Что должно заработать
 

@@ -770,7 +770,54 @@
       "caption": "={{ $('Build stage3').first().json.text }}"
      },
      "binaryData": true,
-     "binaryPropertyName": "data"
+     "binaryPropertyName": "data",
+     "replyMarkup": "inlineKeyboard",
+     "inlineKeyboard": {
+      "rows": [
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "✅ Опубликовать",
+           "additionalFields": {
+            "callback_data": "={{ 'vd_ok' }}"
+           }
+          },
+          {
+           "text": "🔁 Перегенерировать",
+           "additionalFields": {
+            "callback_data": "={{ 'vd_regenerate' }}"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "❌ Отклонить",
+           "additionalFields": {
+            "callback_data": "={{ 'vd_reject' }}"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
     },
     "id": "e0000000-0022-4000-8000-000000000001",
     "name": "Telegram stage3 auto",

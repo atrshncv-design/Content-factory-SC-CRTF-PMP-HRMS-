@@ -38,7 +38,24 @@
      "operation": "sendMessage",
      "chatId": "={{ $json.body.chat_id }}",
      "text": "={{ $json.body.text }}",
-     "additionalFields": {}
+     "additionalFields": {},
+     "replyMarkup": "inlineKeyboard",
+     "inlineKeyboard": {
+      "rows": [
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
     },
     "id": "cccccccc-1111-2222-3333-444444444441",
     "name": "Telegram",

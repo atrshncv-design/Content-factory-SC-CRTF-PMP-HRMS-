@@ -149,17 +149,12 @@ class WfTgBotStructureTests(unittest.TestCase):
         cancel_exceptions.update(only_menu)
 
         # Expression-keyboard nodes: the Menu/Cancel buttons are produced
-        # by upstream Code nodes (AVV Build preview / AVV Preview sel / AVV Carousel next / AVV My avatars / AVV Select).
+        # by upstream Code nodes (AVV Carousel build / AVV My avatars) and
+        # pinned by tests/test_avv_carousel.py.
         expression_keyboard_nodes = {
-            "TG avv ask avatar", "TG avv preview photo", "TG avv preview text",
-            "TG avv carousel", "TG avv my avatars", "TG avv selected"
+            "TG avv carousel", "TG avv my avatars"
         }
         full_exceptions.update(expression_keyboard_nodes)
-
-        # Delete-message nodes are service actions, not user-facing keyboards.
-        full_exceptions.update({
-            "TG avv delete next", "TG avv delete select", "TG avv delete my"
-        })
 
         menu_re = re.compile(r"\bcmd:menu\b")
         cancel_re = re.compile(r"\bcmd:cancel\b")
