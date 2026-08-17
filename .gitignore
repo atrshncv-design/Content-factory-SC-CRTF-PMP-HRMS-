@@ -30,3 +30,4 @@ node_modules/
 
 # Docker
 docker-compose.override.yml
+__pycache__/

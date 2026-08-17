@@ -35,7 +35,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "const item = $input.first().json;\nfunction parseCommand(text) {\n  const t = String(text || '').toLowerCase().trim();\n  const C = {\n    'start': 'start', 'старт': 'start', '/start': 'start',\n    'help': 'help', 'помощь': 'help', '/help': 'help',\n    'status': 'status', 'статус': 'status', '/status': 'status',\n    'cancel': 'cancel', 'стоп': 'cancel', 'отмена': 'cancel', '/cancel': 'cancel',\n    'ping': 'ping', 'пинг': 'ping', '/ping': 'ping',\n    'start_cycle': 'start_cycle', 'запуск цикла': 'start_cycle', 'старт цикла': 'start_cycle', '/start_cycle': 'start_cycle',\n    'mode': 'mode', 'режим': 'mode', '/mode': 'mode',\n    'topics': 'topics', 'темы': 'topics', '/topics': 'topics',\n    'competitors': 'competitors', 'конкуренты': 'competitors', '/competitors': 'competitors',\n    'accounts': 'accounts', 'аккаунты': 'accounts', '/accounts': 'accounts',\n    'budget': 'budget', 'бюджет': 'budget', '/budget': 'budget',\n    'clients': 'clients', 'клиенты': 'clients', '/clients': 'clients',\n    'client': 'client', 'клиент': 'client', '/client': 'client',\n    'reload_skills': 'reload_skills', '/reload_skills': 'reload_skills',\n    'creators': 'creators', 'авторы': 'creators', 'поиск авторов': 'creators', '/creators': 'creators',\n    'creator': 'creator', 'автор': 'creator', '/creator': 'creator',\n    'creator_content': 'creator_content', 'creator-content': 'creator_content', 'контент автора': 'creator_content', '/creator_content': 'creator_content', '/creator-content': 'creator_content',\n    'audience': 'audience', 'аудитория': 'audience', '/audience': 'audience',\n    'transcript': 'transcript', 'транскрипт': 'transcript', '/transcript': 'transcript',\n    'comments': 'comments', 'комментарии': 'comments', '/comments': 'comments',\n    'upload_avatar': 'upload_avatar', 'upload-avatar': 'upload_avatar', 'загрузить аватар': 'upload_avatar', '/upload_avatar': 'upload_avatar', '/upload-avatar': 'upload_avatar',\n    'my_avatars': 'my_avatars', 'my-avatars': 'my_avatars', 'мои аватары': 'my_avatars', '/my_avatars': 'my_avatars', '/my-avatars': 'my_avatars',\n    'asset': 'asset', 'ассет': 'asset', '/asset': 'asset',\n    'shorts': 'shorts', 'шортсы': 'shorts', '/shorts': 'shorts',\n    'product': 'product', 'продукт': 'product', '/product': 'product',\n    'banner': 'banner', 'баннер': 'banner', '/banner': 'banner',\n    'publish_type': 'publish_type', 'publish-type': 'publish_type', 'тип публикации': 'publish_type', '/publish_type': 'publish_type', '/publish-type': 'publish_type',\n    'menu': 'menu', 'меню': 'menu', '/menu': 'menu', '/меню': 'menu',\n    'instruction': 'instruction', 'инструкция': 'instruction', 'инструкции': 'instruction', '/instruction': 'instruction', '/инструкция': 'instruction',\n    'url2video': 'url2video', 'видео из ссылки': 'url2video', '/url2video': 'url2video',\n    'gen_url2video': 'url2video', 'gen_shorts': 'shorts',\n    'avatar_video': 'avatar_video', 'видео с аватаром': 'avatar_video', 'аватар видео': 'avatar_video', 'avv': 'avatar_video', 'gen_avatar_video': 'avatar_video',\n    'text_post': 'text_post', 'текстовый пост': 'text_post', '/text_post': 'text_post', '/текстовый пост': 'text_post',\n    'durc': 'durc',\n    'add_operator': 'add_operator', 'добавить оператора': 'add_operator', '/add_operator': 'add_operator',\n    'remove_operator': 'remove_operator', 'удалить оператора': 'remove_operator', '/remove_operator': 'remove_operator', '/удалить оператора': 'remove_operator',\n    'operators': 'operators', 'операторы': 'operators', '/operators': 'operators',\n    'profile': 'profile', 'профиль': 'profile', '/profile': 'profile', '/профиль': 'profile',\n    'profiles': 'profiles', 'профили': 'profiles', '/profiles': 'profiles', '/профили': 'profiles',\n    'questions': 'questions', 'вопросы': 'questions', '/questions': 'questions', '/вопросы': 'questions',\n  };\n  const words = t.split(/\\s+/);\n  let command = 'unknown';\n  const args = { url: null, id: null, value: null, platform: null, handle: null, section: null, action: null };\n  if (t.startsWith('onboard ') || t === 'onboard' || t.startsWith('/onboard')) { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('онбординг ') || t === 'онбординг') { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('client ') || t.startsWith('клиент ') || t.startsWith('/client ')) { command = 'client'; args.id = words[1] || null; }\n  else if (t.startsWith('добавить оператора ') || t.startsWith('/add_operator ') || t.startsWith('add_operator ')) { command = 'add_operator'; const off = t.startsWith('добавить оператора ') ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('удалить оператора ') || t.startsWith('/remove_operator ') || t.startsWith('/удалить оператора ')) { command = 'remove_operator'; const off = (t.startsWith('удалить оператора ') || t.startsWith('/удалить оператора ')) ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('creator ') || t.startsWith('автор ') || t.startsWith('/creator ')) { command = 'creator'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('creator_content ') || t.startsWith('creator-content ') || t.startsWith('контент автора ') || t.startsWith('/creator_content ') || t.startsWith('/creator-content ')) { command = 'creator_content'; const off = t.startsWith('контент автора ') ? 2 : 1; args.platform = words[off] || null; args.handle = words[off + 1] || null; }\n  else if (t.startsWith('audience ') || t.startsWith('аудитория ') || t.startsWith('/audience ')) { command = 'audience'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('поиск авторов ')) { command = 'creators'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('загрузить аватар ')) { command = 'upload_avatar'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('тип публикации ')) { command = 'publish_type'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('menu_')) { command = 'menu'; args.section = t.slice(5) || null; }\n  else if (t.startsWith('dur_')) { command = 'dur'; args.value = t.slice(4) || null; }\n  else if (t.startsWith('durc_')) { command = 'durc'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('hint_')) { command = 'hint'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('видео из ссылки ')) { command = 'url2video'; args.url = words.slice(3).join(' ') || null; }\n  else if (t === 'вопросы' || t === '/вопросы' || t === 'questions' || t === '/questions') { command = 'questions'; args.action = 'list'; }\n  else if (t.startsWith('вопросы сброс') || t.startsWith('/вопросы сброс')) { command = 'questions'; args.action = 'reset'; }\n  else if (t.startsWith('вопрос ') || t.startsWith('/вопросы ')) { command = 'questions'; args.action = 'set'; const N = /^\\d+$/.test(words[1] || '') ? parseInt(words[1], 10) : null; args.n = N; args.value = words.slice(2).join(' ') || null; }\n  else if (t === 'авто' || t === '/авто' || t === 'auto' || t === '/auto') { command = 'auto'; args.action = 'toggle'; }\n  else if (t.startsWith('авто вкл') || t.startsWith('/авто вкл') || t.startsWith('auto on') || t.startsWith('/auto on')) { command = 'auto'; args.action = 'on'; }\n  else if (t.startsWith('авто выкл') || t.startsWith('/авто выкл') || t.startsWith('auto off') || t.startsWith('/auto off')) { command = 'auto'; args.action = 'off'; }\n  else if (C[t]) { command = C[t]; }\n  else if (C[words[0]]) { command = C[words[0]]; args.value = words.slice(1).join(' ') || null; }\n  if (command === 'shorts' && args.value && /^https?:\\/\\//i.test(args.value)) args.url = args.value;\n  return { command: command, args: args };\n}\n\nlet out = null;\nif (item.callback_query) {\n  const q = item.callback_query;\n  const fromId = (q.from && q.from.id) || null;\n  const chatId = (q.message && q.message.chat && q.message.chat.id) || null;\n  const msgId = (q.message && q.message.message_id) || null;\n  const data = String(q.data || '');\n  if (data.startsWith('cmd:')) {\n    const parsed = parseCommand(data.slice(4));\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: parsed.command, args: parsed.args, raw: data, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parts = data.split(':');\n    const action = parts[0] || '';\n    const entityType = parts[1] || null;\n    const entityId = parts.slice(2).join(':') || null;\n    const map = {\n      approve: { topic: 'approve_topic', script: 'approve_script', gen: 'publish_gen' },\n      edit: { topic: 'edit_topic', script: 'edit_script' },\n      reject: { topic: 'reject_topic', script: 'reject_script', gen: 'reject_gen' },\n      alt: { topic: 'alt_topic' },\n      regen: { gen: 'regen_gen' },\n      toggle: { platform: 'toggle_platform', ppm: 'toggle_ppm' },\n      publish: { gen: 'publish_gen' },\n      confirm: { publish: 'confirm_publish' },\n    };\n    let cb = 'unknown';\n    if (action === 'schedule') cb = 'schedule';\n    else if (action === 'confirm') cb = 'confirm_publish';\n    else if (action === 'publish') cb = 'publish_gen';\n    else if (action === 'tx_toggle') cb = 'tx_toggle';\n    else if (action === 'tx_publish') cb = 'tx_publish';\n    else if (action === 'ro_yes' || action === 'ro_no') cb = action;\n    else if (action === 'ppm_done') cb = 'ppm_done';\n    else if (action.startsWith('pf_')) cb = action;\n    else if (action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit') cb = action;\n    else if (action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject') cb = action;\n    else if (action === 'avv_sel') cb = 'avv_sel';\n    else if (action === 'avv_ok') cb = 'avv_ok';\n    else if (action === 'avv_again') cb = 'avv_again';\n    else if (map[action] && map[action][entityType]) cb = map[action][entityType];\n    const isRoCb = action === 'ro_yes' || action === 'ro_no';\n    const isScCb = action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit';\n    const isVdCb = action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject';\n    out = { kind: 'callback', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: null, args: {}, raw: data, callback_action: cb,\n            entity_type: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? null : entityType,\n            entity_id: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? (parts[1] || null) : entityId };\n  }\n} else if (item.message) {\n  const m = item.message;\n  const fromId = (m.from && m.from.id) || null;\n  const chatId = (m.chat && m.chat.id) || null;\n  const text = String(m.text || '').trim();\n  if (m.document) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_doc', args: { file_id: m.document.file_id || null, file_name: m.document.file_name || null, mime: m.document.mime_type || null },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.photo && m.photo.length) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_photo', args: { file_id: m.photo[m.photo.length - 1].file_id || null, file_name: 'photo_' + (m.message_id || 'x') + '.jpg' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.video) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_video', args: { file_id: m.video.file_id || null, file_name: m.video.file_name || 'video.mp4' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parsed = parseCommand(text);\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: parsed.command, args: parsed.args, raw: text, callback_action: null, entity_type: null, entity_id: null };\n  }\n} else {\n  out = { kind: 'unknown', tg_user_id: null, chat_id: null, message_id: null, query_id: null, command: 'unknown', args: {}, raw: '', callback_action: null, entity_type: null, entity_id: null };\n}\nreturn [{ json: out }];\n"
+     "jsCode": "const item = $input.first().json;\nfunction parseCommand(text) {\n  const t = String(text || '').toLowerCase().trim();\n  const C = {\n    'start': 'start', 'старт': 'start', '/start': 'start',\n    'help': 'help', 'помощь': 'help', '/help': 'help',\n    'status': 'status', 'статус': 'status', '/status': 'status',\n    'cancel': 'cancel', 'стоп': 'cancel', 'отмена': 'cancel', '/cancel': 'cancel',\n    'ping': 'ping', 'пинг': 'ping', '/ping': 'ping',\n    'start_cycle': 'start_cycle', 'запуск цикла': 'start_cycle', 'старт цикла': 'start_cycle', '/start_cycle': 'start_cycle',\n    'mode': 'mode', 'режим': 'mode', '/mode': 'mode',\n    'topics': 'topics', 'темы': 'topics', '/topics': 'topics',\n    'competitors': 'competitors', 'конкуренты': 'competitors', '/competitors': 'competitors',\n    'accounts': 'accounts', 'аккаунты': 'accounts', '/accounts': 'accounts',\n    'budget': 'budget', 'бюджет': 'budget', '/budget': 'budget',\n    'clients': 'clients', 'клиенты': 'clients', '/clients': 'clients',\n    'client': 'client', 'клиент': 'client', '/client': 'client',\n    'reload_skills': 'reload_skills', '/reload_skills': 'reload_skills',\n    'creators': 'creators', 'авторы': 'creators', 'поиск авторов': 'creators', '/creators': 'creators',\n    'creator': 'creator', 'автор': 'creator', '/creator': 'creator',\n    'creator_content': 'creator_content', 'creator-content': 'creator_content', 'контент автора': 'creator_content', '/creator_content': 'creator_content', '/creator-content': 'creator_content',\n    'audience': 'audience', 'аудитория': 'audience', '/audience': 'audience',\n    'transcript': 'transcript', 'транскрипт': 'transcript', '/transcript': 'transcript',\n    'comments': 'comments', 'комментарии': 'comments', '/comments': 'comments',\n    'upload_avatar': 'upload_avatar', 'upload-avatar': 'upload_avatar', 'загрузить аватар': 'upload_avatar', '/upload_avatar': 'upload_avatar', '/upload-avatar': 'upload_avatar',\n    'my_avatars': 'my_avatars', 'my-avatars': 'my_avatars', 'мои аватары': 'my_avatars', '/my_avatars': 'my_avatars', '/my-avatars': 'my_avatars',\n    'asset': 'asset', 'ассет': 'asset', '/asset': 'asset',\n    'shorts': 'shorts', 'шортсы': 'shorts', '/shorts': 'shorts',\n    'product': 'product', 'продукт': 'product', '/product': 'product',\n    'banner': 'banner', 'баннер': 'banner', '/banner': 'banner',\n    'publish_type': 'publish_type', 'publish-type': 'publish_type', 'тип публикации': 'publish_type', '/publish_type': 'publish_type', '/publish-type': 'publish_type',\n    'menu': 'menu', 'меню': 'menu', '/menu': 'menu', '/меню': 'menu',\n    'instruction': 'instruction', 'инструкция': 'instruction', 'инструкции': 'instruction', '/instruction': 'instruction', '/инструкция': 'instruction',\n    'url2video': 'url2video', 'видео из ссылки': 'url2video', '/url2video': 'url2video',\n    'gen_url2video': 'url2video', 'gen_shorts': 'shorts',\n    'avatar_video': 'avatar_video', 'видео с аватаром': 'avatar_video', 'аватар видео': 'avatar_video', 'avv': 'avatar_video', 'gen_avatar_video': 'avatar_video',\n    'text_post': 'text_post', 'текстовый пост': 'text_post', '/text_post': 'text_post', '/текстовый пост': 'text_post',\n    'durc': 'durc',\n    'dur_30': 'dur_30', 'dur_60': 'dur_60', 'durc_30': 'durc_30', 'durc_60': 'durc_60',\n    'add_operator': 'add_operator', 'добавить оператора': 'add_operator', '/add_operator': 'add_operator',\n    'remove_operator': 'remove_operator', 'удалить оператора': 'remove_operator', '/remove_operator': 'remove_operator', '/удалить оператора': 'remove_operator',\n    'operators': 'operators', 'операторы': 'operators', '/operators': 'operators',\n    'profile': 'profile', 'профиль': 'profile', '/profile': 'profile', '/профиль': 'profile',\n    'profiles': 'profiles', 'профили': 'profiles', '/profiles': 'profiles', '/профили': 'profiles',\n    'questions': 'questions', 'вопросы': 'questions', '/questions': 'questions', '/вопросы': 'questions',\n  };\n  const words = t.split(/\\s+/);\n  let command = 'unknown';\n  const args = { url: null, id: null, value: null, platform: null, handle: null, section: null, action: null };\n  if (t.startsWith('onboard ') || t === 'onboard' || t.startsWith('/onboard')) { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('онбординг ') || t === 'онбординг') { command = 'onboard'; args.url = words[1] || null; }\n  else if (t.startsWith('client ') || t.startsWith('клиент ') || t.startsWith('/client ')) { command = 'client'; args.id = words[1] || null; }\n  else if (t.startsWith('добавить оператора ') || t.startsWith('/add_operator ') || t.startsWith('add_operator ')) { command = 'add_operator'; const off = t.startsWith('добавить оператора ') ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('удалить оператора ') || t.startsWith('/remove_operator ') || t.startsWith('/удалить оператора ')) { command = 'remove_operator'; const off = (t.startsWith('удалить оператора ') || t.startsWith('/удалить оператора ')) ? 2 : 1; args.id = words[off] || null; }\n  else if (t.startsWith('creator ') || t.startsWith('автор ') || t.startsWith('/creator ')) { command = 'creator'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('creator_content ') || t.startsWith('creator-content ') || t.startsWith('контент автора ') || t.startsWith('/creator_content ') || t.startsWith('/creator-content ')) { command = 'creator_content'; const off = t.startsWith('контент автора ') ? 2 : 1; args.platform = words[off] || null; args.handle = words[off + 1] || null; }\n  else if (t.startsWith('audience ') || t.startsWith('аудитория ') || t.startsWith('/audience ')) { command = 'audience'; args.platform = words[1] || null; args.handle = words[2] || null; }\n  else if (t.startsWith('поиск авторов ')) { command = 'creators'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('загрузить аватар ')) { command = 'upload_avatar'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('тип публикации ')) { command = 'publish_type'; args.value = words.slice(2).join(' ') || null; }\n  else if (t.startsWith('menu_')) { command = 'menu'; args.section = t.slice(5) || null; }\n  else if (t.startsWith('dur_')) { command = C[t] || 'dur'; args.value = t.slice(4) || null; }\n  else if (t.startsWith('durc_')) { command = C[t] || 'durc'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('hint_')) { command = 'hint'; args.value = t.slice(5) || null; }\n  else if (t.startsWith('видео из ссылки ')) { command = 'url2video'; args.url = words.slice(3).join(' ') || null; }\n  else if (t === 'вопросы' || t === '/вопросы' || t === 'questions' || t === '/questions') { command = 'questions'; args.action = 'list'; }\n  else if (t.startsWith('вопросы сброс') || t.startsWith('/вопросы сброс')) { command = 'questions'; args.action = 'reset'; }\n  else if (t.startsWith('вопрос ') || t.startsWith('/вопросы ')) { command = 'questions'; args.action = 'set'; const N = /^\\d+$/.test(words[1] || '') ? parseInt(words[1], 10) : null; args.n = N; args.value = words.slice(2).join(' ') || null; }\n  else if (t === 'авто' || t === '/авто' || t === 'auto' || t === '/auto') { command = 'auto'; args.action = 'toggle'; }\n  else if (t.startsWith('авто вкл') || t.startsWith('/авто вкл') || t.startsWith('auto on') || t.startsWith('/auto on')) { command = 'auto'; args.action = 'on'; }\n  else if (t.startsWith('авто выкл') || t.startsWith('/авто выкл') || t.startsWith('auto off') || t.startsWith('/auto off')) { command = 'auto'; args.action = 'off'; }\n  else if (C[t]) { command = C[t]; }\n  else if (C[words[0]]) { command = C[words[0]]; args.value = words.slice(1).join(' ') || null; }\n  if (command === 'shorts' && args.value && /^https?:\\/\\//i.test(args.value)) args.url = args.value;\n  return { command: command, args: args };\n}\n\nlet out = null;\nif (item.callback_query) {\n  const q = item.callback_query;\n  const fromId = (q.from && q.from.id) || null;\n  const chatId = (q.message && q.message.chat && q.message.chat.id) || null;\n  const msgId = (q.message && q.message.message_id) || null;\n  const data = String(q.data || '');\n  if (data.startsWith('cmd:')) {\n    const parsed = parseCommand(data.slice(4));\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: parsed.command, args: parsed.args, raw: data, callback_action: null, entity_type: null, entity_id: null };\n  } else if (data.startsWith('dur_') || data.startsWith('durc_')) {\n    const parsed = parseCommand(data);\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: parsed.command, args: parsed.args, raw: data, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parts = data.split(':');\n    const action = parts[0] || '';\n    const entityType = parts[1] || null;\n    const entityId = parts.slice(2).join(':') || null;\n    const map = {\n      approve: { topic: 'approve_topic', script: 'approve_script', gen: 'publish_gen' },\n      edit: { topic: 'edit_topic', script: 'edit_script' },\n      reject: { topic: 'reject_topic', script: 'reject_script', gen: 'reject_gen' },\n      alt: { topic: 'alt_topic' },\n      regen: { gen: 'regen_gen' },\n      toggle: { platform: 'toggle_platform', ppm: 'toggle_ppm' },\n      publish: { gen: 'publish_gen' },\n      confirm: { publish: 'confirm_publish' },\n    };\n    let cb = 'unknown';\n    if (action === 'schedule') cb = 'schedule';\n    else if (action === 'confirm') cb = 'confirm_publish';\n    else if (action === 'publish') cb = 'publish_gen';\n    else if (action === 'tx_toggle') cb = 'tx_toggle';\n    else if (action === 'tx_publish') cb = 'tx_publish';\n    else if (action === 'ro_yes' || action === 'ro_no') cb = action;\n    else if (action === 'ppm_done') cb = 'ppm_done';\n    else if (action.startsWith('pf_')) cb = action;\n    else if (action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit') cb = action;\n    else if (action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject') cb = action;\n    else if (action === 'avv_sel') cb = 'avv_sel';\n    else if (action === 'avv_select') cb = 'avv_select';\n    else if (action === 'avv_next') cb = 'avv_next';\n    else if (action === 'avv_my_avatars') cb = 'avv_my_avatars';\n    else if (action === 'avv_ok') cb = 'avv_ok';\n    else if (action === 'avv_again') cb = 'avv_again';\n    else if (map[action] && map[action][entityType]) cb = map[action][entityType];\n    const isRoCb = action === 'ro_yes' || action === 'ro_no';\n    const isScCb = action === 'sc_ok' || action === 'sc_regenerate' || action === 'sc_edit';\n    const isVdCb = action === 'vd_ok' || action === 'vd_regenerate' || action === 'vd_reject';\n    out = { kind: 'callback', tg_user_id: fromId, chat_id: chatId, message_id: msgId, query_id: String(q.id || ''),\n            command: null, args: {}, raw: data, callback_action: cb,\n            entity_type: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? null : entityType,\n            entity_id: (action.startsWith('pf_') || isRoCb || isScCb || isVdCb) ? (parts[1] || null) : entityId };\n  }\n} else if (item.message) {\n  const m = item.message;\n  const fromId = (m.from && m.from.id) || null;\n  const chatId = (m.chat && m.chat.id) || null;\n  const text = String(m.text || '').trim();\n  if (m.document) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_doc', args: { file_id: m.document.file_id || null, file_name: m.document.file_name || null, mime: m.document.mime_type || null },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.photo && m.photo.length) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_photo', args: { file_id: m.photo[m.photo.length - 1].file_id || null, file_name: 'photo_' + (m.message_id || 'x') + '.jpg' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else if (m.video) {\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: 'profile_video', args: { file_id: m.video.file_id || null, file_name: m.video.file_name || 'video.mp4' },\n            raw: text, callback_action: null, entity_type: null, entity_id: null };\n  } else {\n    const parsed = parseCommand(text);\n    out = { kind: 'message', tg_user_id: fromId, chat_id: chatId, message_id: m.message_id || null, query_id: null,\n            command: parsed.command, args: parsed.args, raw: text, callback_action: null, entity_type: null, entity_id: null };\n  }\n} else {\n  out = { kind: 'unknown', tg_user_id: null, chat_id: null, message_id: null, query_id: null, command: 'unknown', args: {}, raw: '', callback_action: null, entity_type: null, entity_id: null };\n}\nreturn [{ json: out }];\n"
     },
     "id": "8a103f8b-937b-4265-989e-b51bcad58551",
     "name": "Parser",
@@ -792,6 +792,46 @@
          "conditions": [
           {
            "leftValue": "={{ $json.command }}",
+           "rightValue": "dur_30",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.command }}",
+           "rightValue": "dur_60",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.command }}",
            "rightValue": "text_post",
            "operator": {
             "type": "string",
@@ -813,6 +853,46 @@
           {
            "leftValue": "={{ $json.command }}",
            "rightValue": "durc",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.command }}",
+           "rightValue": "durc_30",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.command }}",
+           "rightValue": "durc_60",
            "operator": {
             "type": "string",
             "operation": "equals"
@@ -1758,6 +1838,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -1995,6 +2081,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -2178,6 +2270,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -2415,6 +2513,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -2606,6 +2710,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -3146,6 +3256,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -4024,6 +4140,66 @@
          "conditions": [
           {
            "leftValue": "={{ $json.callback_action }}",
+           "rightValue": "avv_next",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.callback_action }}",
+           "rightValue": "avv_select",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.callback_action }}",
+           "rightValue": "avv_my_avatars",
+           "operator": {
+            "type": "string",
+            "operation": "equals"
+           }
+          }
+         ],
+         "combinator": "and"
+        }
+       },
+       {
+        "conditions": {
+         "options": {
+          "caseSensitive": true,
+          "leftValue": "",
+          "typeValidation": "strict"
+         },
+         "conditions": [
+          {
+           "leftValue": "={{ $json.callback_action }}",
            "rightValue": "avv_again",
            "operator": {
             "type": "string",
@@ -4327,6 +4503,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -4504,6 +4686,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -4715,6 +4903,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -4899,6 +5093,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -5059,6 +5259,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -5421,6 +5627,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -5640,6 +5852,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -5801,6 +6019,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -6019,6 +6243,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -6083,6 +6313,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -6257,6 +6493,18 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -6535,6 +6783,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -6811,6 +7065,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -6976,6 +7236,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -7130,6 +7396,18 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -7874,6 +8152,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -7915,6 +8199,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -11165,13 +11455,13 @@
           {
            "text": "⏱ 30 сек",
            "additionalFields": {
-            "callback_data": "={{ \"cmd:dur_30\" }}"
+            "callback_data": "={{ \"dur_30\" }}"
            }
           },
           {
            "text": "⏱ 60 сек",
            "additionalFields": {
-            "callback_data": "={{ \"cmd:dur_60\" }}"
+            "callback_data": "={{ \"dur_60\" }}"
            }
           }
          ]
@@ -11482,6 +11772,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -11538,6 +11834,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -11610,7 +11912,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('DU HTTP state').first().json.rows || [];\nconst state = (rows[0] && rows[0].state) || 'IDLE';\nlet qp = {};\ntry { qp = JSON.parse((rows[0] && rows[0].quick_payload) || '{}'); } catch (e) { qp = {}; }\nconst url = String(qp.url || '');\nconst dur = Number(p.args.value) || Number(qp.duration) || 0;\nconst durValid = (dur === 30 || dur === 60);\nconst quick = !!(url && durValid);\nconst topic = String(qp.topic || '');\nlet mode = 'dur_wrong';\nif (state === 'QUICK_URL_AWAIT_DUR' && p.command === 'dur' && durValid) mode = 'dur_ok';\nelse if (p.callback_action === 'regen_gen' && topic) mode = 'rg_shorts';\nelse if (p.callback_action === 'regen_gen' && quick) mode = 'rg_ok';\nelse if (p.callback_action === 'regen_gen' && url) mode = 'dur_wrong';\nelse if (p.callback_action === 'regen_gen') mode = 'rg_cycle';\nreturn [{ json: { mode: mode, state: state, url: url, dur: dur, quick: quick, topic: topic } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('DU HTTP state').first().json.rows || [];\nconst state = (rows[0] && rows[0].state) || 'IDLE';\nlet qp = {};\ntry { qp = JSON.parse((rows[0] && rows[0].quick_payload) || '{}'); } catch (e) { qp = {}; }\nconst url = String(qp.url || '');\nconst dur = Number(p.args.value) || Number(qp.duration) || 0;\nconst durValid = (dur === 30 || dur === 60);\nconst quick = !!(url && durValid);\nconst topic = String(qp.topic || '');\nlet mode = 'dur_wrong';\nif (state === 'QUICK_URL_AWAIT_DUR' && (p.command === 'dur' || p.command === 'dur_30' || p.command === 'dur_60') && durValid) mode = 'dur_ok';\nelse if (p.callback_action === 'regen_gen' && topic) mode = 'rg_shorts';\nelse if (p.callback_action === 'regen_gen' && quick) mode = 'rg_ok';\nelse if (p.callback_action === 'regen_gen' && url) mode = 'dur_wrong';\nelse if (p.callback_action === 'regen_gen') mode = 'rg_cycle';\nreturn [{ json: { mode: mode, state: state, url: url, dur: dur, quick: quick, topic: topic } }];\n"
     },
     "id": "4e85601d-b136-40c8-8b01-11edd51a8727",
     "name": "DU Parse state",
@@ -11775,6 +12077,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -12062,6 +12370,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -12118,6 +12432,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -12541,6 +12861,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -12597,6 +12923,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -12989,6 +13321,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -13045,6 +13383,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -13147,6 +13491,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -13367,6 +13717,18 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -14249,6 +14611,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -14305,6 +14673,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -15458,6 +15832,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -16539,13 +16919,13 @@
           {
            "text": "⏱ 30 сек",
            "additionalFields": {
-            "callback_data": "={{ \"cmd:durc_30\" }}"
+            "callback_data": "={{ \"durc_30\" }}"
            }
           },
           {
            "text": "⏱ 60 сек",
            "additionalFields": {
-            "callback_data": "={{ \"cmd:durc_60\" }}"
+            "callback_data": "={{ \"durc_60\" }}"
            }
           }
          ]
@@ -16868,13 +17248,13 @@
           {
            "text": "⏱ 30 сек",
            "additionalFields": {
-            "callback_data": "={{ \"cmd:durc_30\" }}"
+            "callback_data": "={{ \"durc_30\" }}"
            }
           },
           {
            "text": "⏱ 60 сек",
            "additionalFields": {
-            "callback_data": "={{ \"cmd:durc_60\" }}"
+            "callback_data": "={{ \"durc_60\" }}"
            }
           }
          ]
@@ -17267,6 +17647,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -17323,6 +17709,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -17425,6 +17817,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -17561,6 +17959,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -17629,6 +18033,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -18040,6 +18450,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -18262,6 +18678,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -18358,6 +18780,24 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:cancel\" }}"
            }
+          },
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -18429,6 +18869,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -18502,6 +18948,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -18573,6 +19025,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -18976,6 +19434,24 @@
           }
          ]
         }
+       },
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
+          }
+         ]
+        }
        }
       ]
      },
@@ -19315,6 +19791,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -19917,6 +20399,24 @@
           }
          ]
         }
+       },
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
+          }
+         ]
+        }
        }
       ]
      },
@@ -19965,6 +20465,24 @@
           },
           {
            "text": "Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
            "additionalFields": {
             "callback_data": "={{ \"cmd:cancel\" }}"
            }
@@ -20039,6 +20557,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -20468,6 +20992,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -20691,6 +21221,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -20899,6 +21435,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -20961,6 +21503,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -21170,6 +21718,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -21232,6 +21786,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -21926,6 +22486,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -22373,6 +22939,24 @@
           }
          ]
         }
+       },
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
+          }
+         ]
+        }
        }
       ]
      },
@@ -22442,6 +23026,24 @@
           }
          ]
         }
+       },
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
+          }
+         ]
+        }
        }
       ]
      },
@@ -22495,6 +23097,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -22552,6 +23160,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -22646,6 +23260,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -22702,6 +23322,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -22917,6 +23543,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -22964,6 +23596,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -23202,6 +23840,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -23288,6 +23932,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -23452,6 +24102,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -23648,6 +24304,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -23690,6 +24352,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -23731,6 +24399,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -23858,6 +24532,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -23938,6 +24618,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -24216,6 +24902,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -24272,6 +24964,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -24375,6 +25073,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -24431,6 +25135,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -24544,6 +25254,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -24820,6 +25536,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -24976,6 +25698,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -25098,6 +25826,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -25329,6 +26063,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -25820,6 +26560,24 @@
           }
          ]
         }
+       },
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
+          },
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          }
+         ]
+        }
        }
       ]
      }
@@ -25930,6 +26688,24 @@
            "text": "✏️ Написать свой",
            "additionalFields": {
             "callback_data": "={{ 'sc_edit' }}"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "row": {
+         "buttons": [
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
+          },
+          {
+           "text": "📋 Меню",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -26420,6 +27196,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -26766,6 +27548,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -27027,6 +27815,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -27083,6 +27877,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -27330,6 +28130,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -27386,6 +28192,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -27588,6 +28400,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -27644,6 +28462,12 @@
            "text": "📋 Меню",
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\" }}"
+           }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           }
          ]
@@ -28264,13 +29088,13 @@
           {
            "text": "⏱ 30 сек",
            "additionalFields": {
-            "callback_data": "={{ \"cmd:dur_30\" }}"
+            "callback_data": "={{ \"dur_30\" }}"
            }
           },
           {
            "text": "⏱ 60 сек",
            "additionalFields": {
-            "callback_data": "={{ \"cmd:dur_60\" }}"
+            "callback_data": "={{ \"dur_60\" }}"
            }
           }
          ]
@@ -28581,7 +29405,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst b = $('AVV Build preview').first().json;\nreturn [{ json: { mode: b.mode || 'list', chat_id: b.chat_id, text: b.text, rows: b.rows } }];\n"
+     "jsCode": "\nconst b = $('AVV Build preview').first().json;\nconst rows = (b.inlineKeyboard && b.inlineKeyboard.rows) || b.rows || [];\nreturn [{ json: { mode: b.mode || 'list', chat_id: b.chat_id, text: b.text, photo: b.photo, rows: rows } }];\n"
     },
     "id": "5fdabd02-7e30-4a70-a097-d0fde686e532",
     "name": "AVV Ask avatar",
@@ -28608,9 +29432,15 @@
         "row": {
          "buttons": [
           {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
+          },
+          {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "={{ \"cmd:menu\\\" }}"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -28637,14 +29467,15 @@
    {
     "parameters": {
      "resource": "message",
-     "operation": "sendMessage",
+     "operation": "sendPhoto",
      "chatId": "={{ $('Parser').first().json.chat_id }}",
-     "text": "={{ $json.text }}",
      "additionalFields": {
+      "caption": "={{ $json.text }}",
       "appendAttribution": false
      },
      "replyMarkup": "inlineKeyboard",
-     "inlineKeyboard": "={{ {rows: $json.rows} }}"
+     "inlineKeyboard": "={{ {rows: $json.rows} }}",
+     "file": "={{ $json.photo }}"
     },
     "id": "5909b121-055e-43f7-ba0e-8684feeffd07",
     "name": "TG avv ask avatar",
@@ -28757,13 +29588,13 @@
           {
            "text": "⏱ 30 сек",
            "additionalFields": {
-            "callback_data": "={{ \"cmd:dur_30\\\" }}"
+            "callback_data": "={{ \"dur_30\" }}"
            }
           },
           {
            "text": "⏱ 60 сек",
            "additionalFields": {
-            "callback_data": "={{ \"cmd:dur_60\\\" }}"
+            "callback_data": "={{ \"dur_60\" }}"
            }
           }
          ]
@@ -28775,13 +29606,13 @@
           {
            "text": "🧹 Отмена",
            "additionalFields": {
-            "callback_data": "={{ \"cmd:cancel\\\" }}"
+            "callback_data": "={{ \"cmd:cancel\" }}"
            }
           },
           {
            "text": "📋 Меню",
            "additionalFields": {
-            "callback_data": "={{ \"cmd:menu\\\" }}"
+            "callback_data": "={{ \"cmd:menu\" }}"
            }
           }
          ]
@@ -29156,6 +29987,12 @@
            "additionalFields": {
             "callback_data": "={{ \"cmd:menu\\\" }}"
            }
+          },
+          {
+           "text": "🧹 Отмена",
+           "additionalFields": {
+            "callback_data": "={{ \"cmd:cancel\" }}"
+           }
           }
          ]
         }
@@ -29182,7 +30019,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst rows = $('AVV HTTP avatars').first().json.rows || [];\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\$1');\nconst STOCKS = [\n  { id: '009f502d-3649-4624-a438-80b126f1fa30', name: 'Camila', img: 'https://cdn.creatify.ai/creator/009f502d-3649-4624-a438-80b126f1fa30/p_rs__0917.png' },\n  { id: '018a97ef-4fba-4a34-8097-5e60e6e36ffe', name: 'Chloé', img: 'https://cdn.creatify.ai/creator/018a97ef-4fba-4a34-8097-5e60e6e36ffe/p.png' },\n  { id: '285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d', name: 'Bianca', img: 'https://cdn.creatify.ai/creator/285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d/p.png' },\n  { id: '745fef08-8eee-4e3b-873d-c39b9791c4cd', name: 'Sylvia', img: 'https://cdn.creatify.ai/creator/745fef08-8eee-4e3b-873d-c39b9791c4cd/p_rs__0917.png' },\n  { id: '74686a1c-040c-4783-a2e2-a54367fbf998', name: 'Olivia', img: 'https://cdn.creatify.ai/creator/74686a1c-040c-4783-a2e2-a54367fbf998/p.png' },\n  { id: 'e40f0f2f-c280-4a35-af40-54ffaee3c67b', name: 'Priya', img: 'https://cdn.creatify.ai/creator/e40f0f2f-c280-4a35-af40-54ffaee3c67b/p_rs__0917.png' },\n  { id: 'fb40e95f-c907-45f9-a0ef-2d2ab981aa00', name: 'Carmen', img: 'https://cdn.creatify.ai/creator/fb40e95f-c907-45f9-a0ef-2d2ab981aa00/p_rs__0917.png' },\n  { id: '6fdf53cb-ac28-4487-96d2-3eae073ece26', name: 'Lily', img: 'https://cdn.creatify.ai/creator/6fdf53cb-ac28-4487-96d2-3eae073ece26/p.png' },\n  { id: '0251876f-0da4-4c61-8320-8955d8be1f98', name: 'Diego', img: 'https://cdn.creatify.ai/creator/0251876f-0da4-4c61-8320-8955d8be1f98/p.png' },\n  { id: '0587591d-54cc-4d8d-867d-cc82de168f61', name: 'Sam', img: 'https://cdn.creatify.ai/creator/0587591d-54cc-4d8d-867d-cc82de168f61/p.png' },\n  { id: '5a711072-4cef-49de-b82c-282e4f1e5a7d', name: 'Leo', img: 'https://cdn.creatify.ai/media_file/2161659/8f0b29818f35c355a5f0bb39129d84d0.png' },\n  { id: '85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9', name: 'Quentin', img: 'https://cdn.creatify.ai/creator/85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9/p_rs__0917.png' },\n  { id: 'bf384605-a98d-4bad-828a-f3fd8825f5f6', name: 'Santiago', img: 'https://cdn.creatify.ai/creator/bf384605-a98d-4bad-828a-f3fd8825f5f6/p.png' },\n  { id: 'f8b1e966-f8df-4441-b426-66c0e61fb6cf', name: 'Kaito', img: 'https://cdn.creatify.ai/creator/f8b1e966-f8df-4441-b426-66c0e61fb6cf/p_rs__0917.png' },\n  { id: '7b9482cd-7717-4202-9fc0-69b9c635b785', name: 'Aryan', img: 'https://cdn.creatify.ai/creator/7b9482cd-7717-4202-9fc0-69b9c635b785/p.png' }\n];\nconst btnsOwn = rows.map(r => ({ text: String(r.creator_name || r.persona_id || 'Аватар').slice(0, 30), additionalFields: { callback_data: '={{ \\'avv_sel:' + String(r.persona_id) + '\\' }}' } }));\nconst btnsStock = STOCKS.map(s => ({ text: s.name, additionalFields: { callback_data: '={{ \\'avv_sel:' + s.id + '\\' }}' } }));\nconst all = btnsOwn.concat(btnsStock);\nconst photos = STOCKS.map(s => s.img);\nconst header = btnsOwn.length ? 'Свои — первыми кнопками, стоковые creatify — ниже.' : 'Стоковые аватары creatify.';\nconst hint = ' Нажми на имя — покажу фото аватара.';\nconst text = '🎭 Выбери аватара для видео: ' + esc(header) + hint;\nreturn [{ json: { mode: 'list', chat_id: p.chat_id, text: text, rows: [{ row: { buttons: all } }], photos_1: [], photos_2: [] } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst STOCKS = [\n  { id: '009f502d-3649-4624-a438-80b126f1fa30', name: 'Camila', img: 'https://cdn.creatify.ai/creator/009f502d-3649-4624-a438-80b126f1fa30/p_rs__0917.png' },\n  { id: '018a97ef-4fba-4a34-8097-5e60e6e36ffe', name: 'Chloé', img: 'https://cdn.creatify.ai/creator/018a97ef-4fba-4a34-8097-5e60e6e36ffe/p.png' },\n  { id: '285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d', name: 'Bianca', img: 'https://cdn.creatify.ai/creator/285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d/p.png' },\n  { id: '745fef08-8eee-4e3b-873d-c39b9791c4cd', name: 'Sylvia', img: 'https://cdn.creatify.ai/creator/745fef08-8eee-4e3b-873d-c39b9791c4cd/p_rs__0917.png' },\n  { id: '74686a1c-040c-4783-a2e2-a54367fbf998', name: 'Olivia', img: 'https://cdn.creatify.ai/creator/74686a1c-040c-4783-a2e2-a54367fbf998/p.png' },\n  { id: 'e40f0f2f-c280-4a35-af40-54ffaee3c67b', name: 'Priya', img: 'https://cdn.creatify.ai/creator/e40f0f2f-c280-4a35-af40-54ffaee3c67b/p_rs__0917.png' },\n  { id: 'fb40e95f-c907-45f9-a0ef-2d2ab981aa00', name: 'Carmen', img: 'https://cdn.creatify.ai/creator/fb40e95f-c907-45f9-a0ef-2d2ab981aa00/p_rs__0917.png' },\n  { id: '6fdf53cb-ac28-4487-96d2-3eae073ece26', name: 'Lily', img: 'https://cdn.creatify.ai/creator/6fdf53cb-ac28-4487-96d2-3eae073ece26/p.png' },\n  { id: '0251876f-0da4-4c61-8320-8955d8be1f98', name: 'Diego', img: 'https://cdn.creatify.ai/creator/0251876f-0da4-4c61-8320-8955d8be1f98/p.png' },\n  { id: '0587591d-54cc-4d8d-867d-cc82de168f61', name: 'Sam', img: 'https://cdn.creatify.ai/creator/0587591d-54cc-4d8d-867d-cc82de168f61/p.png' },\n  { id: '5a711072-4cef-49de-b82c-282e4f1e5a7d', name: 'Leo', img: 'https://cdn.creatify.ai/media_file/2161659/8f0b29818f35c355a5f0bb39129d84d0.png' },\n  { id: '85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9', name: 'Quentin', img: 'https://cdn.creatify.ai/creator/85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9/p_rs__0917.png' },\n  { id: 'bf384605-a98d-4bad-828a-f3fd8825f5f6', name: 'Santiago', img: 'https://cdn.creatify.ai/creator/bf384605-a98d-4bad-828a-f3fd8825f5f6/p.png' },\n  { id: 'f8b1e966-f8df-4441-b426-66c0e61fb6cf', name: 'Kaito', img: 'https://cdn.creatify.ai/creator/f8b1e966-f8df-4441-b426-66c0e61fb6cf/p_rs__0917.png' },\n  { id: '7b9482cd-7717-4202-9fc0-69b9c635b785', name: 'Aryan', img: 'https://cdn.creatify.ai/creator/7b9482cd-7717-4202-9fc0-69b9c635b785/p.png' }\n];\nconst index = 0;\nconst avatar = STOCKS[index];\nconst caption = '🎭 Аватар ' + (index + 1) + '/' + STOCKS.length + ': ' + esc(avatar.name);\nconst rows = [\n  { row: { buttons: [\n    { text: '✅ Выбрать', additionalFields: { callback_data: 'avv_select:' + avatar.id } },\n    { text: '➡️ Далее', additionalFields: { callback_data: 'avv_next:' + index } }\n  ] } },\n  { row: { buttons: [\n    { text: '👤 Мои аватары', additionalFields: { callback_data: 'avv_my_avatars' } },\n    { text: '📋 Меню', additionalFields: { callback_data: 'cmd:menu' } },\n    { text: '🧹 Отмена', additionalFields: { callback_data: 'cmd:cancel' } }\n  ] } }\n];\nreturn [{ json: { mode: 'photo', index: index, total: STOCKS.length, avatar_id: avatar.id, chat_id: p.chat_id, photo: avatar.img, text: caption, inlineKeyboard: { rows: rows } } }];\n"
     },
     "id": "b1a2c3d4-0000-4000-8000-000000000001",
     "name": "AVV Build preview",
@@ -29197,7 +30034,7 @@
     "parameters": {
      "mode": "runOnceForAllItems",
      "language": "javaScript",
-     "jsCode": "\nconst p = $('Parser').first().json;\nconst avatarId = String(p.entity_type || '').trim();\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\$1');\nconst STOCKS = [\n  { id: '009f502d-3649-4624-a438-80b126f1fa30', name: 'Camila', img: 'https://cdn.creatify.ai/creator/009f502d-3649-4624-a438-80b126f1fa30/p_rs__0917.png' },\n  { id: '018a97ef-4fba-4a34-8097-5e60e6e36ffe', name: 'Chloé', img: 'https://cdn.creatify.ai/creator/018a97ef-4fba-4a34-8097-5e60e6e36ffe/p.png' },\n  { id: '285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d', name: 'Bianca', img: 'https://cdn.creatify.ai/creator/285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d/p.png' },\n  { id: '745fef08-8eee-4e3b-873d-c39b9791c4cd', name: 'Sylvia', img: 'https://cdn.creatify.ai/creator/745fef08-8eee-4e3b-873d-c39b9791c4cd/p_rs__0917.png' },\n  { id: '74686a1c-040c-4783-a2e2-a54367fbf998', name: 'Olivia', img: 'https://cdn.creatify.ai/creator/74686a1c-040c-4783-a2e2-a54367fbf998/p.png' },\n  { id: 'e40f0f2f-c280-4a35-af40-54ffaee3c67b', name: 'Priya', img: 'https://cdn.creatify.ai/creator/e40f0f2f-c280-4a35-af40-54ffaee3c67b/p_rs__0917.png' },\n  { id: 'fb40e95f-c907-45f9-a0ef-2d2ab981aa00', name: 'Carmen', img: 'https://cdn.creatify.ai/creator/fb40e95f-c907-45f9-a0ef-2d2ab981aa00/p_rs__0917.png' },\n  { id: '6fdf53cb-ac28-4487-96d2-3eae073ece26', name: 'Lily', img: 'https://cdn.creatify.ai/creator/6fdf53cb-ac28-4487-96d2-3eae073ece26/p.png' },\n  { id: '0251876f-0da4-4c61-8320-8955d8be1f98', name: 'Diego', img: 'https://cdn.creatify.ai/creator/0251876f-0da4-4c61-8320-8955d8be1f98/p.png' },\n  { id: '0587591d-54cc-4d8d-867d-cc82de168f61', name: 'Sam', img: 'https://cdn.creatify.ai/creator/0587591d-54cc-4d8d-867d-cc82de168f61/p.png' },\n  { id: '5a711072-4cef-49de-b82c-282e4f1e5a7d', name: 'Leo', img: 'https://cdn.creatify.ai/media_file/2161659/8f0b29818f35c355a5f0bb39129d84d0.png' },\n  { id: '85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9', name: 'Quentin', img: 'https://cdn.creatify.ai/creator/85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9/p_rs__0917.png' },\n  { id: 'bf384605-a98d-4bad-828a-f3fd8825f5f6', name: 'Santiago', img: 'https://cdn.creatify.ai/creator/bf384605-a98d-4bad-828a-f3fd8825f5f6/p.png' },\n  { id: 'f8b1e966-f8df-4441-b426-66c0e61fb6cf', name: 'Kaito', img: 'https://cdn.creatify.ai/creator/f8b1e966-f8df-4441-b426-66c0e61fb6cf/p_rs__0917.png' },\n  { id: '7b9482cd-7717-4202-9fc0-69b9c635b785', name: 'Aryan', img: 'https://cdn.creatify.ai/creator/7b9482cd-7717-4202-9fc0-69b9c635b785/p.png' }\n];\nconst stock = STOCKS.find(s => s.id === avatarId);\nconst ownRows = $('AVV HTTP avatars').first().json.rows || [];\nconst own = ownRows.find(r => String(r.persona_id) === avatarId);\nconst name = stock ? stock.name : (own ? String(own.creator_name || 'Аватар') : '');\nconst okCb = '={{ \\'avv_ok:' + avatarId + '\\' }}';\nconst againCb = '={{ \\'avv_again\\' }}';\nconst rows = [\n  { row: { buttons: [\n    { text: '✅ Этот', additionalFields: { callback_data: okCb } },\n    { text: '🔁 Другой', additionalFields: { callback_data: againCb } }\n  ] } },\n  { row: { buttons: [\n    { text: '🧹 Отмена', additionalFields: { callback_data: '={{ \\'cmd:cancel\\' }}' } },\n    { text: '📋 Меню', additionalFields: { callback_data: '={{ \\'cmd:menu\\' }}' } }\n  ] } }\n];\nif (stock) {\n  return [{ json: { mode: 'photo', chat_id: p.chat_id, photo: stock.img, text: esc('🎭 Аватар: ' + name + '. Этот подходит?'), rows: rows } }];\n}\nreturn [{ json: { mode: 'text', chat_id: p.chat_id, text: esc('🎭 Свой аватар: ' + (name || avatarId) + '. Продолжить с этим аватаром?'), rows: rows } }];\n"
+     "jsCode": "\nconst p = $('Parser').first().json;\nconst avatarId = String(p.entity_type || '').trim();\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst STOCKS = [\n  { id: '009f502d-3649-4624-a438-80b126f1fa30', name: 'Camila', img: 'https://cdn.creatify.ai/creator/009f502d-3649-4624-a438-80b126f1fa30/p_rs__0917.png' },\n  { id: '018a97ef-4fba-4a34-8097-5e60e6e36ffe', name: 'Chloé', img: 'https://cdn.creatify.ai/creator/018a97ef-4fba-4a34-8097-5e60e6e36ffe/p.png' },\n  { id: '285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d', name: 'Bianca', img: 'https://cdn.creatify.ai/creator/285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d/p.png' },\n  { id: '745fef08-8eee-4e3b-873d-c39b9791c4cd', name: 'Sylvia', img: 'https://cdn.creatify.ai/creator/745fef08-8eee-4e3b-873d-c39b9791c4cd/p_rs__0917.png' },\n  { id: '74686a1c-040c-4783-a2e2-a54367fbf998', name: 'Olivia', img: 'https://cdn.creatify.ai/creator/74686a1c-040c-4783-a2e2-a54367fbf998/p.png' },\n  { id: 'e40f0f2f-c280-4a35-af40-54ffaee3c67b', name: 'Priya', img: 'https://cdn.creatify.ai/creator/e40f0f2f-c280-4a35-af40-54ffaee3c67b/p_rs__0917.png' },\n  { id: 'fb40e95f-c907-45f9-a0ef-2d2ab981aa00', name: 'Carmen', img: 'https://cdn.creatify.ai/creator/fb40e95f-c907-45f9-a0ef-2d2ab981aa00/p_rs__0917.png' },\n  { id: '6fdf53cb-ac28-4487-96d2-3eae073ece26', name: 'Lily', img: 'https://cdn.creatify.ai/creator/6fdf53cb-ac28-4487-96d2-3eae073ece26/p.png' },\n  { id: '0251876f-0da4-4c61-8320-8955d8be1f98', name: 'Diego', img: 'https://cdn.creatify.ai/creator/0251876f-0da4-4c61-8320-8955d8be1f98/p.png' },\n  { id: '0587591d-54cc-4d8d-867d-cc82de168f61', name: 'Sam', img: 'https://cdn.creatify.ai/creator/0587591d-54cc-4d8d-867d-cc82de168f61/p.png' },\n  { id: '5a711072-4cef-49de-b82c-282e4f1e5a7d', name: 'Leo', img: 'https://cdn.creatify.ai/media_file/2161659/8f0b29818f35c355a5f0bb39129d84d0.png' },\n  { id: '85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9', name: 'Quentin', img: 'https://cdn.creatify.ai/creator/85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9/p_rs__0917.png' },\n  { id: 'bf384605-a98d-4bad-828a-f3fd8825f5f6', name: 'Santiago', img: 'https://cdn.creatify.ai/creator/bf384605-a98d-4bad-828a-f3fd8825f5f6/p.png' },\n  { id: 'f8b1e966-f8df-4441-b426-66c0e61fb6cf', name: 'Kaito', img: 'https://cdn.creatify.ai/creator/f8b1e966-f8df-4441-b426-66c0e61fb6cf/p_rs__0917.png' },\n  { id: '7b9482cd-7717-4202-9fc0-69b9c635b785', name: 'Aryan', img: 'https://cdn.creatify.ai/creator/7b9482cd-7717-4202-9fc0-69b9c635b785/p.png' }\n];\nconst stock = STOCKS.find(s => s.id === avatarId);\nconst ownRows = $('AVV HTTP avatars').first().json.rows || [];\nconst own = ownRows.find(r => String(r.persona_id) === avatarId);\nconst name = stock ? stock.name : (own ? String(own.creator_name || 'Аватар') : '');\nconst okCb = 'avv_ok:' + avatarId;\nconst againCb = 'avv_again';\nconst rows = [\n  { row: { buttons: [\n    { text: '✅ Этот', additionalFields: { callback_data: okCb } },\n    { text: '🔁 Другой', additionalFields: { callback_data: againCb } }\n  ] } },\n  { row: { buttons: [\n    { text: '🧹 Отмена', additionalFields: { callback_data: 'cmd:cancel' } },\n    { text: '📋 Меню', additionalFields: { callback_data: 'cmd:menu' } }\n  ] } }\n];\nif (stock) {\n  return [{ json: { mode: 'photo', chat_id: p.chat_id, photo: stock.img, text: esc('🎭 Аватар: ' + name + '. Этот подходит?'), rows: rows } }];\n}\nreturn [{ json: { mode: 'text', chat_id: p.chat_id, text: esc('🎭 Свой аватар: ' + (name || avatarId) + '. Продолжить с этим аватаром?'), rows: rows } }];\n"
     },
     "id": "c1a2b3c4-0000-4000-8000-000000000001",
     "name": "AVV Preview sel",
@@ -29322,6 +30159,233 @@
      4620,
      460
     ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst STOCKS = [\n  { id: '009f502d-3649-4624-a438-80b126f1fa30', name: 'Camila', img: 'https://cdn.creatify.ai/creator/009f502d-3649-4624-a438-80b126f1fa30/p_rs__0917.png' },\n  { id: '018a97ef-4fba-4a34-8097-5e60e6e36ffe', name: 'Chloé', img: 'https://cdn.creatify.ai/creator/018a97ef-4fba-4a34-8097-5e60e6e36ffe/p.png' },\n  { id: '285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d', name: 'Bianca', img: 'https://cdn.creatify.ai/creator/285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d/p.png' },\n  { id: '745fef08-8eee-4e3b-873d-c39b9791c4cd', name: 'Sylvia', img: 'https://cdn.creatify.ai/creator/745fef08-8eee-4e3b-873d-c39b9791c4cd/p_rs__0917.png' },\n  { id: '74686a1c-040c-4783-a2e2-a54367fbf998', name: 'Olivia', img: 'https://cdn.creatify.ai/creator/74686a1c-040c-4783-a2e2-a54367fbf998/p.png' },\n  { id: 'e40f0f2f-c280-4a35-af40-54ffaee3c67b', name: 'Priya', img: 'https://cdn.creatify.ai/creator/e40f0f2f-c280-4a35-af40-54ffaee3c67b/p_rs__0917.png' },\n  { id: 'fb40e95f-c907-45f9-a0ef-2d2ab981aa00', name: 'Carmen', img: 'https://cdn.creatify.ai/creator/fb40e95f-c907-45f9-a0ef-2d2ab981aa00/p_rs__0917.png' },\n  { id: '6fdf53cb-ac28-4487-96d2-3eae073ece26', name: 'Lily', img: 'https://cdn.creatify.ai/creator/6fdf53cb-ac28-4487-96d2-3eae073ece26/p.png' },\n  { id: '0251876f-0da4-4c61-8320-8955d8be1f98', name: 'Diego', img: 'https://cdn.creatify.ai/creator/0251876f-0da4-4c61-8320-8955d8be1f98/p.png' },\n  { id: '0587591d-54cc-4d8d-867d-cc82de168f61', name: 'Sam', img: 'https://cdn.creatify.ai/creator/0587591d-54cc-4d8d-867d-cc82de168f61/p.png' },\n  { id: '5a711072-4cef-49de-b82c-282e4f1e5a7d', name: 'Leo', img: 'https://cdn.creatify.ai/media_file/2161659/8f0b29818f35c355a5f0bb39129d84d0.png' },\n  { id: '85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9', name: 'Quentin', img: 'https://cdn.creatify.ai/creator/85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9/p_rs__0917.png' },\n  { id: 'bf384605-a98d-4bad-828a-f3fd8825f5f6', name: 'Santiago', img: 'https://cdn.creatify.ai/creator/bf384605-a98d-4bad-828a-f3fd8825f5f6/p.png' },\n  { id: 'f8b1e966-f8df-4441-b426-66c0e61fb6cf', name: 'Kaito', img: 'https://cdn.creatify.ai/creator/f8b1e966-f8df-4441-b426-66c0e61fb6cf/p_rs__0917.png' },\n  { id: '7b9482cd-7717-4202-9fc0-69b9c635b785', name: 'Aryan', img: 'https://cdn.creatify.ai/creator/7b9482cd-7717-4202-9fc0-69b9c635b785/p.png' }\n];\nconst current = Number(p.entity_id || 0);\nconst index = (current + 1) % STOCKS.length;\nconst avatar = STOCKS[index];\nconst caption = '🎭 Аватар ' + (index + 1) + '/' + STOCKS.length + ': ' + esc(avatar.name);\nconst rows = [\n  { row: { buttons: [\n    { text: '✅ Выбрать', additionalFields: { callback_data: 'avv_select:' + avatar.id } },\n    { text: '➡️ Далее', additionalFields: { callback_data: 'avv_next:' + index } }\n  ] } },\n  { row: { buttons: [\n    { text: '👤 Мои аватары', additionalFields: { callback_data: 'avv_my_avatars' } },\n    { text: '📋 Меню', additionalFields: { callback_data: 'cmd:menu' } },\n    { text: '🧹 Отмена', additionalFields: { callback_data: 'cmd:cancel' } }\n  ] } }\n];\nreturn [{ json: { mode: 'photo', index: index, total: STOCKS.length, avatar_id: avatar.id, chat_id: p.chat_id, photo: avatar.img, text: caption, inlineKeyboard: { rows: rows } } }];\n"
+    },
+    "id": "7d26b221-ad6d-46cf-ae8b-1771b5895580",
+    "name": "AVV Carousel next",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     4620,
+     300
+    ]
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const p = $('Parser').first().json;\nconst avatarId = String(p.entity_id || '').trim();\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst text = '🎭 Аватар выбран. Пришли тему для видео с аватаром (1–2 предложения). Разверну в сценарий и озвучу аватаром.';\nconst inlineKeyboard = { rows: [{ row: { buttons: [\n  { text: '📋 Меню', additionalFields: { callback_data: 'cmd:menu' } },\n  { text: '🧹 Отмена', additionalFields: { callback_data: 'cmd:cancel' } }\n] } }] };\nreturn [{ json: { sql: \"UPDATE sessions SET state='AVATAR_VIDEO_AWAIT_TOPIC', quick_payload=?, updated_at=datetime('now') WHERE tg_user_id=?\", params: [JSON.stringify({ avatar_id: avatarId }), p.tg_user_id], chat_id: p.chat_id, text: esc(text), inlineKeyboard: inlineKeyboard, avatar_id: avatarId } }];\n"
+    },
+    "id": "eb2418f9-c62c-43ea-95b6-98fed3b88aa1",
+    "name": "AVV Select",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     4620,
+     460
+    ]
+   },
+   {
+    "parameters": {
+     "method": "POST",
+     "url": "http://db-bridge:8787/query",
+     "sendHeaders": true,
+     "headerParameters": {
+      "parameters": [
+       {
+        "name": "X-BRIDGE-TOKEN",
+        "value": "={{ $env.FACTORY_DB_BRIDGE_TOKEN }}"
+       }
+      ]
+     },
+     "sendBody": true,
+     "contentType": "json",
+     "specifyBody": "json",
+     "jsonBody": "={{ {sql: \"SELECT id, persona_id, creator_name FROM custom_avatars WHERE client_id = (SELECT COALESCE(active_client_id, 1) FROM users WHERE tg_user_id = ?) AND status = 'approved' ORDER BY id DESC\", params: [$('Parser').first().json.tg_user_id]} }}",
+     "options": {
+      "timeout": 15000
+     }
+    },
+    "id": "c98d53a3-4bcc-4a0a-86a6-575b10664c78",
+    "name": "AVV HTTP my avatars",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     4780,
+     540
+    ],
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
+   },
+   {
+    "parameters": {
+     "mode": "runOnceForAllItems",
+     "language": "javaScript",
+     "jsCode": "const p = $('Parser').first().json;\nconst esc = s => String(s ?? '').replace(/([_*[\\]`])/g, '\\\\$1');\nconst rows = $('AVV HTTP my avatars').first().json.rows || [];\nlet text = '';\nlet inlineKeyboard = { rows: [] };\nif (!rows.length) {\n  text = '👤 У тебя пока нет своих аватаров. Загрузи аватар командой /upload_avatar или выбери из стоковых.';\n  inlineKeyboard = { rows: [{ row: { buttons: [\n    { text: '🎭 Стоковые аватары', additionalFields: { callback_data: 'avv_next:0' } },\n    { text: '📋 Меню', additionalFields: { callback_data: 'cmd:menu' } },\n    { text: '🧹 Отмена', additionalFields: { callback_data: 'cmd:cancel' } }\n  ] } }] };\n} else {\n  text = '👤 Твои аватары:';\n  const chunk = (arr, size) => { const out = []; for (let i = 0; i < arr.length; i += size) out.push({ row: { buttons: arr.slice(i, i + size) } }); return out; };\n  const avatarRows = chunk(rows.map(r => ({\n    text: String(r.creator_name || 'Аватар').slice(0, 30),\n    additionalFields: { callback_data: 'avv_select:' + String(r.persona_id) }\n  })), 2);\n  inlineKeyboard = { rows: avatarRows.concat([{ row: { buttons: [\n    { text: '🎭 Стоковые аватары', additionalFields: { callback_data: 'avv_next:0' } },\n    { text: '📋 Меню', additionalFields: { callback_data: 'cmd:menu' } },\n    { text: '🧹 Отмена', additionalFields: { callback_data: 'cmd:cancel' } }\n  ] } }]) };\n}\nreturn [{ json: { mode: 'list', chat_id: p.chat_id, text: esc(text), inlineKeyboard: inlineKeyboard } }];\n"
+    },
+    "id": "699dc3df-fd7a-4e53-9282-72f701b8c0ba",
+    "name": "AVV My avatars",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     4940,
+     540
+    ]
+   },
+   {
+    "name": "TG avv carousel",
+    "type": "n8n-nodes-base.telegram",
+    "parameters": {
+     "resource": "message",
+     "operation": "sendPhoto",
+     "chatId": "={{ $('Parser').first().json.chat_id }}",
+     "file": "={{ $json.photo }}",
+     "additionalFields": {
+      "caption": "={{ $json.text }}",
+      "appendAttribution": false
+     },
+     "replyMarkup": "inlineKeyboard",
+     "inlineKeyboard": "={{ {rows: $json.rows} }}"
+    },
+    "position": [
+     4620,
+     300
+    ],
+    "typeVersion": 1.2,
+    "id": "0d1f782e-877a-4168-9a23-62de3c4af94a",
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
+   },
+   {
+    "name": "TG avv selected",
+    "type": "n8n-nodes-base.telegram",
+    "parameters": {
+     "resource": "message",
+     "operation": "sendMessage",
+     "chatId": "={{ $('Parser').first().json.chat_id }}",
+     "text": "={{ $json.text }}",
+     "additionalFields": {
+      "appendAttribution": false
+     }
+    },
+    "position": [
+     4620,
+     460
+    ],
+    "typeVersion": 1.2,
+    "id": "c5175f30-1599-49f7-9c1f-6ee696d9fbfc",
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
+   },
+   {
+    "name": "TG avv my avatars",
+    "type": "n8n-nodes-base.telegram",
+    "parameters": {
+     "resource": "message",
+     "operation": "sendMessage",
+     "chatId": "={{ $('Parser').first().json.chat_id }}",
+     "text": "={{ $json.text }}",
+     "additionalFields": {
+      "appendAttribution": false
+     },
+     "replyMarkup": "inlineKeyboard",
+     "inlineKeyboard": "={{ {rows: $json.rows} }}"
+    },
+    "position": [
+     5100,
+     540
+    ],
+    "typeVersion": 1.2,
+    "id": "cda22da6-0a6e-48a3-8680-58864639aac7",
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
+   },
+   {
+    "id": "2c118f8c-16e4-4b64-af4d-bf21878ebc0c",
+    "name": "TG avv delete next",
+    "type": "n8n-nodes-base.telegram",
+    "typeVersion": 1.2,
+    "position": [
+     4470,
+     240
+    ],
+    "parameters": {
+     "resource": "message",
+     "operation": "deleteMessage",
+     "chatId": "={{ $('Parser').first().json.chat_id }}",
+     "messageId": "={{ $('Parser').first().json.message_id }}"
+    },
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
+   },
+   {
+    "id": "14a074a4-50ce-4a8a-a5b6-a1bb2aa49aa0",
+    "name": "TG avv delete select",
+    "type": "n8n-nodes-base.telegram",
+    "typeVersion": 1.2,
+    "position": [
+     4470,
+     400
+    ],
+    "parameters": {
+     "resource": "message",
+     "operation": "deleteMessage",
+     "chatId": "={{ $('Parser').first().json.chat_id }}",
+     "messageId": "={{ $('Parser').first().json.message_id }}"
+    },
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
+   },
+   {
+    "id": "57305ac3-1359-498f-93ab-285affb5e5f0",
+    "name": "TG avv delete my",
+    "type": "n8n-nodes-base.telegram",
+    "typeVersion": 1.2,
+    "position": [
+     4470,
+     560
+    ],
+    "parameters": {
+     "resource": "message",
+     "operation": "deleteMessage",
+     "chatId": "={{ $('Parser').first().json.chat_id }}",
+     "messageId": "={{ $('Parser').first().json.message_id }}"
+    },
+    "credentials": {
+     "telegramApi": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "telegram"
+     }
+    }
    }
   ],
   "connections": {
@@ -29614,7 +30678,35 @@
      ],
      [
       {
+       "node": "SH Dur check",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "SH Dur check",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
        "node": "GPF Build",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "DR Build state",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "DR Build state",
        "type": "main",
        "index": 0
       }
@@ -30714,6 +31806,27 @@
      [
       {
        "node": "AVV Save avatar",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "TG avv delete next",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "TG avv delete select",
+       "type": "main",
+       "index": 0
+      }
+     ],
+     [
+      {
+       "node": "TG avv delete my",
        "type": "main",
        "index": 0
       }
@@ -40062,6 +41175,72 @@
    },
    "TG avv preview text": {
     "main": []
+   },
+   "TG avv delete next": {
+    "main": [
+     [
+      {
+       "node": "AVV Carousel next",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "TG avv delete select": {
+    "main": [
+     [
+      {
+       "node": "AVV Select",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "TG avv delete my": {
+    "main": [
+     [
+      {
+       "node": "AVV My avatars",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV Carousel next": {
+    "main": [
+     [
+      {
+       "node": "TG avv carousel",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV Select": {
+    "main": [
+     [
+      {
+       "node": "TG avv selected",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "AVV My avatars": {
+    "main": [
+     [
+      {
+       "node": "TG avv my avatars",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
    }
   },
   "settings": {

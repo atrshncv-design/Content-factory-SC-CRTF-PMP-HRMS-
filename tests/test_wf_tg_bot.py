@@ -115,6 +115,112 @@ class WfTgBotStructureTests(unittest.TestCase):
                 f"node --check FAIL {n['name']}: {result.stderr.decode()[:200]}"
             )
 
+    def test_outgoing_telegram_nodes_have_navigation_buttons(self):
+        """Every outgoing Telegram message (non answerCallbackQuery) must have
+        an inline keyboard with cmd:menu and cmd:cancel, except listed
+        service nodes.
+        """
+        full_exceptions = {
+            n["name"] for n in self.wf["nodes"]
+            if n["type"] == "n8n-nodes-base.telegram"
+            and n.get("parameters", {}).get("operation") == "answerQuery"
+        }
+        # sendVideo node: action buttons are provided by separate TG sh buttons.
+        full_exceptions.add("TG sh video")
+        # Menu screens already expose the main navigation as their own buttons.
+        menu_nodes = {
+            "TG menu", "TG menu gen", "TG menu analytics", "TG menu publish",
+            "TG menu system",
+        }
+        full_exceptions.update(menu_nodes)
+
+        cancel_exceptions = {
+            "TG start", "TG cancel", "TG ping", "TG status", "TG unknown"
+        }
+        # Informational one-off messages carry only the Menu navigation button.
+        only_menu = {
+            "TG help", "TG status", "TG ping", "TG reload", "TG mode",
+            "TG topics", "TG competitors", "TG accounts", "TG budget",
+            "TG clients", "TG creators", "TG creator", "TG creator content",
+            "TG audience", "TG transcript", "TG comments", "TG upload avatar",
+            "TG my avatars", "TG shorts", "TG publish type", "TG instruction",
+            "TG hint",
+        }
+        cancel_exceptions.update(only_menu)
+
+        # Expression-keyboard nodes: the Menu/Cancel buttons are produced
+        # by upstream Code nodes (AVV Build preview / AVV Preview sel / AVV Carousel next / AVV My avatars / AVV Select).
+        expression_keyboard_nodes = {
+            "TG avv ask avatar", "TG avv preview photo", "TG avv preview text",
+            "TG avv carousel", "TG avv my avatars", "TG avv selected"
+        }
+        full_exceptions.update(expression_keyboard_nodes)
+
+        # Delete-message nodes are service actions, not user-facing keyboards.
+        full_exceptions.update({
+            "TG avv delete next", "TG avv delete select", "TG avv delete my"
+        })
+
+        menu_re = re.compile(r"\bcmd:menu\b")
+        cancel_re = re.compile(r"\bcmd:cancel\b")
+
+        def callback_data_strings(keyboard):
+            """Yield callback_data values from a static or expression keyboard."""
+            if isinstance(keyboard, str):
+                yield keyboard
+                return
+            if not isinstance(keyboard, dict):
+                return
+            rows = keyboard.get("rows", [])
+            if isinstance(rows, str):
+                yield rows
+                return
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                row_data = row.get("row", {})
+                if not isinstance(row_data, dict):
+                    continue
+                for btn in row_data.get("buttons", []):
+                    if not isinstance(btn, dict):
+                        continue
+                    cb = (btn.get("additionalFields") or {}).get(
+                        "callback_data", ""
+                    )
+                    yield cb
+
+        violations = []
+        for n in self.wf["nodes"]:
+            if n["type"] != "n8n-nodes-base.telegram":
+                continue
+            name = n["name"]
+            params = n.get("parameters", {})
+            if name in full_exceptions:
+                continue
+
+            reply_markup = params.get("replyMarkup", "")
+            if reply_markup != "inlineKeyboard":
+                violations.append(
+                    f"{name}: replyMarkup is {reply_markup!r}, expected "
+                    f"'inlineKeyboard'"
+                )
+                continue
+
+            keyboard = params.get("inlineKeyboard", {})
+            callbacks = list(callback_data_strings(keyboard))
+            combined = " | ".join(callbacks)
+
+            if not menu_re.search(combined):
+                violations.append(f"{name}: missing cmd:menu button")
+            if name not in cancel_exceptions and not cancel_re.search(combined):
+                violations.append(f"{name}: missing cmd:cancel button")
+
+        if violations:
+            self.fail(
+                "Telegram button coverage violations:\n"
+                + "\n".join(f"  {i + 1}. {v}" for i, v in enumerate(violations))
+            )
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
