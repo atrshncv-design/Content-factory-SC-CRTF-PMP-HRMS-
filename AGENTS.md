@@ -21,13 +21,15 @@ Single-context: `CONTEXT.md` (глоссарий и инварианты) + `doc
 - Telegram-ноды: typeVersion telegram v1.2, switch v3.4; neverError — вложенный `options.response.response.neverError`; HTTP-ноды платных вызовов — typeVersion 4.5 + keypair-заголовки.
 
 <!-- autopilot:start -->
-# Контент-завод: доводка к сдаче
+# Контент-завод: карусель стоковых аватаров + аудит TG-кнопок
 
-Прогон навыком `/autopilot` (slug: release-readiness, 16.08.2026): полный аудит дыр, спека, таски, фиксы без траты платных API (scrapecreators/creatify).
+Прогон навыком `/autopilot` (slug: avatar-carousel, 17.08.2026): аудит кнопок во всех
+сообщениях wf-tg-bot + карусель 20 стоковых аватаров (editMessageMedia в одном сообщении).
+Предыдущий прогон — `.autopilot/release-readiness/` (16.08, доводка к сдаче).
 
 ## Как здесь работает Autopilot
 
-Сборка ведётся навыком `/autopilot`. Требования, спецификация и таски — в `.autopilot/release-readiness/`.
+Сборка ведётся навыком `/autopilot`. Требования, спецификация и таски — в `.autopilot/avatar-carousel/`.
 Прогресс — `.autopilot/dashboard.html`. Правило: требование из `manifest.md`
 может снять только пользователь.
 
