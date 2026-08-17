@@ -1,0 +1,162 @@
+[
+  {
+    "id": "0587591d-54cc-4d8d-867d-cc82de168f61",
+    "name": "Sam",
+    "gender": "m",
+    "age_label": "≈45",
+    "niche": "бизнес-эксперт, финансы",
+    "img": "https://cdn.creatify.ai/creator/0587591d-54cc-4d8d-867d-cc82de168f61/p.png"
+  },
+  {
+    "id": "fb40e95f-c907-45f9-a0ef-2d2ab981aa00",
+    "name": "Carmen",
+    "gender": "f",
+    "age_label": "≈35",
+    "niche": "ньюс-ведущая, СМИ",
+    "img": "https://cdn.creatify.ai/creator/fb40e95f-c907-45f9-a0ef-2d2ab981aa00/p_rs__0917.png"
+  },
+  {
+    "id": "9024d674-7747-41ae-84d5-1e31e8cf0dd3",
+    "name": "Carter",
+    "gender": "m",
+    "age_label": "≈24",
+    "niche": "товарка/ритейл",
+    "img": "https://cdn.creatify.ai/creator/9024d674-7747-41ae-84d5-1e31e8cf0dd3/p.png"
+  },
+  {
+    "id": "009f502d-3649-4624-a438-80b126f1fa30",
+    "name": "Camila",
+    "gender": "f",
+    "age_label": "≈25",
+    "niche": "товарка/ритейл, fashion",
+    "img": "https://cdn.creatify.ai/creator/009f502d-3649-4624-a438-80b126f1fa30/p_rs__0917.png"
+  },
+  {
+    "id": "bf384605-a98d-4bad-828a-f3fd8825f5f6",
+    "name": "Santiago",
+    "gender": "m",
+    "age_label": "≈35",
+    "niche": "ньюс-ведущий, СМИ",
+    "img": "https://cdn.creatify.ai/creator/bf384605-a98d-4bad-828a-f3fd8825f5f6/p.png"
+  },
+  {
+    "id": "e40f0f2f-c280-4a35-af40-54ffaee3c67b",
+    "name": "Priya",
+    "gender": "f",
+    "age_label": "≈28",
+    "niche": "бизнес-подкаст, IT/saas",
+    "img": "https://cdn.creatify.ai/creator/e40f0f2f-c280-4a35-af40-54ffaee3c67b/p_rs__0917.png"
+  },
+  {
+    "id": "0251876f-0da4-4c61-8320-8955d8be1f98",
+    "name": "Diego",
+    "gender": "m",
+    "age_label": "≈30",
+    "niche": "лайфстайл, дом и быт",
+    "img": "https://cdn.creatify.ai/creator/0251876f-0da4-4c61-8320-8955d8be1f98/p.png"
+  },
+  {
+    "id": "285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d",
+    "name": "Bianca",
+    "gender": "f",
+    "age_label": "≈30",
+    "niche": "бизнес-эксперт, офис",
+    "img": "https://cdn.creatify.ai/creator/285923a8-25b1-4ad1-a5ea-40ad8cbcaf9d/p.png"
+  },
+  {
+    "id": "85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9",
+    "name": "Quentin",
+    "gender": "m",
+    "age_label": "≈40",
+    "niche": "медицина, здоровье",
+    "img": "https://cdn.creatify.ai/creator/85ff68b3-2a6f-4e5c-9534-db0fbc18fdb9/p_rs__0917.png"
+  },
+  {
+    "id": "745fef08-8eee-4e3b-873d-c39b9791c4cd",
+    "name": "Sylvia",
+    "gender": "f",
+    "age_label": "≈30",
+    "niche": "медицина, здоровье",
+    "img": "https://cdn.creatify.ai/creator/745fef08-8eee-4e3b-873d-c39b9791c4cd/p_rs__0917.png"
+  },
+  {
+    "id": "7b9482cd-7717-4202-9fc0-69b9c635b785",
+    "name": "Aryan",
+    "gender": "m",
+    "age_label": "≈25",
+    "niche": "лайфстайл, авто",
+    "img": "https://cdn.creatify.ai/creator/7b9482cd-7717-4202-9fc0-69b9c635b785/p.png"
+  },
+  {
+    "id": "018a97ef-4fba-4a34-8097-5e60e6e36ffe",
+    "name": "Chloé",
+    "gender": "f",
+    "age_label": "≈25",
+    "niche": "бьюти, личный бренд",
+    "img": "https://cdn.creatify.ai/creator/018a97ef-4fba-4a34-8097-5e60e6e36ffe/p.png"
+  },
+  {
+    "id": "f8b1e966-f8df-4441-b426-66c0e61fb6cf",
+    "name": "Kaito",
+    "gender": "m",
+    "age_label": "≈55",
+    "niche": "фуд-лайфстайл, напитки",
+    "img": "https://cdn.creatify.ai/creator/f8b1e966-f8df-4441-b426-66c0e61fb6cf/p_rs__0917.png"
+  },
+  {
+    "id": "74686a1c-040c-4783-a2e2-a54367fbf998",
+    "name": "Olivia",
+    "gender": "f",
+    "age_label": "≈30",
+    "niche": "фуд-лайфстайл, рецепты",
+    "img": "https://cdn.creatify.ai/creator/74686a1c-040c-4783-a2e2-a54367fbf998/p.png"
+  },
+  {
+    "id": "a7a240e8-efbf-4ab5-a02d-0f367a810875",
+    "name": "Thomas",
+    "gender": "m",
+    "age_label": "≈65",
+    "niche": "бизнес-эксперт, образование 50+",
+    "img": "https://cdn.creatify.ai/creator/a7a240e8-efbf-4ab5-a02d-0f367a810875/p.png"
+  },
+  {
+    "id": "4352cd0c-3a01-4c2c-93b8-7fef7163d55d",
+    "name": "Celeste",
+    "gender": "f",
+    "age_label": "≈45",
+    "niche": "дом и быт, товары для дома",
+    "img": "https://cdn.creatify.ai/creator/4352cd0c-3a01-4c2c-93b8-7fef7163d55d/p.png"
+  },
+  {
+    "id": "5a711072-4cef-49de-b82c-282e4f1e5a7d",
+    "name": "Leo",
+    "gender": "m",
+    "age_label": "≈55",
+    "niche": "авто-обзоры, лайфстайл",
+    "img": "https://cdn.creatify.ai/media_file/2161659/8f0b29818f35c355a5f0bb39129d84d0.png"
+  },
+  {
+    "id": "6fdf53cb-ac28-4487-96d2-3eae073ece26",
+    "name": "Lily",
+    "gender": "f",
+    "age_label": "≈25",
+    "niche": "домашний лайфстайл",
+    "img": "https://cdn.creatify.ai/creator/6fdf53cb-ac28-4487-96d2-3eae073ece26/p.png"
+  },
+  {
+    "id": "fbfd8ea9-17be-4dc2-9be7-b604cf686169",
+    "name": "Peter",
+    "gender": "m",
+    "age_label": "≈65",
+    "niche": "спорт/гольф, лайфстайл 50+",
+    "img": "https://cdn.creatify.ai/creator/fbfd8ea9-17be-4dc2-9be7-b604cf686169/p.png"
+  },
+  {
+    "id": "8841a356-8b61-4d80-91d8-e05a65cfc812",
+    "name": "Leonora",
+    "gender": "f",
+    "age_label": "≈70",
+    "niche": "образование, наставница 50+",
+    "img": "https://cdn.creatify.ai/creator/8841a356-8b61-4d80-91d8-e05a65cfc812/p.png"
+  }
+]
